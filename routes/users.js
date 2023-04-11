@@ -51,16 +51,15 @@ router.post("/", async (req, res) => {
   });
 
 router.put("/:id" ,async (req, res) => {
-    const { rows} = await req.db.query(`
+    const { rows } = await req.db.query(`
 UPDATE Employees
 SET name = $1,
 email = $2,
 password = $3 ,
 education = $4,
-age = $5,isAdmin = $6
+age = $5,
+isAdmin = $6
 WHERE id = $7
-RETURNING *
-);
     `,
         [
             req.body.name,
@@ -75,9 +74,7 @@ RETURNING *
         // const { name, email, password,  education, age, isAdmin } = rows[0];
         // req.user = { name, email, password,  education, age, isAdmin };
         
-        //     res.status(200).send(req.user);
-    
-    res.send(rows[0]);
+        res.status(200).send("updated successfuly.");
 });
 
 
