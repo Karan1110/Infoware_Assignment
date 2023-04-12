@@ -65,17 +65,29 @@ LIMIT $1 OFFSET $2
     res.status(200).send(rows[0]);
 });
 
-router.post("/", auth,[auth,isAdmin],async (req, res) => {
+router.post("/", auth, [auth, isAdmin], async (req, res) => {
+
+    const {ifExists} = await req.db.query(`
+        SELECT IF EXISTS (SELECT * FROM Employees WHERE name  = $1,email = $2,phone = $3)
+  `, [
+        req.body.name,
+        req.body.email,
+        req.body.phone
+    ]);
+
+    if (ifExists[0]) return res.status(400).send("User already exists.");
+
     const salt = await bcrypt.genSalt(10);
     const p = await bcrypt.hash(req.body.password, salt);
 
     const {rows} = await req.db.query(`
-        INSERT INTO Employees(name, email, password,education, age, isAdmin)
-        VALUES ($1, $2, $3, $4, $5, $6)
+        INSERT INTO Employees(name, email,phone, password,education, age, isAdmin)
+        VALUES ($1, $2, $3, $4, $5, $6,$7)
         RETURNING *
   `, [
         req.body.name,
         req.body.email,
+        req.body.phone,
         p,
         req.body.education,
         req.body.age,
@@ -93,14 +105,16 @@ router.put("/:id" ,auth,[auth,isAdmin],async (req, res) => {
 UPDATE Employees
 SET name = $1,
 email = $2,
-education = $3,
-age = $4,
-WHERE id = $5
+phone = $3
+education = $4,
+age = $5,
+WHERE id = $6
 RETURNING *
     `,
         [
             req.body.name,
             req.body.email,
+            req.body.phone,
             req.body.education,
             req.body.age,
             req.params.id

@@ -18,13 +18,15 @@ client
     winston.error(ex)
   });
 
-async function germinate() {
+// Self calling function:
+(async function germinate() {
   await client.query(
     `
     CREATE TABLE Employees(
       id SERIAL PRIMARY KEY,
       name  VARCHAR(55) NOT NULL UNIQUE,
       email  VARCHAR(75) NOT NULL UNIQUE,
+      phone SMALLINT UNIQUE,
       password VARCHAR(255)  NOT NULL,
       education VARCHAR(75),
       age SMALLINT,
@@ -79,15 +81,4 @@ async function germinate() {
     `,
     []
   )
-}
-
-germinate();
-  
-  async function destroy() {
-    await client.query(
-    `
-    DROP TABLE  Departments, Performance, Statuses, Benefits, Skills, Experience, Levels, Employees;
-  `,
-      []
-    )
-}
+})()
