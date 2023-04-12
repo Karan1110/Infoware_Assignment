@@ -10,13 +10,13 @@ router.get("/me",[auth,isAdmin],async (req, res) => {
     const { rows } = await req.db.query(`
     SELECT *
     FROM Employees e
-    JOIN Performances p ON e.id = Performances.id
+    JOIN Performances p ON p.employee_id = e.id 
     JOIN Statuses s ON p.status_id = s.id
     JOIN Benefits b ON b.employee_id = e.id
     JOIN Departments d ON d.employee_id = e.id
     JOIN Experiences ex ON ex.employee_id = e.id
-    JOIN Skills sk ON s.employee_id = e.id
-    JOIN Levels l ON l.id = sk.id
+    JOIN Skills sk ON sk.employee_id = e.id
+    JOIN Levels l ON l.id = sk.level_id
     WHERE id = $1
     `,
         [
@@ -28,15 +28,15 @@ router.get("/me",[auth,isAdmin],async (req, res) => {
 router.get("/:id" ,[auth,isAdmin],async (req, res) => {
    const {rows} =  await req.db.query(`
    SELECT *
-   FROM Employees e
-   JOIN Performances p ON e.id = Performances.id
-   JOIN Statuses s ON p.status_id = s.id
-   JOIN Benefits b ON b.employee_id = e.id
-   JOIN Departments d ON d.employee_id = e.id
-   JOIN Experiences ex ON ex.employee_id = e.id
-   JOIN Skills sk ON s.employee_id = e.id
-   JOIN Levels l ON l.id = sk.level_id
-   WHERE id = $1
+    FROM Employees e
+    JOIN Performances p ON p.employee_id = e.id 
+    JOIN Statuses s ON p.status_id = s.id
+    JOIN Benefits b ON b.employee_id = e.id
+    JOIN Departments d ON d.employee_id = e.id
+    JOIN Experiences ex ON ex.employee_id = e.id
+    JOIN Skills sk ON sk.employee_id = e.id
+    JOIN Levels l ON l.id = sk.level_id
+    WHERE id = $1
     `,
         [
             req.params.id
@@ -47,21 +47,22 @@ router.get("/:id" ,[auth,isAdmin],async (req, res) => {
 router.get("/",  [auth,isAdmin],async (req, res) => {
    const {rows} =  await req.db.query(`
    SELECT *
-   FROM Employees e
-   LIMIT $1 OFFSET $2
-   JOIN Performances p ON e.id = Performances.id
-   JOIN Statuses s ON p.status_id = s.id
-   JOIN Benefits b ON b.employee_id = e.id
-   JOIN Departments d ON d.employee_id = e.id
-   JOIN Experiences ex ON ex.employee_id = e.id
-   JOIN Skills sk ON s.employee_id = e.id
-   JOIN Levels l ON l.id = sk.id
+FROM Employees e
+JOIN Performances p ON p.employee_id = e.id 
+JOIN Statuses s ON p.status_id = s.id
+JOIN Benefits b ON b.employee_id = e.id
+JOIN Departments d ON d.employee_id = e.id
+JOIN Experiences ex ON ex.employee_id = e.id
+JOIN Skills sk ON sk.employee_id = e.id
+JOIN Levels l ON l.id = sk.level_id
+LIMIT $1 OFFSET $2
+
     `,
         [
             req.query.l,
             req.query.s
         ]);
-    res.status(200).send(rows);
+    res.status(200).send(rows[0]);
 });
 
 router.post("/", auth,[auth,isAdmin],async (req, res) => {

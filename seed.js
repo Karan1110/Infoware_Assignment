@@ -84,7 +84,7 @@ client
 
 // IIFE function, not recommend
 
-async function seed() {
+async function germinate() {
   await client.query(
     `
     CREATE TABLE Employees(
@@ -147,7 +147,7 @@ async function seed() {
   )
 }
 
-seed();
+germinate();
   
   async function destroy() {
     await client.query(
