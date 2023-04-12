@@ -2,7 +2,9 @@ const express = require("express");
 const router = express.Router();
 const auth = require("../middlewares/auth");
 
-router.post("/", async (req, res) => {
+const isAdmin = require("../middlewares/isAdmin");
+
+router.post("/", [auth,isAdmin],async (req, res) => {
 
     const {rows} = await req.db.query(`
         INSERT INTO Benefits(employee_id,name,package)
@@ -17,7 +19,7 @@ router.post("/", async (req, res) => {
       res.status(200).send(rows[0]);
   });
 
-router.put("/:id" ,async (req, res) => {
+router.put("/:id" ,[auth,isAdmin],async (req, res) => {
     const { rows } = await req.db.query(`
 UPDATE Benefits
 SET employee_id = $1,
@@ -38,7 +40,7 @@ RETURNING *
 });
 
 
-router.delete("/:id" ,async (req, res) => {
+router.delete("/:id" ,[auth,isAdmin],async (req, res) => {
     await req.db.query(`
 DELETE FROM Benefits
 WHERE id = $1;

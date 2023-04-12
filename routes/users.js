@@ -3,8 +3,9 @@ const router = express.Router();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const auth = require("../middlewares/auth");
+const isAdmin = require("../middlewares/isAdmin");
 
-router.get("/me", auth, async (req, res) => {
+router.get("/me",[auth],async (req, res) => {
     const id = req.user.id;
     const { rows } = await req.db.query(`
     SELECT *
@@ -24,7 +25,7 @@ router.get("/me", auth, async (req, res) => {
         res.status(200).send(rows);
     });
 
-router.get("/:id" ,async (req, res) => {
+router.get("/:id" ,[auth],async (req, res) => {
    const {rows} =  await req.db.query(`
    SELECT *
    FROM Employees e
@@ -34,7 +35,7 @@ router.get("/:id" ,async (req, res) => {
    JOIN Departments d ON d.employee_id = e.id
    JOIN Experiences ex ON ex.employee_id = e.id
    JOIN Skills sk ON s.employee_id = e.id
-   JOIN Levels l ON l.id = sk.id
+   JOIN Levels l ON l.id = sk.level_id
    WHERE id = $1
     `,
         [
@@ -43,7 +44,7 @@ router.get("/:id" ,async (req, res) => {
     res.status(200).send(rows);
 });
 
-router.get("/",  async (req, res) => {
+router.get("/",  [auth],async (req, res) => {
    const {rows} =  await req.db.query(`
    SELECT *
    FROM Employees e
@@ -63,7 +64,7 @@ router.get("/",  async (req, res) => {
     res.status(200).send(rows);
 });
 
-router.post("/", auth,async (req, res) => {
+router.post("/", auth,[auth],async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const p = await bcrypt.hash(req.body.password, salt);
 
@@ -86,7 +87,7 @@ router.post("/", auth,async (req, res) => {
       res.status(200).send(req.user);
   });
 
-router.put("/:id" ,auth,async (req, res) => {
+router.put("/:id" ,auth,[auth],async (req, res) => {
     const { rows } = await req.db.query(`
 UPDATE Employees
 SET name = $1,
@@ -114,7 +115,7 @@ RETURNING *
 });
 
 
-router.delete("/:id" , auth,async (req, res) => {
+router.delete("/:id" , auth,[auth],async (req, res) => {
     await req.db.query(`
 DELETE FROM Employees
 WHERE id = $1;

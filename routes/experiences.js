@@ -1,7 +1,10 @@
 const express = require("express");
 const router = express.Router();
+const auth = require("../middlewares/auth");
+const isAdmin = require("../middlewares/isAdmin");
 
-router.post("/", async (req, res) => {
+
+router.post("/", [auth,isAdmin],async (req, res) => {
 
     const {rows} = await req.db.query(`
         INSERT INTO Experiences(employee_id,company,"From","To")
@@ -21,7 +24,7 @@ router.post("/", async (req, res) => {
       res.status(200).send(req.user);
   });
 
-router.put("/:id" ,async (req, res) => {
+router.put("/:id" ,[auth,isAdmin],async (req, res) => {
     const { rows } = await req.db.query(`
 UPDATE Departments
 SET employee_id = $1,
@@ -41,11 +44,11 @@ RETURNING *
     
     res
         .status(200)
-        .send(req.user);
+        .send(rows[0]);
 });
 
 
-router.delete("/:id" ,async (req, res) => {
+router.delete("/:id" ,[auth,isAdmin],async (req, res) => {
     await req.db.query(`
 DELETE FROM Experiences
 WHERE id = $1;
