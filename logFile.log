@@ -148,3 +148,5 @@
 {"message":"Cannot destructure property 'name' of 'rows[0]' as it is undefined.","stack":"TypeError: Cannot destructure property 'name' of 'rows[0]' as it is undefined.\n    at C:\\Users\\Acer\\Desktop\\infoware_Assignment\\routes\\users.js:74:17\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)","level":"error","timestamp":"2023-04-11T17:26:36.460Z"}
 {"level":"info","message":"Listening on  http://localhost:3001","timestamp":"2023-04-11T17:27:15.751Z"}
 {"level":"info","message":"Connected to DB","timestamp":"2023-04-11T17:27:18.053Z"}
+{"level":"info","message":"Listening on  http://localhost:3001","timestamp":"2023-04-12T09:27:45.862Z"}
+{"level":"info","message":"Connected to DB","timestamp":"2023-04-12T09:27:48.962Z"}

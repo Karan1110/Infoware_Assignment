@@ -1,6 +1,7 @@
 const express = require("express");
 const users = require("../routes/users");
 const benefits = require("../routes/benefits");
+const performances = require("../routes/performances");
 const departments = require("../routes/departments");
 const experiences = require("../routes/experiences");
 const statuses = require("../routes/statuses");
@@ -23,4 +24,3 @@ module.exports = function (app) {
     app.use("/statuses", statuses);
     app.use(error);
 }
-

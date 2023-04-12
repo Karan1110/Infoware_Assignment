@@ -20,4 +20,3 @@ Features of this API:
 5. using the asynchronous nature of Express to efficiently manage the middleware pipeline.
 
 6. structuring the API using seed.js to destroy(DROP) and germinate function to create tables with validatinons.
-
