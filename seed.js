@@ -18,6 +18,10 @@ client
     winston.error(ex)
   })
 
+  `
+  DROP TABLE IF EXISTS Departments, Performances, Statuses, Benefits, Skills, Experiences, Levels, Employees;
+
+`
 async function seed() {
   await client.query(
     `

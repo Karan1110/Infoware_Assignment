@@ -4,13 +4,13 @@ const router = express.Router();
 router.post("/", async (req, res) => {
 
     const {rows} = await req.db.query(`
-        INSERT INTO Benefits(employee_id,name,package)
-        VALUES ($1, $2,$3)
+        INSERT INTO Benefits(employee_id,status_id)
+        VALUES ($1, $2)
 
         RETURNING *
   `, [
         req.body.employee_id,
-        req.body.name
+        req.body.status_id
       ]);
       
       res.status(200).send(rows[0]);
@@ -18,17 +18,15 @@ router.post("/", async (req, res) => {
 
 router.put("/:id" ,async (req, res) => {
     const { rows } = await req.db.query(`
-UPDATE Benefits
+UPDATE Performances
 SET employee_id = $1,
-name = $2,
-package = $3
+status_id = $2
 
 RETURNING *
     `,
         [
         req.body.employee_id,
-            req.body.name,
-        req.body.package
+            req.body.status_id
         ]);
     
     res
@@ -39,7 +37,7 @@ RETURNING *
 
 router.delete("/:id" ,async (req, res) => {
     await req.db.query(`
-DELETE FROM Benefits
+DELETE FROM Performances
 WHERE id = $1;
     `,
         [
