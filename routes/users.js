@@ -2,28 +2,40 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const auth = require("../middlewares/auth");
 
-router.get("/" ,async (req, res) => {
+router.get("/me", auth, async (req, res) => {
+    const id = req.user.id;
     const { rows } = await req.db.query(`
     SELECT *
-    FROM Employees e1
-    JOIN Performances ON e1.id = Performances.employee_id 
-    JOIN Statuses ON Performances.status_id = Statuses.id
-    JOIN Departments ON Departments.employee_id = e1.id
-    JOIN Experience ON Experience.employee_id = e1.id
-    JOIN Skills ON Skills.employee_id = e1.id
-    JOIN Levels ON Levels.employee_id = Skills.employee_id AND Levels.id = Skills.level_id
-    JOIN Benefits ON Benefits.employee_id = e1.id
-    WHERE e1.id = 1;
-    
+    FROM Employees e
+    JOIN Performances p ON e.id = Performances.id
+    JOIN Statuses s ON p.status_id = s.id
+    JOIN Benefits b ON b.employee_id = e.id
+    JOIN Departments d ON d.employee_id = e.id
+    JOIN Experiences ex ON ex.employee_id = e.id
+    JOIN Skills sk ON s.employee_id = e.id
+    JOIN Levels l ON l.id = sk.id
+    WHERE id = $1
     `,
-        []);
+        [
+            id
+        ]);
         res.status(200).send(rows);
     });
 
 router.get("/:id" ,async (req, res) => {
    const {rows} =  await req.db.query(`
-SELECT * FROM Employees WHERE id = $1
+   SELECT *
+   FROM Employees e
+   JOIN Performances p ON e.id = Performances.id
+   JOIN Statuses s ON p.status_id = s.id
+   JOIN Benefits b ON b.employee_id = e.id
+   JOIN Departments d ON d.employee_id = e.id
+   JOIN Experiences ex ON ex.employee_id = e.id
+   JOIN Skills sk ON s.employee_id = e.id
+   JOIN Levels l ON l.id = sk.id
+   WHERE id = $1
     `,
         [
             req.params.id
@@ -33,7 +45,16 @@ SELECT * FROM Employees WHERE id = $1
 
 router.get("/",  async (req, res) => {
    const {rows} =  await req.db.query(`
-SELECT * FROM Employees LIMIT $1 OFFSET $2
+   SELECT *
+   FROM Employees e
+   LIMIT $1 OFFSET $2
+   JOIN Performances p ON e.id = Performances.id
+   JOIN Statuses s ON p.status_id = s.id
+   JOIN Benefits b ON b.employee_id = e.id
+   JOIN Departments d ON d.employee_id = e.id
+   JOIN Experiences ex ON ex.employee_id = e.id
+   JOIN Skills sk ON s.employee_id = e.id
+   JOIN Levels l ON l.id = sk.id
     `,
         [
             req.query.l,
@@ -42,7 +63,7 @@ SELECT * FROM Employees LIMIT $1 OFFSET $2
     res.status(200).send(rows);
 });
 
-router.post("/", async (req, res) => {
+router.post("/", auth,async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const p = await bcrypt.hash(req.body.password, salt);
 
@@ -65,7 +86,7 @@ router.post("/", async (req, res) => {
       res.status(200).send(req.user);
   });
 
-router.put("/:id" ,async (req, res) => {
+router.put("/:id" ,auth,async (req, res) => {
     const { rows } = await req.db.query(`
 UPDATE Employees
 SET name = $1,
@@ -93,13 +114,13 @@ RETURNING *
 });
 
 
-router.delete("/:id" ,async (req, res) => {
+router.delete("/:id" , auth,async (req, res) => {
     await req.db.query(`
 DELETE FROM Employees
 WHERE id = $1;
     `,
         [
-            req.params.id
+            req.user.id
         ]);
     
     res.status(200).send("Deleted successfully");

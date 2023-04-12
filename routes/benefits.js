@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const auth = require("../middlewares/auth");
 
 router.post("/", async (req, res) => {
 
@@ -9,7 +10,7 @@ router.post("/", async (req, res) => {
 
         RETURNING *
   `, [
-        req.body.employee_id,
+        req.user.id,
         req.body.name
       ]);
       
@@ -26,7 +27,7 @@ package = $3
 RETURNING *
     `,
         [
-        req.body.employee_id,
+        req.user.id,
             req.body.name,
         req.body.package
         ]);

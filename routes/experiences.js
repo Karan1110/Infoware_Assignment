@@ -32,7 +32,7 @@ company = $1,
 RETURNING *
     `,
         [
-        req.body.employee_id,
+        req.user.id,
             req.body.company,
             req.body.from,
         req.body.to

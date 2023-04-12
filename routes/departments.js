@@ -27,7 +27,7 @@ name = $1
 RETURNING *
     `,
         [
-            req.body.employee_id,
+            req.user.id,
             req.body.postition
         ]);
     res

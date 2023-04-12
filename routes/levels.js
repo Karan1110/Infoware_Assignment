@@ -9,7 +9,7 @@ router.post("/", async (req, res) => {
 
         RETURNING *
   `, [
-        req.body.employee_id,
+    req.user.id,,
         req.body.name
       ]);
       
@@ -25,7 +25,7 @@ name = $1
 RETURNING *
     `,
         [
-        req.body.employee_id,
+            req.user.id,
         req.body.name
          
         ]);
