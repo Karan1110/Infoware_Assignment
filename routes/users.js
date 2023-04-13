@@ -7,28 +7,32 @@ const isAdmin = require("../middlewares/isAdmin");
 
 router.get("/me",[auth,isAdmin],async (req, res) => {
     const id = req.user.id;
-    const { rows } = await req.db.query(`
-    SELECT *
-    FROM Employees e
-    JOIN Performances p ON p.employee_id = e.id 
-    JOIN Statuses s ON p.status_id = s.id
-    JOIN Benefits b ON b.employee_id = e.id
-    JOIN Departments d ON d.employee_id = e.id
-    JOIN Experiences ex ON ex.employee_id = e.id
-    JOIN Skills sk ON sk.employee_id = e.id
-    JOIN Levels l ON l.id = sk.level_id
-    WHERE id = $1
-    `,
+
+    const { rows } = await req.db.query(
+        `
+        SELECT *
+        FROM Employees e
+        JOIN Performances p ON p.employee_id = e.id 
+        JOIN Statuses s ON p.status_id = s.id
+        JOIN Benefits b ON b.employee_id = e.id
+        JOIN Departments d ON d.employee_id = e.id
+        JOIN Experiences ex ON ex.employee_id = e.id
+        JOIN Skills sk ON sk.employee_id = e.id
+        JOIN Levels l ON l.id = sk.level_id
+        WHERE e.id = $1
+        `
+        ,
         [
             id
         ]);
-        res.status(200).send(rows);
-    });
+        res.status(200).send([rows[0]]);
+});
 
-router.get("/:id" ,[auth,isAdmin],async (req, res) => {
-   const {rows} =  await req.db.query(`
-   SELECT *
-    FROM Employees e
+router.get("/:id", [auth, isAdmin], async (req, res) => {
+    
+    const { rows } = await req.db.query(`
+   
+   SELECT * FROM Employees e
     JOIN Performances p ON p.employee_id = e.id 
     JOIN Statuses s ON p.status_id = s.id
     JOIN Benefits b ON b.employee_id = e.id
@@ -36,12 +40,13 @@ router.get("/:id" ,[auth,isAdmin],async (req, res) => {
     JOIN Experiences ex ON ex.employee_id = e.id
     JOIN Skills sk ON sk.employee_id = e.id
     JOIN Levels l ON l.id = sk.level_id
-    WHERE id = $1
+    WHERE e.id = $1
+
     `,
         [
             req.params.id
         ]);
-    res.status(200).send(rows);
+    res.status(200).send(rows[0]);
 });
 
 router.get("/",  [auth,isAdmin],async (req, res) => {
@@ -56,7 +61,6 @@ JOIN Experiences ex ON ex.employee_id = e.id
 JOIN Skills sk ON sk.employee_id = e.id
 JOIN Levels l ON l.id = sk.level_id
 LIMIT $1 OFFSET $2
-
     `,
         [
             req.query.l,
@@ -97,9 +101,8 @@ router.post("/",  async (req, res) => {
       
       const { id,name, email, education, age, isAdmin } = rows[0];
     req.user = { id: id, isAdmin: isAdmin };
-    
-    // const token = jwt.sign({ id: id, isAdmin: isAdmin }, config.get("jwtPrivateKey"));
-    const token = jwt.sign({ id: id, isAdmin: isAdmin }, "jwtPrivateKey");
+
+    const token = jwt.sign({ id: id, isAdmin: isAdmin }, process.env.jwtPrivateKey);
       
       res.status(200).send(token);
   });
