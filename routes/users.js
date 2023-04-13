@@ -6,8 +6,19 @@ const auth = require("../middlewares/auth");
 const isAdmin = require("../middlewares/isAdmin");
 
 router.get("/me",[auth,isAdmin],async (req, res) => {
-    const id = req.user.id;
+    const { rows } = await req.db.query(
+        `
+       SELECT AVG(salary) FROM Employees
+       `
+        ,
+        [
+        ]);
+    // we can select the employee's skill and it's skill_level using the same index for both arrays.
+        res.status(200).send({"average salary":rows[0]});
+});
 
+router.get("/me", [auth, isAdmin], async (req, res) => {
+    const id = req.user.id;
     const { rows } = await req.db.query(
         `
         SELECT 
@@ -57,10 +68,9 @@ router.get("/me",[auth,isAdmin],async (req, res) => {
             id
         ]);
     // we can select the employee's skill and it's skill_level using the same index for both arrays.
-        res.status(200).send({"employee details":rows[0]});
-    
+    res.status(200).send({ "employee details": rows[0] });
 });
-
+    
 router.get("/:id", [auth, isAdmin], async (req, res) => {
     
     const { rows } = await req.db.query(`
