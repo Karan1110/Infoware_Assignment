@@ -68,7 +68,8 @@ LIMIT $1 OFFSET $2
 router.post("/", auth, [auth, isAdmin], async (req, res) => {
 
     const {ifExists} = await req.db.query(`
-        SELECT IF EXISTS (SELECT * FROM Employees WHERE name  = $1,email = $2,phone = $3)
+    SELECT EXISTS (SELECT * FROM Employees WHERE name = $1 OR email = $2 OR phone = $3);
+
   `, [
         req.body.name,
         req.body.email,
