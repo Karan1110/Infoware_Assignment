@@ -102,7 +102,7 @@ router.post("/",  async (req, res) => {
       const { id,name, email, education, age, isAdmin } = rows[0];
     req.user = { id: id, isAdmin: isAdmin };
 
-    const token = jwt.sign({ id: id, isAdmin: isAdmin }, process.env.jwtPrivateKey);
+    const token = jwt.sign({ id: id, isAdmin: isAdmin }, config.get("jwtPrivateKey"));
       
       res.status(200).send(token);
   });

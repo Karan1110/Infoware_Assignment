@@ -244,3 +244,5 @@
 {"level":"info","message":"Connected to DB","timestamp":"2023-04-13T07:32:08.991Z"}
 {"level":"info","message":"Listening on  http://localhost:3001","timestamp":"2023-04-13T07:43:22.822Z"}
 {"level":"info","message":"Connected to DB","timestamp":"2023-04-13T07:43:25.178Z"}
+{"level":"info","message":"Listening on  http://localhost:3001","timestamp":"2023-04-13T07:49:17.531Z"}
+{"level":"info","message":"Connected to DB","timestamp":"2023-04-13T07:49:19.989Z"}
