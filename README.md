@@ -1,7 +1,7 @@
 # Infoware_Assignment
 
-# employees_manager_api
-A Backend system for handling the employees of the organisation for the Admin.
+# employees_managing_api
+A Backend system for handling the employees of the organisation for the Admin of the company maintain the employee details.
 ## Technologies used
 
 Node.js,Express,pg,brcypt,jwt,winston and express-async errors
@@ -39,6 +39,9 @@ node index
 5. using the asynchronous nature of Express to efficiently manage the middleware pipeline.
 
 6. structuring the API using seed.js to destroy(DROP) and germinate function to create tables with validatinons.
+
+7. use of config module to effciently manage secret strings or keys.
+
 ```
 
 
