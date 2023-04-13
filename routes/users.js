@@ -54,7 +54,8 @@ router.get("/me",[auth,isAdmin],async (req, res) => {
         [
             id
         ]);
-        res.status(200).send([rows[0]]);
+    // we can select the employee's skill and it's skill_level using the same index for both arrays.
+        res.status(200).send({"employee details":rows[0]});
 });
 
 router.get("/:id", [auth, isAdmin], async (req, res) => {
