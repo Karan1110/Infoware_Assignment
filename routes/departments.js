@@ -12,7 +12,7 @@ router.post("/", [auth,isAdmin],async (req, res) => {
   `, [
         req.user.id,
       req.body.name,
-      req.body.postition
+      req.body.position
       ]);
     
       res.status(200).send(rows[0]);
@@ -22,12 +22,14 @@ router.put("/:id" ,[auth,isAdmin],async (req, res) => {
     const { rows } = await req.db.query(`
 UPDATE Departments
 SET employee_id = $1,
-name = $1
+name = $2,
+position = $3
 
 RETURNING *
     `,
         [
             req.user.id,
+            req.body.name,
             req.body.postition
         ]);
     res

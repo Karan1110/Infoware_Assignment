@@ -19,11 +19,11 @@ router.get("/me",[auth,isAdmin],async (req, res) => {
         e.education,
         e.age,
         e.isadmin,
-        s.name AS status_name,
-        p.employee_id,
+        s.name AS performance_status,
+        d.name AS department,
+        d.position AS position,
         array_agg(sk.name) AS skills,
         array_agg(l.name) as skill_level,
-        d.position,
         ex.company,
         b.package
       FROM Employees e
@@ -45,10 +45,10 @@ router.get("/me",[auth,isAdmin],async (req, res) => {
       e.isadmin, 
       s.name,
       p.employee_id, 
+      d.name,
       d.position, 
       ex.company, 
       b.package;
-
        `
         ,
         [
@@ -56,49 +56,51 @@ router.get("/me",[auth,isAdmin],async (req, res) => {
         ]);
     // we can select the employee's skill and it's skill_level using the same index for both arrays.
         res.status(200).send({"employee details":rows[0]});
+    
 });
 
 router.get("/:id", [auth, isAdmin], async (req, res) => {
     
     const { rows } = await req.db.query(`
-   
-    e.id,
-    e.name,
-    e.email,
-    e.phone,
-    e.password,
-    e.education,
-    e.age,
-    e.isadmin,
-    s.name AS status_name,
-    p.employee_id,
-    array_agg(sk.name) AS skills,
-    array_agg(l.name) as skill_level,
-    d.position,
-    ex.company,
-    b.package
-  FROM Employees e
-  JOIN Performances p ON p.employee_id = e.id 
-  JOIN Statuses s ON p.status_id = s.id
-  JOIN Benefits b ON b.employee_id = e.id
-  JOIN Departments d ON d.employee_id = e.id
-  JOIN Experiences ex ON ex.employee_id = e.id
-  JOIN Skills sk ON sk.employee_id = e.id
-  JOIN Levels l ON sk.level_id = l.id
-  WHERE e.id = $1
-  GROUP BY e.id,
-  e.name, 
-  e.email, 
-  e.phone,
-  e.password, 
-  e.education, 
-  e.age, 
-  e.isadmin, 
-  s.name,
-  p.employee_id, 
-  d.position, 
-  ex.company, 
-  b.package;
+    SELECT 
+        e.id,
+        e.name,
+        e.email,
+        e.phone,
+        e.password,
+        e.education,
+        e.age,
+        e.isadmin,
+        s.name AS performance_status,
+        d.name AS department,
+        d.position AS position,
+        array_agg(sk.name) AS skills,
+        array_agg(l.name) as skill_level,
+        ex.company,
+        b.package
+      FROM Employees e
+      JOIN Performances p ON p.employee_id = e.id 
+      JOIN Statuses s ON p.status_id = s.id
+      JOIN Benefits b ON b.employee_id = e.id
+      JOIN Departments d ON d.employee_id = e.id
+      JOIN Experiences ex ON ex.employee_id = e.id
+      JOIN Skills sk ON sk.employee_id = e.id
+      JOIN Levels l ON sk.level_id = l.id
+      WHERE e.id = $1
+      GROUP BY e.id,
+      e.name, 
+      e.email, 
+      e.phone,
+      e.password, 
+      e.education, 
+      e.age, 
+      e.isadmin, 
+      s.name,
+      p.employee_id, 
+      d.name,
+      d.position, 
+      ex.company, 
+      b.package;
     `,
         [
             req.params.id
@@ -108,7 +110,7 @@ router.get("/:id", [auth, isAdmin], async (req, res) => {
 
 router.get("/",  [auth,isAdmin],async (req, res) => {
    const {rows} =  await req.db.query(`
-   SELECT  
+   SELECT 
    e.id,
    e.name,
    e.email,
@@ -117,14 +119,16 @@ router.get("/",  [auth,isAdmin],async (req, res) => {
    e.education,
    e.age,
    e.isadmin,
-   s.name AS status_name,
-   p.employee_id,
+   s.name AS performance_status,
+   d.name AS department,
+   d.position AS position,
    array_agg(sk.name) AS skills,
    array_agg(l.name) as skill_level,
-   d.position,
    ex.company,
    b.package
+   
  FROM Employees e
+
  JOIN Performances p ON p.employee_id = e.id 
  JOIN Statuses s ON p.status_id = s.id
  JOIN Benefits b ON b.employee_id = e.id
@@ -132,7 +136,7 @@ router.get("/",  [auth,isAdmin],async (req, res) => {
  JOIN Experiences ex ON ex.employee_id = e.id
  JOIN Skills sk ON sk.employee_id = e.id
  JOIN Levels l ON sk.level_id = l.id
- WHERE e.id = $1
+
  GROUP BY e.id,
  e.name, 
  e.email, 
@@ -143,6 +147,7 @@ router.get("/",  [auth,isAdmin],async (req, res) => {
  e.isadmin, 
  s.name,
  p.employee_id, 
+ d.name,
  d.position, 
  ex.company, 
  b.package;
@@ -232,6 +237,7 @@ WHERE id = $1;
     
     res.status(200).send("Deleted successfully");
 });
+
 
 
 module.exports = router;
