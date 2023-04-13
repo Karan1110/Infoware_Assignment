@@ -21,7 +21,7 @@ client
 (async function destroy() {
     await client.query(
         `
-    DROP TABLE  Departments, Performance, Statuses, Benefits, Skills, Experience, Levels, Employees;
+    DROP TABLE  Departments, Performances, Statuses, Benefits, Skills, Experiences, Levels, Employees;
   `,
         []
     )

@@ -65,18 +65,18 @@ LIMIT $1 OFFSET $2
     res.status(200).send(rows[0]);
 });
 
-router.post("/", auth, [auth, isAdmin], async (req, res) => {
+router.post("/",  async (req, res) => {
 
-    const {ifExists} = await req.db.query(`
+    const { ifExists } = await req.db.query(
+        `
     SELECT EXISTS (SELECT * FROM Employees WHERE name = $1 OR email = $2 OR phone = $3);
-
   `, [
         req.body.name,
         req.body.email,
         req.body.phone
     ]);
 
-    if (ifExists[0]) return res.status(400).send("User already exists.");
+    if (ifExists) return res.status(400).send("User already exists.");
 
     const salt = await bcrypt.genSalt(10);
     const p = await bcrypt.hash(req.body.password, salt);
@@ -95,10 +95,13 @@ router.post("/", auth, [auth, isAdmin], async (req, res) => {
         req.body.isAdmin
       ]);
       
-      const { name, email, password,  education, age, isAdmin } = rows[0];
-      req.user = { name, email, password,  education, age, isAdmin };
+      const { id,name, email, education, age, isAdmin } = rows[0];
+    req.user = { id: id, isAdmin: isAdmin };
+    
+    // const token = jwt.sign({ id: id, isAdmin: isAdmin }, config.get("jwtPrivateKey"));
+    const token = jwt.sign({ id: id, isAdmin: isAdmin }, "jwtPrivateKey");
       
-      res.status(200).send(req.user);
+      res.status(200).send(token);
   });
 
 router.put("/:id" ,auth,[auth,isAdmin],async (req, res) => {
@@ -122,16 +125,14 @@ RETURNING *
         ]);
     
         const {id, name, email,education, age,isAdmin} = rows[0];
-        req.user = { id:id,isAdmin:isAdmin };
-    const token = jwt.sign({ id: id, isAdmin: isAdmin }, config.get("jwtPrivateKey"));
     res
         .header("x-auth-token",token)
         .status(200)
-        .send(req.user);
+        .send({id, name, email,education, age,isAdmin});
 });
 
 
-router.delete("/:id" , auth,[auth,isAdmin],async (req, res) => {
+router.delete("/:id" , auth,async (req, res) => {
     await req.db.query(`
 DELETE FROM Employees
 WHERE id = $1;
