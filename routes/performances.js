@@ -6,7 +6,7 @@ const isAdmin = require("../middlewares/isAdmin");
 router.post("/", [auth,isAdmin],async (req, res) => {
 
     const {rows} = await req.db.query(`
-        INSERT INTO Benefits(employee_id,status_id)
+        INSERT INTO Performances(employee_id,status_id)
         VALUES ($1, $2)
 
         RETURNING *

@@ -13,7 +13,8 @@ router.post("/", [auth,isAdmin],async (req, res) => {
         RETURNING *
   `, [
         req.user.id,
-        req.body.name
+        req.body.name,
+        req.body.package
       ]);
       
       res.status(200).send(rows[0]);

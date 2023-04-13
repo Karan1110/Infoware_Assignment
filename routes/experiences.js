@@ -18,10 +18,8 @@ router.post("/", [auth,isAdmin],async (req, res) => {
     req.body.to
       ]);
       
-      const { name, email, password,  education, age, isAdmin } = rows[0];
-      req.user = { name, email, password,  education, age, isAdmin };
       
-      res.status(200).send(req.user);
+      res.status(200).send(rows[0]);
   });
 
 router.put("/:id" ,[auth,isAdmin],async (req, res) => {

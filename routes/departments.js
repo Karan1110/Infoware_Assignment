@@ -1,23 +1,21 @@
 const express = require("express");
 const router = express.Router();
 const isAdmin = require("../middlewares/isAdmin");
-const auth = require("../middlewares/isAdmin");
+const auth = require("../middlewares/auth");
 
 router.post("/", [auth,isAdmin],async (req, res) => {
 
     const {rows} = await req.db.query(`
-        INSERT INTO Departments(employee_id,position)
-        VALUES ($1, $2)
+        INSERT INTO Departments(employee_id,name,position)
+        VALUES ($1, $2,$3)
         RETURNING *
   `, [
-        req.body.employee_id,
+        req.user.id,
+      req.body.name,
       req.body.postition
       ]);
-      
-      const { name, email, password,  education, age, isAdmin } = rows[0];
-      req.user = { name, email, password,  education, age, isAdmin };
-      
-      res.status(200).send(req.user);
+    
+      res.status(200).send(rows[0]);
   });
 
 router.put("/:id" ,[auth,isAdmin],async (req, res) => {

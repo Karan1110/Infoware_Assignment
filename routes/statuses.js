@@ -6,12 +6,11 @@ const isAdmin = require("../middlewares/isAdmin");
 router.post("/", [auth,isAdmin],async (req, res) => {
 
     const {rows} = await req.db.query(`
-        INSERT INTO Statuses(employee_id,name)
-        VALUES ($1, $2)
+        INSERT INTO Statuses(name)
+        VALUES ($1)
 
         RETURNING *
   `, [
-    req.user.id,
         req.body.name
       ]);
       
@@ -21,13 +20,11 @@ router.post("/", [auth,isAdmin],async (req, res) => {
 router.put("/:id" ,[auth,isAdmin],async (req, res) => {
     const { rows } = await req.db.query(`
 UPDATE Statuses
-SET employee_id = $1,
-name = $2
+SET name = $2
 
 RETURNING *
     `,
         [
-            req.user.id,
             req.body.name
         ]);
     
