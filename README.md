@@ -1,7 +1,7 @@
 # Infoware_Assignment
 
-# employees_manager_api
-A Backend system for handling the employees of the organisation for the Admin.
+# employees_managing_api
+A Backend system for handling the employees of the organisation for the Admin of the company maintain the employee details.
 ## Technologies used
 
 Node.js,Express,pg,brcypt,jwt,winston and express-async errors
