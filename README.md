@@ -19,6 +19,9 @@ npm install
 node seed
 node index
 ```
+
+## Conceptual Model for the database design
+![alt text](./data_model.jpg)
     
 ##   Features of this API: 
 
