@@ -157,8 +157,5 @@ localhost:3000/statuses DELETE
 | Parameter | Type     | Description                       |
 | :-------- | :------- | :-------------------------------- |
 | `x-auth-token`      | `string` | **Required**. your auth token |
-## Screenshots
-
-![App Screenshot](https://via.placeholder.com/468x300?text=App+Screenshot+Here)
 
 
