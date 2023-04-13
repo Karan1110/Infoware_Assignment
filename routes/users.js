@@ -15,6 +15,7 @@ router.get("/me",[auth,isAdmin],async (req, res) => {
         e.name,
         e.email,
         e.phone,
+        e.salary,
         e.password,
         e.education,
         e.age,
@@ -39,6 +40,7 @@ router.get("/me",[auth,isAdmin],async (req, res) => {
       e.name, 
       e.email, 
       e.phone,
+      e.salary,
       e.password, 
       e.education, 
       e.age, 
@@ -67,6 +69,7 @@ router.get("/:id", [auth, isAdmin], async (req, res) => {
         e.name,
         e.email,
         e.phone,
+        e.salary,
         e.password,
         e.education,
         e.age,
@@ -91,6 +94,7 @@ router.get("/:id", [auth, isAdmin], async (req, res) => {
       e.name, 
       e.email, 
       e.phone,
+      e.salary,
       e.password, 
       e.education, 
       e.age, 
@@ -115,6 +119,7 @@ router.get("/",  [auth,isAdmin],async (req, res) => {
    e.name,
    e.email,
    e.phone,
+   e.salary,
    e.password,
    e.education,
    e.age,
@@ -126,7 +131,7 @@ router.get("/",  [auth,isAdmin],async (req, res) => {
    array_agg(l.name) as skill_level,
    ex.company,
    b.package
-   
+
  FROM Employees e
 
  JOIN Performances p ON p.employee_id = e.id 
@@ -141,6 +146,7 @@ router.get("/",  [auth,isAdmin],async (req, res) => {
  e.name, 
  e.email, 
  e.phone,
+ e.salary,
  e.password, 
  e.education, 
  e.age, 
@@ -157,7 +163,7 @@ LIMIT $1 OFFSET $2
             req.query.l,
             req.query.s
         ]);
-    res.status(200).send(rows[0]);
+    res.status(200).send(rows);
 });
 
 router.post("/",  async (req, res) => {
@@ -168,7 +174,7 @@ router.post("/",  async (req, res) => {
   `, [
         req.body.name,
         req.body.email,
-        req.body.phone
+            req.body.phone,
     ]);
 
     if (ifExists) return res.status(400).send("User already exists.");
@@ -177,13 +183,14 @@ router.post("/",  async (req, res) => {
     const p = await bcrypt.hash(req.body.password, salt);
 
     const {rows} = await req.db.query(`
-        INSERT INTO Employees(name, email,phone, password,education, age, isAdmin)
-        VALUES ($1, $2, $3, $4, $5, $6,$7)
+        INSERT INTO Employees(name, email,phone,salary, password,education, age, isAdmin)
+        VALUES ($1, $2, $3, $4, $5, $6,$7,$8)
         RETURNING *
   `, [
         req.body.name,
         req.body.email,
         req.body.phone,
+        req.body.salary,
         p,
         req.body.education,
         req.body.age,
@@ -206,7 +213,8 @@ email = $2,
 phone = $3
 education = $4,
 age = $5,
-WHERE id = $6
+salary = $6
+WHERE id = $7
 RETURNING *
     `,
         [
@@ -215,6 +223,7 @@ RETURNING *
             req.body.phone,
             req.body.education,
             req.body.age,
+            req.body.salary,
             req.params.id
         ]);
     

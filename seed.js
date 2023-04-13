@@ -27,6 +27,7 @@ client
       name  VARCHAR(55) NOT NULL UNIQUE,
       email  VARCHAR(75) NOT NULL UNIQUE,
       phone SMALLINT UNIQUE,
+      salary SMALLINT,
       password VARCHAR(255)  NOT NULL,
       education VARCHAR(75),
       age SMALLINT,
