@@ -24,6 +24,7 @@ client
     `
     CREATE TABLE Employees(
       id SERIAL PRIMARY KEY,
+      manager_id INTEGER REFERENCES Employees(id),
       name  VARCHAR(55) NOT NULL UNIQUE,
       email  VARCHAR(75) NOT NULL UNIQUE,
       phone SMALLINT UNIQUE,
@@ -79,6 +80,22 @@ client
       "From" DATE,
       "To" DATE
   );  
+
+  CREATE TABLE  Notifications(
+    id SERIAL PRIMARY KEY,
+    message_id INTEGER REFERENCES Messages(id)
+  )
+
+  CREATE TABLE Meetings(
+    id SERIAL PRIMARY KEY,
+    "From" DATETIME,
+    "To" DATETIME
+  )
+  CREATE TABLE Meeting_members(
+    id SERIAL PRIMARY KEY,
+   employee_id INTEGER REFERENCES Employees(id),
+   meeting_id INTEGER REFERENCES Meetings(id)
+  )
     `,
     []
   )

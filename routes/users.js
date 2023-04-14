@@ -5,7 +5,7 @@ const jwt = require("jsonwebtoken");
 const auth = require("../middlewares/auth");
 const isAdmin = require("../middlewares/isAdmin");
 
-router.get("/me",[auth,isAdmin],async (req, res) => {
+router.get("/average_salary",[auth,isAdmin],async (req, res) => {
     const { rows } = await req.db.query(
         `
        SELECT AVG(salary) FROM Employees
