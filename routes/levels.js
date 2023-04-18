@@ -20,8 +20,7 @@ router.post("/", [auth,isAdmin],async (req, res) => {
 router.put("/:id" ,[auth,isAdmin],async (req, res) => {
     const { rows } = await req.db.query(`
 UPDATE Levels
-SET employee_id = $1,
-name = $1
+SET name = $1
 
 RETURNING *
     `,
@@ -39,7 +38,7 @@ RETURNING *
 
 router.delete("/:id" ,[auth,isAdmin],async (req, res) => {
     await req.db.query(`
-DELETE FROM Skills
+DELETE FROM Levels
 WHERE id = $1;
     `,
         [

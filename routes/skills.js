@@ -21,7 +21,7 @@ router.post("/", [auth,isAdmin],async (req, res) => {
 
 router.put("/:id" ,[auth,isAdmin],async (req, res) => {
     const { rows } = await req.db.query(`
-UPDATE Departments
+UPDATE Skills
 SET employee_id = $1,
 company = $1,
 "From" = $1,

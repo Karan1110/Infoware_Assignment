@@ -4,6 +4,8 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const auth = require("../middlewares/auth");
 const isAdmin = require("../middlewares/isAdmin");
+const email_verified = require("../middlewares/isMailCode");
+const config = require("config")
 
 router.get("/average_salary",[auth,isAdmin],async (req, res) => {
     const { rows } = await req.db.query(
@@ -21,47 +23,11 @@ router.get("/me", [auth, isAdmin], async (req, res) => {
     const id = req.user.id;
     const { rows } = await req.db.query(
         `
-        SELECT 
-        e.id,
-        e.name,
-        e.email,
-        e.phone,
-        e.salary,
-        e.password,
-        e.education,
-        e.age,
-        e.isadmin,
-        s.name AS performance_status,
-        d.name AS department,
-        d.position AS position,
-        array_agg(sk.name) AS skills,
-        array_agg(l.name) as skill_level,
-        ex.company,
-        b.package
-      FROM Employees e
-      JOIN Performances p ON p.employee_id = e.id 
-      JOIN Statuses s ON p.status_id = s.id
-      JOIN Benefits b ON b.employee_id = e.id
-      JOIN Departments d ON d.employee_id = e.id
-      JOIN Experiences ex ON ex.employee_id = e.id
-      JOIN Skills sk ON sk.employee_id = e.id
-      JOIN Levels l ON sk.level_id = l.id
-      WHERE e.id = $1
-      GROUP BY e.id,
-      e.name, 
-      e.email, 
-      e.phone,
-      e.salary,
-      e.password, 
-      e.education, 
-      e.age, 
-      e.isadmin, 
-      s.name,
-      p.employee_id, 
-      d.name,
-      d.position, 
-      ex.company, 
-      b.package;
+        SELECT e.name, sk.name, l.name
+        LEFT JOIN Skills sk ON sk.employee_id = e.id
+        LEFT JOIN Levels l ON sk.level_id = l.id
+        FROM Employees e
+        
        `
         ,
         [
@@ -176,7 +142,8 @@ LIMIT $1 OFFSET $2
     res.status(200).send(rows);
 });
 
-router.post("/",  async (req, res) => {
+router.post("/", email_verified, async (req, res) => {
+    
 
     const { ifExists } = await req.db.query(
         `
