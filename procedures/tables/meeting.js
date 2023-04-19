@@ -33,6 +33,27 @@ CREATE OR REPLACE FUNCTION create_meeting(
         VALUES (req_employee_id,req_meeting_id ,req_link,req_name)
 
         RETURNING *
+
+        BEGIN TRANSACTION
+
+        SELECT e.id,mm.meeting_id,mm.id
+        JOIN meeting_members mm ON m.employee_id = e.id
+        FROM Employees e
+        WHERE e.id = user_id
+
+        SELECT m.name,m.link
+        JOIN meeting_members mm ON mm.meeting_id = m.id 
+        FROM meetings m
+        WHERE e.id = mm.id
+
+
+        INSERT INTO Messages(message)
+        VALUES('join the meeting' || m.name || 'here's the link'  || m.link)
+
+        INSERT INTO Notifications(message_id,employee_id)
+        VALUES(mm.id,e.id)
+
+        COMMIT
    END
    $$
 

@@ -26,7 +26,7 @@ CREATE OR REPLACE FUNCTION decrement_remaining_leaves(IN e_id INTEGER)
    START TRANSACTION
    BEGIN
 SELECT (total_leaves - leaves) AS remaining_leaves FROM Employees WHERE id  = e_id
-commit
+COMMIT
    END
    $$
 
@@ -46,7 +46,7 @@ GROUP BY  e.name,e.salary,o."from",o."to"
 
 UPDATE Employees
 SET salary = (e.salary + DATEDIFF(o."from",o."to"))
-commit
+COMMIT
    END
    $$
 

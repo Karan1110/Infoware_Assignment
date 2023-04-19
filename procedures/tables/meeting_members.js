@@ -26,6 +26,9 @@ CREATE OR REPLACE FUNCTION create_meeting_member(
    LANGUAGE PLPGSQL
    AS $$
    BEGIN
+
+
+   
    INSERT INTO meeting_members(employee_id, meeting_id)
         VALUES (req_employee_id,req_meeting_id)
 
