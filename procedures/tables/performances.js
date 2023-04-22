@@ -1,5 +1,6 @@
 const { Client } = require("pg")
-const winston = require("winston")
+const winston = require("winston");
+const debug = require("debug")("seed")
 
 const client = new Client({
   connectionString:
@@ -15,7 +16,7 @@ client
     winston.info("Connected to DB")
   })
   .catch((ex) => {
-    winston.error(ex)
+    debug(ex)
   });
 
 await client.query(`
@@ -28,7 +29,7 @@ CREATE OR REPLACE FUNCTION create_performance(
    INSERT INTO performances(status_id)
         VALUES (status_id)
 
-        RETURNING *
+        RETURNING * INTO result
    END
    $$
 
@@ -44,7 +45,7 @@ CREATE OR REPLACE FUNCTION create_performance(
    UPDATE performances
    SET status_id = req_status_id
    
-   RETURNING *
+   RETURNING * INTO result
    END
    $$
 

@@ -1,30 +1,32 @@
 const express = require("express");
 const router = express.Router();
-const isAdmin = require("../middlewares/isAdmin");
 const auth = require("../middlewares/auth");
+const isAdmin = require("../middlewares/isAdmin");
 
 router.post("/", [auth,isAdmin],async (req, res) => {
 
     const {rows} = await req.db.query(`
-       SELECT * FROM create_department($1,$2,$3);
+       SELECT * FROM create_notification($1,$2)
   `, [
-        req.user.id,
-      req.body.name,
-      req.body.position
+    1,
+        req.body.employee_id,
+        req.body.message_id
       ]);
-    
+      
       res.status(200).send(rows[0]);
   });
 
 router.put("/:id" ,[auth,isAdmin],async (req, res) => {
     const { rows } = await req.db.query(`
-    SELECT * FROM update_department($1,$2,$3);
+    SELECT * FROM update_notification($1,$2,$3)
     `,
         [
-            req.user.id,
-            req.body.name,
-            req.body.postition
+            req.body.employee_id,
+            req.body.message_id,
+            req.params.id
+         
         ]);
+    
     res
         .status(200)
         .send(rows[0]);
@@ -33,7 +35,7 @@ router.put("/:id" ,[auth,isAdmin],async (req, res) => {
 
 router.delete("/:id" ,[auth,isAdmin],async (req, res) => {
     await req.db.query(`
-    SELECT * FROM delete_department($1,$2,$3);
+    SELECT * FROM delete_notification($1);
     `,
         [
             req.params.id

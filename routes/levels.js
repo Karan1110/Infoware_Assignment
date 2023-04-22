@@ -6,10 +6,7 @@ const isAdmin = require("../middlewares/isAdmin");
 router.post("/", [auth,isAdmin],async (req, res) => {
 
     const {rows} = await req.db.query(`
-        INSERT INTO Levels(name)
-        VALUES ($1)
-
-        RETURNING *
+     SELECT * FROM create_level($1)
   `, [
         req.body.name
       ]);
@@ -19,15 +16,10 @@ router.post("/", [auth,isAdmin],async (req, res) => {
 
 router.put("/:id" ,[auth,isAdmin],async (req, res) => {
     const { rows } = await req.db.query(`
-UPDATE Levels
-SET name = $1
-
-RETURNING *
+    SELECT * FROM update_level($1)
     `,
         [
-            req.user.id,
         req.body.name
-         
         ]);
     
     res
@@ -38,8 +30,7 @@ RETURNING *
 
 router.delete("/:id" ,[auth,isAdmin],async (req, res) => {
     await req.db.query(`
-DELETE FROM Levels
-WHERE id = $1;
+SELECT * FROM delete_level($1)
     `,
         [
             req.params.id

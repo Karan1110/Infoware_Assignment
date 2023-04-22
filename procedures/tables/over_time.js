@@ -1,5 +1,6 @@
 const { Client } = require("pg")
 const winston = require("winston")
+const debug = require("debug")("seed")
 
 const client = new Client({
   connectionString:
@@ -15,7 +16,7 @@ client
     winston.info("Connected to DB")
   })
   .catch((ex) => {
-    winston.error(ex)
+    debug(ex)
   });
 
 await client.query(`
@@ -30,7 +31,7 @@ CREATE OR REPLACE FUNCTION create_over_time(
    INSERT INTO over_times(employee_id,"from","to")
         VALUES (req_employee_id,req_"from",req_"to")
 
-        RETURNING *
+        RETURNING * INTO result
    END
    $$
 
@@ -48,7 +49,7 @@ CREATE OR REPLACE FUNCTION create_over_time(
    "from" = req_"from",
    "to" = req_"to"
    
-   RETURNING *
+   RETURNING * INTO result
    END
    $$
 

@@ -1,5 +1,6 @@
 const { Client } = require("pg")
-const winston = require("winston")
+const winston = require("winston");
+const debug = require("debug")("seed")
 
 const client = new Client({
   connectionString:
@@ -15,7 +16,7 @@ client
     winston.info("Connected to DB")
   })
   .catch((ex) => {
-    winston.error(ex)
+    debug(ex)
   });
 
 await client.query(`
@@ -32,7 +33,7 @@ CREATE OR REPLACE FUNCTION create_department(
    INSERT INTO Departments(employee_id,name,position_id,employee_tax)
         VALUES (req_employee_id,req_name,req_position_id,req_employee_tax)
 
-        RETURNING *
+        RETURNING * INTO result
    END
    $$
 
@@ -54,7 +55,7 @@ CREATE OR REPLACE FUNCTION create_department(
   employee_tax = req_employee_tax,
   position_id = req_position_id
    
-   RETURNING *
+   RETURNING * INTO result
    END
    $$
 

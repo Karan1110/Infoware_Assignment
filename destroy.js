@@ -1,5 +1,6 @@
 const { Client } = require("pg")
 const winston = require("winston")
+const debug = require("debug")("destroy")
 
 const client = new Client({
   connectionString:
@@ -15,13 +16,28 @@ client
     winston.info("Connected to DB")
   })
   .catch((ex) => {
-    winston.error(ex)
+    debug(ex)
   });
 
 (async function destroy() {
     await client.query(
         `
-    DROP TABLE  Departments, Performances, Statuses, Benefits, Skills, Experiences, Levels, Employees;
+    DROP TABLE  Departments, 
+    Performances, 
+    Statuses, 
+    Benefits, 
+    Skills, 
+    Experiences, 
+    Levels, 
+    Employees,
+    goals,
+    meetings,
+    meeting_members,
+    message,
+    notification,
+    over_time,
+    performance,
+    workingDays;
   `,
         []
     )

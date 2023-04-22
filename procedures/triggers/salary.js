@@ -1,5 +1,6 @@
 const { Client } = require("pg")
-const winston = require("winston")
+const winston = require("winston");
+const debug = require("debug")("seed")
 
 const client = new Client({
   connectionString:
@@ -15,7 +16,7 @@ client
     winston.info("Connected to DB")
   })
   .catch((ex) => {
-    winston.error(ex)
+    debug(ex)
   });
 
 await client.query(`
@@ -29,8 +30,6 @@ SELECT (total_leaves - leaves) AS remaining_leaves FROM Employees WHERE id  = e_
 COMMIT
    END
    $$
-
-
 
 
    CREATE OR REPLACE FUNCTION increment_salary_over_time(IN e_id INTEGER)

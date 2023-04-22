@@ -1,5 +1,6 @@
 const { Client } = require("pg")
 const winston = require("winston")
+const debug = require("debug")("seed")
 
 const client = new Client({
   connectionString:
@@ -15,7 +16,7 @@ client
     winston.info("Connected to DB")
   })
   .catch((ex) => {
-    winston.error(ex)
+    debug(ex)
   });
 
 async function germinate() {
@@ -35,7 +36,7 @@ async function germinate() {
       education VARCHAR(75),
       age SMALLINT,
       isAdmin BOOL,
-      manager_id INTEGER REFERENCES Employees(id) ON DELETE CASCADE,
+      manager_id INTEGER REFERENCES Employees(id) ON UPDATE CASCADE ON DELETE CASCADE ,
       working_days INT,
       total_working_days INT,
       total_leaves INT,
@@ -45,7 +46,7 @@ async function germinate() {
     
     CREATE TABLE Departments(
       id SERIAL PRIMARY KEY,
-      employee_id INTEGER REFERENCES Employees(id) ON DELETE CASCADE,
+      employee_id INTEGER REFERENCES Employees(id) ON UPDATE CASCADE ON DELETE CASCADE ,
       name VARCHAR(55),
       position VARCHAR(55),
       employee_tax integer
@@ -58,8 +59,8 @@ async function germinate() {
     
     CREATE TABLE Performances(
       id SERIAL PRIMARY KEY,
-      status_id INTEGER REFERENCES Statuses(id) ON DELETE CASCADE,
-      employee_id INTEGER REFERENCES Employees(id) ON DELETE CASCADE
+      status_id INTEGER REFERENCES Statuses(id) ON UPDATE CASCADE ON DELETE CASCADE ,
+      employee_id INTEGER REFERENCES Employees(id) ON UPDATE CASCADE ON DELETE CASCADE 
     );
     
     CREATE TABLE Levels(
@@ -69,15 +70,15 @@ async function germinate() {
     
     CREATE TABLE Skills(
       id SERIAL PRIMARY KEY,
-      employee_id INTEGER REFERENCES Employees(id) ON DELETE CASCADE,
+      employee_id INTEGER REFERENCES Employees(id) ON UPDATE CASCADE ON DELETE CASCADE ,
       name VARCHAR(55),
-      level_id INTEGER REFERENCES Levels(id) ON DELETE CASCADE
+      level_id INTEGER REFERENCES Levels(id) ON UPDATE CASCADE ON DELETE CASCADE 
     );
     
     CREATE TABLE Benefits(
       id SERIAL PRIMARY KEY,
-      employee_id INTEGER REFERENCES Employees(id) ON DELETE CASCADE,
-      benefit_type_id INTEGER REFERENCES Benefits(id) ON DELETE CASCADE,
+      employee_id INTEGER REFERENCES Employees(id) ON UPDATE CASCADE ON DELETE CASCADE ,
+      benefit_type_id INTEGER REFERENCES Benefits(id) ON UPDATE CASCADE ON DELETE CASCADE ,
       package VARCHAR(35)
     );
 
@@ -88,7 +89,7 @@ async function germinate() {
 
     CREATE TABLE Notifications(
       id SERIAL PRIMARY KEY,
-      message_id INTEGER REFERENCES Messages(id) ON DELETE CASCADE
+      message_id INTEGER REFERENCES Messages(id) ON UPDATE CASCADE ON DELETE CASCADE 
     )
 
     CREATE TABLE Messages(
@@ -96,6 +97,8 @@ async function germinate() {
       message VARCHAR(55)
     )
 
+  
+    
     CREATE TABLE Positions(
       id SERIAL PRIMARY KEY,
       name VARCHAR(55)
@@ -103,7 +106,7 @@ async function germinate() {
 
     CREATE TABLE Experiences(
       id SERIAL PRIMARY KEY,
-      employee_id INTEGER REFERENCES Employees(id) ON DELETE CASCADE,
+      employee_id INTEGER REFERENCES Employees(id) ON UPDATE CASCADE ON DELETE CASCADE ,
       company VARCHAR(55),
       "from" DATE,
       "To" DATE,
@@ -121,14 +124,14 @@ async function germinate() {
 
     CREATE TABLE Meeting_members(
     id SERIAL PRIMARY KEY,
-    meeting_id INTEGER REFERENCES Meetings(id) ON DELETE CASCADE ,
-    employee_id INTEGER REFERENCES Employees(id) ON DELETE CASCADE
+    meeting_id INTEGER REFERENCES Meetings(id) ON UPDATE CASCADE ON DELETE CASCADE  ,
+    employee_id INTEGER REFERENCES Employees(id) ON UPDATE CASCADE ON DELETE CASCADE 
     );
 
 
 CREATE TABLE Leaves(
   id SERIAL PRIMARY KEY,
-  employee_id INTEGER REFERENCES Employees(id) ON DELETE CASCADE,
+  employee_id INTEGER REFERENCES Employees(id) ON UPDATE CASCADE ON DELETE CASCADE ,
   "from" DATE,
   "to DATE,
   duration GENERATED ALWAYS AS ("from" - "to")
@@ -136,12 +139,25 @@ CREATE TABLE Leaves(
 
 CREATE TABLE Over_times(
   id SERIAL PRIMARY KEY,
-  employee_id INTEGER REFERENCES Employees(id) ON DELETE CASCADE,
+  employee_id INTEGER REFERENCES Employees(id) ON UPDATE CASCADE ON DELETE CASCADE ,
   "from" DATE,
   "to DATE,
   duration GENERATED ALWAYS AS ("from" - "to")
 )
 
+
+CREATE TABLE Goals(
+  id SERIAL PRIMARY KEY,
+  status VARCHAR,
+  employee_id INTEGER REFERENCES Employees(id) ON UPDATE CASCADE ON DELETE CASCADE ,
+  name VARCHAR
+)
+
+CREATE TABLE WorkingDays(
+ id SERIAL PRIMARY KEY,
+ "from" DATETIME,
+ "to" DATETIME
+)
 
     END
     $$;

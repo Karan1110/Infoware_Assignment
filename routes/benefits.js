@@ -7,14 +7,12 @@ const isAdmin = require("../middlewares/isAdmin");
 router.post("/", [auth,isAdmin],async (req, res) => {
 
     const {rows} = await req.db.query(`
-        INSERT INTO Benefits(employee_id,name,package)
-        VALUES ($1, $2,$3)
-
-        RETURNING *
+    SELECT * FROM create_benefit($1,$2,$3);
   `, [
-        req.user.id,
+        req.user.from,
+        req.body.to,
         req.body.name,
-        req.body.package
+        req.body.benefit_type
       ]);
       
       res.status(200).send(rows[0]);
@@ -22,17 +20,13 @@ router.post("/", [auth,isAdmin],async (req, res) => {
 
 router.put("/:id" ,[auth,isAdmin],async (req, res) => {
     const { rows } = await req.db.query(`
-UPDATE Benefits
-SET employee_id = $1,
-name = $2,
-package = $3
-
-RETURNING *
+    SELECT * FROM update_benefit($1,$2,$3);
     `,
         [
-        req.user.id,
+            req.user.from,
+            req.body.to,
             req.body.name,
-        req.body.package
+            req.body.benefit_type
         ]);
     
     res
@@ -43,11 +37,10 @@ RETURNING *
 
 router.delete("/:id" ,[auth,isAdmin],async (req, res) => {
     await req.db.query(`
-DELETE FROM Benefits
-WHERE id = $1;
+    SELECT * FROM delete_benefit($1,$2,$3);
     `,
         [
-            req.params.id
+           req.body.b_id
         ]);
     
     res.status(200).send("Deleted successfully");

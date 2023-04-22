@@ -6,17 +6,12 @@ const isAdmin = require("../middlewares/isAdmin");
 router.post("/", [auth,isAdmin],async (req, res) => {
 
     const {rows} = await req.db.query(`
-      INSERT INTO MEETINGS(
-        "From",
-        "To"
-      )
-      VALUES(
-        $1,$2
-      )
+      SELECT* FROM create_meeting($1,$2,$3,$4)
   `, [
-      
-      req.body.user
-      
+        req.body.name,
+        req.body.link,
+        req.body.meeting_id,
+        req.body.employee_id
       ]);
       
       res.status(200).send(rows[0]);
@@ -24,17 +19,13 @@ router.post("/", [auth,isAdmin],async (req, res) => {
 
 router.put("/:id" ,[auth,isAdmin],async (req, res) => {
     const { rows } = await req.db.query(`
-UPDATE Benefits
-SET employee_id = $1,
-name = $2,
-package = $3
-
-RETURNING *
+    SELECT* FROM update_meeting($1,$2,$3,$4)
     `,
         [
-        req.user.id,
             req.body.name,
-        req.body.package
+            req.body.link,
+            req.body.meeting_id,
+            req.body.employee_id
         ]);
     
     res

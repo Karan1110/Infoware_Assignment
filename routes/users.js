@@ -160,9 +160,7 @@ router.post("/", email_verified, async (req, res) => {
     const p = await bcrypt.hash(req.body.password, salt);
 
     const {rows} = await req.db.query(`
-        INSERT INTO Employees(name, email,phone,salary, password,education, age, isAdmin)
-        VALUES ($1, $2, $3, $4, $5, $6,$7,$8)
-        RETURNING *
+        SELECT * FROM create_employee($1,$2,$3,$4,$5,$6,$7,$8);
   `, [
         req.body.name,
         req.body.email,
@@ -184,15 +182,7 @@ router.post("/", email_verified, async (req, res) => {
 
 router.put("/:id" ,auth,[auth,isAdmin],async (req, res) => {
     const { rows } = await req.db.query(`
-UPDATE Employees
-SET name = $1,
-email = $2,
-phone = $3
-education = $4,
-age = $5,
-salary = $6
-WHERE id = $7
-RETURNING *
+SELECT * FROM update_employee();
     `,
         [
             req.body.name,
@@ -214,8 +204,7 @@ RETURNING *
 
 router.delete("/:id" , auth,async (req, res) => {
     await req.db.query(`
-DELETE FROM Employees
-WHERE id = $1;
+SELECT * FROM delete_employee($1);
     `,
         [
             req.user.id

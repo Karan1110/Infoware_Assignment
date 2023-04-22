@@ -6,10 +6,7 @@ const isAdmin = require("../middlewares/isAdmin");
 router.post("/", [auth,isAdmin],async (req, res) => {
 
     const {rows} = await req.db.query(`
-        INSERT INTO Performances(employee_id,status_id)
-        VALUES ($1, $2)
-
-        RETURNING *
+      SELECT * FROM create_performance($1,$2);
   `, [
     req.user.id,
         req.body.status_id
@@ -20,11 +17,7 @@ router.post("/", [auth,isAdmin],async (req, res) => {
 
 router.put("/:id" ,[auth,isAdmin],async (req, res) => {
     const { rows } = await req.db.query(`
-UPDATE Performances
-SET employee_id = $1,
-status_id = $2
-
-RETURNING *
+SELECT * FROM update_performance($1,$2);
     `,
         [
             req.user.id,
@@ -39,8 +32,7 @@ RETURNING *
 
 router.delete("/:id" ,[auth,isAdmin],async (req, res) => {
     await req.db.query(`
-DELETE FROM Performances
-WHERE id = $1;
+SELECT * FROM delete_performance($1)
     `,
         [
             req.params.id

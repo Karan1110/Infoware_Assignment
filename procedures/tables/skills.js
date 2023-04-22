@@ -1,5 +1,6 @@
-const { Client } = require("pg")
-const winston = require("winston")
+const { Client } = require("pg");
+const winston = require("winston");
+const debug = require("debug")("seed")
 
 const client = new Client({
   connectionString:
@@ -15,7 +16,7 @@ client
     winston.info("Connected to DB")
   })
   .catch((ex) => {
-    winston.error(ex)
+    debug(ex)
   });
 
 await client.query(`
@@ -28,7 +29,7 @@ CREATE OR REPLACE FUNCTION create_skill(
    INSERT INTO Skills(employee_id,name,level_id)
         VALUES ($1, $2,$3)
 
-        RETURNING *
+        RETURNING * INTO result
    END
    $$
 
@@ -48,7 +49,7 @@ CREATE OR REPLACE FUNCTION create_skill(
    name = req_name,
    level_id = req_level_id
    
-   RETURNING *
+   RETURNING * INTO result
    END
    $$
 

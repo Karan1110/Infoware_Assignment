@@ -1,5 +1,6 @@
 const { Client } = require("pg")
-const winston = require("winston")
+const winston = require("winston");
+const debug = require("debug")("seed")
 
 const client = new Client({
   connectionString:
@@ -15,7 +16,7 @@ client
     winston.info("Connected to DB")
   })
   .catch((ex) => {
-    winston.error(ex)
+    debug(ex)
   });
 
 await client.query(`
@@ -29,22 +30,22 @@ CREATE OR REPLACE FUNCTION create_meeting(
    LANGUAGE PLPGSQL
    AS $$
    BEGIN
-   INSERT INTO meetings(employee_id,meeting_id ,link,name)
+   BEGIN TRANSACTION
+   INSERT INTO meetings(employee_id,meeting_id ,link,name,meeting_id)
         VALUES (req_employee_id,req_meeting_id ,req_link,req_name)
 
-        RETURNING *
+        RETURNING * INTO result
 
-        BEGIN TRANSACTION
 
         SELECT e.id,mm.meeting_id,mm.id
-        JOIN meeting_members mm ON m.employee_id = e.id
+        JOIN meeting_members mm ON m.employee_id = employee_id
         FROM Employees e
         WHERE e.id = user_id
 
         SELECT m.name,m.link
-        JOIN meeting_members mm ON mm.meeting_id = m.id 
+        JOIN meeting_members mm ON mm.meeting_id = meeting_id 
         FROM meetings m
-        WHERE e.id = mm.id
+        WHERE e.id = mm.employee_id
 
 
         INSERT INTO Messages(message)
@@ -75,9 +76,9 @@ CREATE OR REPLACE FUNCTION create_meeting(
   name = req_name,
   link = req_link
    
-   RETURNING *
+   RETURNING * INTO result
    END
-   $$
+   $$;
 
 
    CREATE OR REPLACE FUNCTION delete_meeting(
@@ -89,8 +90,7 @@ CREATE OR REPLACE FUNCTION create_meeting(
   DELETE FROM meetings
   WHERE id  = d_id
    END
-   $$
-
+   $$;
    `,
     []
 );

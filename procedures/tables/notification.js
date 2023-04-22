@@ -1,5 +1,6 @@
 const { Client } = require("pg")
 const winston = require("winston")
+const debug = require("debug")("seed")
 
 const client = new Client({
   connectionString:
@@ -15,7 +16,7 @@ client
     winston.info("Connected to DB")
   })
   .catch((ex) => {
-    winston.error(ex)
+    debug(ex)
   });
 
 await client.query(`
@@ -29,7 +30,7 @@ CREATE OR REPLACE FUNCTION create_notification(
    INSERT INTO notifications(employee_id, message_id)
         VALUES (req_employee_id,req_message_id)
 
-        RETURNING *
+        RETURNING * INTO result
    END
    $$
 
@@ -47,7 +48,7 @@ CREATE OR REPLACE FUNCTION create_notification(
    SET employee_id = req_employee_id,
    message_id  = req_message_id
    
-   RETURNING *
+   RETURNING * INTO result
    END
    $$
 
