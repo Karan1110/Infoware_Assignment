@@ -50,7 +50,7 @@ COMMIT
    END
    $$
 
-   CREATE OR REPLACE FUNCTION decrement_salary_leaves(IN e_id INTEGER)
+CREATE OR REPLACE FUNCTION decrement_salary_leaves(IN e_id INTEGER)
    LANGUAGE PLPGSQL
    AS $$
    BEGIN
@@ -65,9 +65,6 @@ SET salary = (e.salary - DATEDIFF(l."from",l."to"))
 
 DELETE FROM Leaves
 WHERE id = l.id
-
-DELETE FROM Over_times
-WHERE id = o.id
 
 COMMIT
    END

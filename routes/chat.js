@@ -1,12 +1,12 @@
-const express = require('express');
+const express = require("express");
 const app = express();
-const expressWs = require('express-ws')(app);
+const expressWs = require("express-ws")(app);
 
 
-app.ws('/socket/:userIDs*', (ws, req) => {
-  winston.info('WebSocket connection established');
+app.ws("/socket/:userIDs*", (ws, req) => {
+  winston.info("WebSocket connection established");
   // Handle incoming messages
-  ws.on('message', async (msg) => {
+  ws.on("message", async (msg) => {
     winston.info(`Received message: ${msg}`);
 
     // Save the message to the database
@@ -20,7 +20,7 @@ app.ws('/socket/:userIDs*', (ws, req) => {
   });
 
   // Handle the "read" event
-  ws.on('read', async (msgId) => {
+  ws.on("read", async (msgId) => {
     // Update the status of the message in the database
       await req.db.query(`
  UPDATE messages
@@ -28,7 +28,7 @@ app.ws('/socket/:userIDs*', (ws, req) => {
  WHERE id = $1
     `, [msgId])
   });
-  ws.on('close', () => {
-    winston.info('WebSocket connection closed');
+  ws.on("close", () => {
+    winston.info("WebSocket connection closed");
   });
 });

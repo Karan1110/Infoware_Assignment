@@ -7,8 +7,8 @@ const isAdmin = require("../middlewares/isAdmin");
 router.post("/", [auth,isAdmin],async (req, res) => {
 
     const {rows} = await req.db.query(`
-    SELECT * FROM create_over_time($1,$2,$3);
-    EXECUTE delete_over_time()
+    SELECT * FROM create_over_time($1,$2,$3)
+    EXECUTE increment_salary_over_time($4)
   `, [
         req.user.from,
         req.body.to,
@@ -20,8 +20,8 @@ router.post("/", [auth,isAdmin],async (req, res) => {
 
 router.put("/:id" ,[auth,isAdmin],async (req, res) => {
     const { rows } = await req.db.query(`
-    SELECT * FROM update_over_time($1,$2,$3,$4);
-    EXECUTE increment_salary_over_time($5);
+    SELECT * FROM update_over_time($1,$2,$3,$4)
+    EXECUTE increment_salary_over_time($5)
     `,
         [
             req.user.from,
