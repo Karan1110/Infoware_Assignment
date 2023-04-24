@@ -1,9 +1,10 @@
 const winston = require("winston");
 const { Client } = require("pg");
+const config  = require("config");
 const debug = require("debug")("db")
 
     const client = new Client({
-        connectionString: "postgres://gbpaytdx:bhl8nviSImZ0Xwk0w9xPbRl11VpOaqax@lallah.db.elephantsql.com/gbpaytdx",
+        connectionString: config.get('dbURL'),
         ssl: {
             rejectUnauthorized: false
         }

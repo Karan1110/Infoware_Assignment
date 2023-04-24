@@ -1,10 +1,11 @@
-const { Client } = require("pg")
+const { Client } = require("pg");
+const config  = require("config")
 const winston = require("winston")
 const debug = require("debug")("seed")
 
 const client = new Client({
   connectionString:
-    "postgres://gbpaytdx:bhl8nviSImZ0Xwk0w9xPbRl11VpOaqax@lallah.db.elephantsql.com/gbpaytdx",
+    config.get('dbURL'),
   ssl: {
     rejectUnauthorized: false,
   },
@@ -94,10 +95,9 @@ async function germinate() {
 
     CREATE TABLE Messages(
       id SERIAL PRIMARY KEY,
-      message VARCHAR(55)
+      message VARCHAR(55),
+      read BOOLEAN
     )
-
-  
     
     CREATE TABLE Positions(
       id SERIAL PRIMARY KEY,
