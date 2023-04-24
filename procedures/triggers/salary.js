@@ -31,8 +31,7 @@ SELECT (total_leaves - leaves) AS remaining_leaves FROM Employees WHERE id  = e_
 COMMIT
    END
    $$
-
-
+   
    CREATE OR REPLACE FUNCTION increment_salary_over_time(IN e_id INTEGER)
    LANGUAGE PLPGSQL
    AS $$

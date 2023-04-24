@@ -1,10 +1,10 @@
-# Infoware_Assignment
+# Veera
 
 # employees_managing_api
 A Backend system for handling the employees of the organisation for the Admin of the company maintain the employee details.
 ## Technologies used
 
-Node.js,Express,pg,brcypt,jwt,winston and express-async errors
+Node.js,Express,pg,brcypt,jwt,winston and express-async errors,node-mailer,twilio and webSockets.
 
 
 # Hi, I'm Karan! 👋
@@ -16,8 +16,8 @@ To start this API
 ```bash
 git clone https://github.com/Karan1110/Infoware_Assignment.git
 npm install
-node seed
-node index
+npm run seed
+npm run dev
 ```
 
 ## Conceptual Model for the database design
@@ -27,26 +27,9 @@ node index
 
 ```javascript
        
-
-1. Authentication and Authorization. Use of JsonWebTokens and Bcrypt for auth and hashing the passwords.
-
-2. Advanced error handling using "winston","express-async-errors" and a customer error middleware 
-                                                OR
-   use a customer async error handler in middlewares/async.js with the customer error middleware.
-
-3. Advanced express methods used to make a signle connect to the cloud hosted Database to access the db for 
-   querying using the customer req.db property.
-
-4. Logging Errors to a file or DB using winston.
-
-5. using the asynchronous nature of Express to efficiently manage the middleware pipeline.
-
-6. structuring the API using seed.js to destroy(DROP) and germinate function to create tables with validatinons.
-
-7. use of config module to effciently manage secret strings or keys.
+show me the hamsa
 
 ```
-
 
 ## API Reference
 
