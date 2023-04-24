@@ -3,7 +3,7 @@ const app = express();
 const expressWs = require("express-ws")(app);
 
 
-app.ws("/socket/:userIDs*", (ws, req) => {
+app.ws("/chat/:userIDs*", (ws, req) => {
   winston.info("WebSocket connection established");
   // Handle incoming messages
   ws.on("message", async (msg) => {
