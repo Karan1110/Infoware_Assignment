@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "node index",
-    "seed": "node ./procedures/*.js"
+    "build": "node destroy node ./procedures/*.js node inde",
+    "dev": "node ./procedures/*.js node index"
   },
   "author": "",
   "license": "ISC",

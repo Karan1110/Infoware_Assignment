@@ -8,6 +8,7 @@ router.post("/", [auth,isAdmin],async (req, res) => {
 
     const {rows} = await req.db.query(`
     SELECT * FROM create_over_time($1,$2,$3);
+    EXECUTE delete_over_time()
   `, [
         req.user.from,
         req.body.to,
@@ -35,17 +36,6 @@ router.put("/:id" ,[auth,isAdmin],async (req, res) => {
         .send(rows[0]);
 });
 
-
-router.delete("/:id" ,[auth,isAdmin],async (req, res) => {
-    await req.db.query(`
-    SELECT * FROM delete_over_time($1,$2,$3);
-    `,
-        [
-           req.body.b_id
-        ]);
-    
-    res.status(200).send("Deleted successfully");
-});
 
 
 module.exports = router;

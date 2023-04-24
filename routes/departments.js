@@ -8,7 +8,7 @@ router.post("/", [auth,isAdmin],async (req, res) => {
     const {rows} = await req.db.query(`
        SELECT * FROM create_department($1,$2,$3);
   `, [
-        req.user.id,
+      req.user.id,
       req.body.name,
       req.body.position
       ]);
@@ -33,7 +33,7 @@ router.put("/:id" ,[auth,isAdmin],async (req, res) => {
 
 router.delete("/:id" ,[auth,isAdmin],async (req, res) => {
     await req.db.query(`
-    SELECT * FROM delete_department($1,$2,$3);
+    SELECT * FROM delete_department($1);
     `,
         [
             req.params.id

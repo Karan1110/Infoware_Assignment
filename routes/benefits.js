@@ -7,7 +7,7 @@ const isAdmin = require("../middlewares/isAdmin");
 router.post("/", [auth,isAdmin],async (req, res) => {
 
     const {rows} = await req.db.query(`
-    SELECT * FROM create_benefit($1,$2,$3);
+    SELECT * FROM create_benefit($1,$2,$3,$4);
   `, [
         req.user.from,
         req.body.to,
@@ -20,7 +20,7 @@ router.post("/", [auth,isAdmin],async (req, res) => {
 
 router.put("/:id" ,[auth,isAdmin],async (req, res) => {
     const { rows } = await req.db.query(`
-    SELECT * FROM update_benefit($1,$2,$3);
+    SELECT * FROM update_benefit($1,$2,$3,$4);
     `,
         [
             req.user.from,
@@ -37,7 +37,7 @@ router.put("/:id" ,[auth,isAdmin],async (req, res) => {
 
 router.delete("/:id" ,[auth,isAdmin],async (req, res) => {
     await req.db.query(`
-    SELECT * FROM delete_benefit($1,$2,$3);
+    SELECT * FROM delete_benefit($1);
     `,
         [
            req.body.b_id

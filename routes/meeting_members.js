@@ -6,7 +6,7 @@ const isAdmin = require("../middlewares/isAdmin");
 router.post("/", [auth,isAdmin],async (req, res) => {
 
     const {rows} = await req.db.query(`
-       SELECT * FROM create_meeting_member($1,$2)
+       SELECT * FROM create_meeting_member($1,$2);
   `, [
     1,
         req.body.employee_id,
@@ -18,7 +18,7 @@ router.post("/", [auth,isAdmin],async (req, res) => {
 
 router.put("/:id" ,[auth,isAdmin],async (req, res) => {
     const { rows } = await req.db.query(`
-    SELECT * FROM update_meeting_member($1,$2)
+    SELECT * FROM update_meeting_member($1,$2);
     `,
         [
             req.body.employee_id,
@@ -34,7 +34,7 @@ router.put("/:id" ,[auth,isAdmin],async (req, res) => {
 
 router.delete("/:id" ,[auth,isAdmin],async (req, res) => {
     await req.db.query(`
-    SELECT * FROM delete_meeting_member($1)
+    SELECT * FROM delete_meeting_member($1);
     `,
         [
             req.params.id
