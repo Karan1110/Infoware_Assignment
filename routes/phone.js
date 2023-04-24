@@ -7,8 +7,8 @@ const debug = require("debug")("phone-verify")
 router.post("/verify-phone", async (req, res) => {
     
 // Load the Twilio module
-const accountSid = 'AC68167b0dd8a615edcb58a4be2caadcf7';
-const authToken = '918e8687fa5a4bbebb655ef4855a8489';
+const accountSid = config.get("acc-sid");
+const authToken = config.get("acc-token");
 const client = require('twilio')(accountSid, authToken);
 
 const phoneCode = Math.floor(Math.random()%100+1)
