@@ -5,7 +5,7 @@ const debug = require("debug")("seed")
 
 const client = new Client({
   connectionString:
-    config.get('dbURL'),
+    "postgres://unqgsqcj:PwOgL9DnYvPXdz5K_h6Wqddr_C4gGybz@mahmud.db.elephantsql.com/unqgsqcj",
   ssl: {
     rejectUnauthorized: false,
   },
@@ -20,11 +20,12 @@ client
     debug(ex)
   });
 
-client.query(`
+  (async function func() {client.query(`
 CREATE OR REPLACE FUNCTION average_salary()
 LANGUAGE PLPGSQL
 AS $$
 BEGIN
+RETURN QUERY
 SELECT AVG(salary) FROM Employees
 END 
 $$;
@@ -33,6 +34,7 @@ CREATE OR REPLACE FUNCTION average_salary(IN user_id INTEGER)
 LANGUAGE PLPGSQL
 AS $$
 BEGIN
+RETURN QUERY
 SELECT name,salary
 END 
 $$;
@@ -55,9 +57,10 @@ CREATE OR REPLACE FUNCTION create_user(
 LANGUAGE PLPGSQL
 AS $$
 BEGIN
+RETURN QUERY
 INSERT INTO Employees(name, email,phone,salary, password,education, age, isAdmin,total_working_days, working_days,total_leaves,leaves,manager_id,salary_debited)
 VALUES (u_name, u_email,u_phone,u_salary, u_password,u_education, u_age, u_isAdmin,u_total_working_days, u_working_days,u_total_leaves,u_leaves,u_manager_id,u_salary_debited)
-RETURNING * INTO result
+RETURNING * INTO result INTO result
 
 
 
@@ -101,6 +104,7 @@ CREATE OR REPLACE FUNCTION update_user(
 LANGUAGE PLPGSQL
 AS $$
 BEGIN
+RETURN QUERY
 UPDATE Employees
 SET name = u_name,
 email = u_email,
@@ -113,7 +117,7 @@ isAdmin = u_isAdmin
 salary_debited = u_salary_debited
 
 WHERE id = u_id
-RETURNING * INTO result
+RETURNING * INTO result INTO result
 END 
 $$;
 
@@ -123,6 +127,7 @@ CREATE OR REPLACE FUNCTION delete_user(
 LANGUAGE PLPGSQL
 AS $$
 BEGIN
+RETURN QUERY
 DELETE FROM Employees
 WHERE id = user_id
 END
@@ -132,6 +137,7 @@ CREATE OR REPLACE FUNCTION all_employee_details()
 LANGUAGE PLPGSQL
 AS $$
 BEGIN
+RETURN QUERY
   RETURN QUERY
   SELECT e.name, 
   array_agg(sk.name), 
@@ -219,7 +225,7 @@ CREATE OR REPLACE FUNCTION employee_details_pagination(
   IN req_limit INTEGER, 
   IN req_offset INTEGER
 )
-RETURNS TABLE (
+RETURN QUERY (
   name TEXT, 
   skills TEXT[], 
   levels TEXT[]
@@ -227,6 +233,7 @@ RETURNS TABLE (
 LANGUAGE PLPGSQL
 AS $$
 BEGIN
+RETURN QUERY
   -- The SELECT statement should be inside the RETURN TABLE clause
   RETURN QUERY
   SELECT e.name, 
@@ -270,9 +277,8 @@ BEGIN
     req_offset;
 END
 $$;
+`, [])
 
 
 
-`, [
-
-]);
+}) ();

@@ -5,7 +5,7 @@ const debug = require("debug")("destroy")
 
 const client = new Client({
   connectionString:
-    config.get('dbURL'),
+    "postgres://unqgsqcj:PwOgL9DnYvPXdz5K_h6Wqddr_C4gGybz@mahmud.db.elephantsql.com/unqgsqcj",
   ssl: {
     rejectUnauthorized: false,
   },
@@ -20,8 +20,7 @@ client
     debug(ex)
   });
 
-(async function destroy() {
-    await client.query(
+    (async function func() { await client.query(
         `
     DROP TABLE  Departments, 
     Performances, 

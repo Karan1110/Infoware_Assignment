@@ -5,7 +5,7 @@ const debug = require("debug")("seed")
 
 const client = new Client({
   connectionString:
-    config.get('dbURL'),
+    "postgres://unqgsqcj:PwOgL9DnYvPXdz5K_h6Wqddr_C4gGybz@mahmud.db.elephantsql.com/unqgsqcj",
   ssl: {
     rejectUnauthorized: false,
   },
@@ -20,7 +20,8 @@ client
     debug(ex)
   });
 
-await client.query(`
+(async function func() {
+  await client.query(`
 CREATE OR REPLACE FUNCTION create_experience(
     IN req_employee_id INTEGER,
     IN req_company VARCHAR,
@@ -34,7 +35,7 @@ CREATE OR REPLACE FUNCTION create_experience(
    INSERT INTO experiences(employee_id,company,"From","To")
         VALUES (req_employee_id,req_company,req_"From",req_"To")
 
-        RETURNING * INTO result
+        RETURNING * INTO result INTO result
    END
    $$
 
@@ -56,7 +57,7 @@ CREATE OR REPLACE FUNCTION create_experience(
   "To" = req_"To",
   "From" = req_"From"
    
-   RETURNING * INTO result
+   RETURNING * INTO result INTO result
    END
    $$
 
@@ -74,4 +75,5 @@ CREATE OR REPLACE FUNCTION create_experience(
 
    `,
     []
-);
+  )
+})()

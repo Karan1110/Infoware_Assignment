@@ -5,7 +5,7 @@ const debug = require("debug")("seed")
 
 const client = new Client({
   connectionString:
-    config.get('dbURL'),
+    "postgres://unqgsqcj:PwOgL9DnYvPXdz5K_h6Wqddr_C4gGybz@mahmud.db.elephantsql.com/unqgsqcj",
   ssl: {
     rejectUnauthorized: false,
   },
@@ -20,7 +20,7 @@ client
     debug(ex)
   });
 
-await client.query(`
+(async function func() { await client.query(`
 CREATE OR REPLACE FUNCTION create_skill(
     IN user_id INTEGER
    )
@@ -30,7 +30,7 @@ CREATE OR REPLACE FUNCTION create_skill(
    INSERT INTO Skills(employee_id,name,level_id)
         VALUES ($1, $2,$3)
 
-        RETURNING * INTO result
+        RETURNING * INTO result INTO result
    END
    $$
 
@@ -50,7 +50,7 @@ CREATE OR REPLACE FUNCTION create_skill(
    name = req_name,
    level_id = req_level_id
    
-   RETURNING * INTO result
+   RETURNING * INTO result INTO result
    END
    $$
 
@@ -68,4 +68,4 @@ CREATE OR REPLACE FUNCTION create_skill(
 
    `,
     []
-);
+)})();

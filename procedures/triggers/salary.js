@@ -5,7 +5,7 @@ const debug = require("debug")("seed")
 
 const client = new Client({
   connectionString:
-    config.get('dbURL'),
+    "postgres://unqgsqcj:PwOgL9DnYvPXdz5K_h6Wqddr_C4gGybz@mahmud.db.elephantsql.com/unqgsqcj",
   ssl: {
     rejectUnauthorized: false,
   },
@@ -20,17 +20,17 @@ client
     debug(ex)
   });
 
-await client.query(`
+(async function func() { await client.query(`
 CREATE OR REPLACE FUNCTION decrement_remaining_leaves(IN e_id INTEGER)
    LANGUAGE PLPGSQL
    AS $$
    BEGIN
-   START TRANSACTION
-   BEGIN
-SELECT (total_leaves - leaves) AS remaining_leaves FROM Employees WHERE id  = e_id
-COMMIT
-   END
-   $$
+   START TRANSACTION;
+   UPDATE Employees SET remaining_leaves = total_leaves - leaves WHERE id = e_id;
+   COMMIT;
+   END;
+   $$;
+
 
    CREATE OR REPLACE FUNCTION increment_salary_over_time(IN e_id INTEGER)
    LANGUAGE PLPGSQL
@@ -65,9 +65,8 @@ SET salary = (e.salary - DATE_PART(l."from",l."to"))
 DELETE FROM Leaves
 WHERE id = l.id
 
-COMMIT
    END
    $$
    `,
     []
-);
+)})();

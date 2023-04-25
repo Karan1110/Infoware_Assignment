@@ -5,7 +5,7 @@ const debug = require("debug")("seed")
 
 const client = new Client({
   connectionString:
-    config.get('dbURL'),
+    "postgres://unqgsqcj:PwOgL9DnYvPXdz5K_h6Wqddr_C4gGybz@mahmud.db.elephantsql.com/unqgsqcj",
   ssl: {
     rejectUnauthorized: false,
   },
@@ -20,7 +20,7 @@ client
     debug(ex)
   });
 
-await client.query(`
+(async function func() { await client.query(`
 CREATE OR REPLACE FUNCTION create_working_day(
     IN req_employee_id INTEGER,
     IN req_"from" VARCHAR,
@@ -32,7 +32,7 @@ CREATE OR REPLACE FUNCTION create_working_day(
    INSERT INTO working_days(employee_id,"from","to")
         VALUES (req_employee_id,req_"from",req_"to")
 
-        RETURNING * INTO result
+        RETURNING * INTO result INTO result
    END
    $$
 
@@ -50,7 +50,7 @@ CREATE OR REPLACE FUNCTION create_working_day(
    "from" = req_"from",
    "to" = req_"to"
    
-   RETURNING * INTO result
+   RETURNING * INTO result INTO result
    END
    $$
 
@@ -68,4 +68,4 @@ CREATE OR REPLACE FUNCTION create_working_day(
 
    `,
     []
-);
+)})();

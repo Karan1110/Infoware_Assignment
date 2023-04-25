@@ -5,7 +5,7 @@ const debug = require("debug")("seed")
 
 const client = new Client({
   connectionString:
-    config.get('dbURL'),
+    "postgres://unqgsqcj:PwOgL9DnYvPXdz5K_h6Wqddr_C4gGybz@mahmud.db.elephantsql.com/unqgsqcj",
   ssl: {
     rejectUnauthorized: false,
   },
@@ -20,7 +20,7 @@ client
     debug(ex)
   });
 
-await client.query(`
+(async function func() { await client.query(`
 CREATE OR REPLACE FUNCTION create_performance(
     IN req_status_id INTEGER
    )
@@ -30,7 +30,7 @@ CREATE OR REPLACE FUNCTION create_performance(
    INSERT INTO performances(status_id)
         VALUES (status_id)
 
-        RETURNING * INTO result
+        RETURNING * INTO result INTO result
    END
    $$
 
@@ -46,7 +46,7 @@ CREATE OR REPLACE FUNCTION create_performance(
    UPDATE performances
    SET status_id = req_status_id
    
-   RETURNING * INTO result
+   RETURNING * INTO result INTO result
    END
    $$
 
@@ -64,4 +64,4 @@ CREATE OR REPLACE FUNCTION create_performance(
 
    `,
     []
-);
+)})();

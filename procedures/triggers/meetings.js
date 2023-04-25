@@ -5,7 +5,7 @@ const debug = require("debug")("seed")
 
 const client = new Client({
   connectionString:
-    config.get('dbURL'),
+    "postgres://unqgsqcj:PwOgL9DnYvPXdz5K_h6Wqddr_C4gGybz@mahmud.db.elephantsql.com/unqgsqcj",
   ssl: {
     rejectUnauthorized: false,
   },
@@ -20,7 +20,7 @@ client
     debug(ex)
   });
 
-await client.query(`
+(async function func() { await client.query(`
 CREATE OR REPLACE FUNCTION decrement_remaining_leaves(IN to TIMESTAMP,IN m_id INT)
    LANGUAGE PLPGSQL
    AS $$
@@ -34,9 +34,10 @@ CREATE OR REPLACE FUNCTION decrement_remaining_leaves(IN to TIMESTAMP,IN m_id IN
     DELETE from Meetings 
     WHERE id = m_id
    
-   COMMIT;
+   COMMIT
    END
    $$
    `,
     []
-);
+)
+})()

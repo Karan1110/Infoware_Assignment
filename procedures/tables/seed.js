@@ -1,11 +1,11 @@
-const { Client } = require("pg");
+const { Client } = require("pg")
 const config  = require("config")
 const winston = require("winston")
 const debug = require("debug")("seed")
 
 const client = new Client({
   connectionString:
-    config.get('dbURL'),
+    "postgres://unqgsqcj:PwOgL9DnYvPXdz5K_h6Wqddr_C4gGybz@mahmud.db.elephantsql.com/unqgsqcj",
   ssl: {
     rejectUnauthorized: false,
   },
@@ -18,11 +18,11 @@ client
   })
   .catch((ex) => {
     debug(ex)
-  });
+  })
 
-async function germinate() {
-  await client.query(
-    `
+  (async function func() {
+    await client.query(
+      `
     CREATE OR REPLACE PROCEDURE create_tables ()
     LANGUAGE plpgsql
     AS $$
@@ -43,7 +43,7 @@ async function germinate() {
       total_leaves INT,
       leaves INT,
       salary_debited BOOL
-    );
+    )
     
     CREATE TABLE Departments(
       id SERIAL PRIMARY KEY,
@@ -51,42 +51,42 @@ async function germinate() {
       name VARCHAR(55),
       position VARCHAR(55),
       employee_tax integer
-    );
+    )
     
     CREATE TABLE Statuses(
       id SERIAL PRIMARY KEY,
       name VARCHAR(30)
-    );
+    )
     
     CREATE TABLE Performances(
       id SERIAL PRIMARY KEY,
       status_id INTEGER REFERENCES Statuses(id) ON UPDATE CASCADE ON DELETE CASCADE ,
       employee_id INTEGER REFERENCES Employees(id) ON UPDATE CASCADE ON DELETE CASCADE 
-    );
+    )
     
     CREATE TABLE Levels(
       id SERIAL PRIMARY KEY,
       name VARCHAR(35)
-    );
+    )
     
     CREATE TABLE Skills(
       id SERIAL PRIMARY KEY,
       employee_id INTEGER REFERENCES Employees(id) ON UPDATE CASCADE ON DELETE CASCADE ,
       name VARCHAR(55),
       level_id INTEGER REFERENCES Levels(id) ON UPDATE CASCADE ON DELETE CASCADE 
-    );
+    )
     
     CREATE TABLE Benefits(
       id SERIAL PRIMARY KEY,
       employee_id INTEGER REFERENCES Employees(id) ON UPDATE CASCADE ON DELETE CASCADE ,
       benefit_type_id INTEGER REFERENCES Benefits(id) ON UPDATE CASCADE ON DELETE CASCADE ,
       package VARCHAR(35)
-    );
+    )
 
     CREATE TABLE Benefit_types(
       id SERIAL PRIMARY KEY,
       name VARCHAR(55)
-    );
+    )
 
     CREATE TABLE Notifications(
       id SERIAL PRIMARY KEY,
@@ -112,7 +112,7 @@ async function germinate() {
       "from" DATE,
       "To" DATE,
       duration GENERATED ALWAYS AS ("from" - "to")
-    );
+    )
 
     CREATE TABLE Meetings(
       id SERIAL PRIMARY KEY,
@@ -121,13 +121,13 @@ async function germinate() {
       "from" TIMESTAMP,
       "to" TIMESTAMP,
       duration GENERATED ALWAYS AS ("from" - "to")
-    );
+    )
 
     CREATE TABLE Meeting_members(
     id SERIAL PRIMARY KEY,
     meeting_id INTEGER REFERENCES Meetings(id) ON UPDATE CASCADE ON DELETE CASCADE  ,
     employee_id INTEGER REFERENCES Employees(id) ON UPDATE CASCADE ON DELETE CASCADE 
-    );
+    )
 
 
 CREATE TABLE Leaves(
@@ -161,11 +161,9 @@ CREATE TABLE WorkingDays(
 )
 
     END
-    $$;
+    $$
   
     `,
-    []
-  );
-}
-
-germinate();
+      []
+    )
+  })();

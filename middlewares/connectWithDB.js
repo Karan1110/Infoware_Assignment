@@ -4,7 +4,7 @@ const config  = require("config");
 const debug = require("debug")("db")
 
     const client = new Client({
-        connectionString: config.get('dbURL'),
+        connectionString: "postgres://unqgsqcj:PwOgL9DnYvPXdz5K_h6Wqddr_C4gGybz@mahmud.db.elephantsql.com/unqgsqcj",
         ssl: {
             rejectUnauthorized: false
         }

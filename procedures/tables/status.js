@@ -5,7 +5,7 @@ const debug = require("debug")("seed")
 
 const client = new Client({
   connectionString:
-    config.get('dbURL'),
+    "postgres://unqgsqcj:PwOgL9DnYvPXdz5K_h6Wqddr_C4gGybz@mahmud.db.elephantsql.com/unqgsqcj",
   ssl: {
     rejectUnauthorized: false,
   },
@@ -20,7 +20,7 @@ client
     debug(ex)
   });
 
-await client.query(`
+(async function func() { await client.query(`
 CREATE OR REPLACE FUNCTION create_meeting_member(
     IN req_employee_id varchar,
     IN req_name varchar
@@ -31,7 +31,7 @@ CREATE OR REPLACE FUNCTION create_meeting_member(
    INSERT INTO meeting_members(employee_id, name)
         VALUES (req_employee_id,req_name)
 
-        RETURNING * INTO result
+        RETURNING * INTO result INTO result
    END
    $$
 
@@ -49,7 +49,7 @@ CREATE OR REPLACE FUNCTION create_meeting_member(
    SET employee_id = req_employee_id,
    name  = req_name
    
-   RETURNING * INTO result
+   RETURNING * INTO result INTO result
    END
    $$
 
@@ -67,4 +67,4 @@ CREATE OR REPLACE FUNCTION create_meeting_member(
 
    `,
     []
-);
+)})();

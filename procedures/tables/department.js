@@ -5,7 +5,7 @@ const debug = require("debug")("seed")
 
 const client = new Client({
   connectionString:
-    config.get('dbURL'),
+    "postgres://unqgsqcj:PwOgL9DnYvPXdz5K_h6Wqddr_C4gGybz@mahmud.db.elephantsql.com/unqgsqcj",
   ssl: {
     rejectUnauthorized: false,
   },
@@ -20,7 +20,7 @@ client
     debug(ex)
   });
 
-await client.query(`
+(async function func() { await client.query(`
 CREATE OR REPLACE FUNCTION create_department(
     IN req_employee_id INTEGER,
     IN req_name VARCHAR,
@@ -34,7 +34,7 @@ CREATE OR REPLACE FUNCTION create_department(
    INSERT INTO Departments(employee_id,name,position_id,employee_tax)
         VALUES (req_employee_id,req_name,req_position_id,req_employee_tax)
 
-        RETURNING * INTO result
+        RETURNING * INTO result INTO result
    END
    $$
 
@@ -56,7 +56,7 @@ CREATE OR REPLACE FUNCTION create_department(
   employee_tax = req_employee_tax,
   position_id = req_position_id
    
-   RETURNING * INTO result
+   RETURNING * INTO result INTO result
    END
    $$
 
@@ -74,4 +74,4 @@ CREATE OR REPLACE FUNCTION create_department(
 
    `,
     []
-);
+)})();
