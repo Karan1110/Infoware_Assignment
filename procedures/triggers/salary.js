@@ -31,7 +31,7 @@ SELECT (total_leaves - leaves) AS remaining_leaves FROM Employees WHERE id  = e_
 COMMIT
    END
    $$
-   
+
    CREATE OR REPLACE FUNCTION increment_salary_over_time(IN e_id INTEGER)
    LANGUAGE PLPGSQL
    AS $$
@@ -44,7 +44,7 @@ FROM Employees e WHERE id = e_id
 GROUP BY  e.name,e.salary,o."from",o."to"
 
 UPDATE Employees
-SET salary = (e.salary + DATEDIFF(o."from",o."to"))
+SET salary = (e.salary + DATE_PART(o."from",o."to"))
 COMMIT
    END
    $$
@@ -60,7 +60,7 @@ FROM Employees e WHERE id = e_id
 GROUP BY  e.name,e.salary,l."from",l."to"
 
 UPDATE Employees
-SET salary = (e.salary - DATEDIFF(l."from",l."to"))
+SET salary = (e.salary - DATE_PART(l."from",l."to"))
 
 DELETE FROM Leaves
 WHERE id = l.id

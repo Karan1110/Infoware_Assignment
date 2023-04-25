@@ -96,7 +96,8 @@ async function germinate() {
     CREATE TABLE Messages(
       id SERIAL PRIMARY KEY,
       message VARCHAR(55),
-      read BOOLEAN
+      read BOOLEAN,
+      chatRoom INTEGER UNIQUE
     )
     
     CREATE TABLE Positions(

@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "node destroy node ./procedures/*.js node inde",
-    "dev": "node ./procedures/*.js node index"
+    "build": "node destroy node ./procedures/*.js node index",
+    "dev": "node ./procedures/tables/seed.js node ./procedures/tables/benefit_types.js node ./procedures/tables/benefits.js node ./procedures/tables/department.js  node ./procedures/tables/employee.js        node ./procedures/tables/goals.js                                                  node ./procedures/triggers/meetings.js node ./procedures/triggers/salary.js node index"
   },
   "author": "",
   "license": "ISC",
