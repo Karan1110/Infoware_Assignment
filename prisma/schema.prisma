@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = "postgres://unqgsqcj:PwOgL9DnYvPXdz5K_h6Wqddr_C4gGybz@mahmud.db.elephantsql.com/unqgsqcj"
+  url      = env("DATABASE_URL")
 }
 
 model Employee {
@@ -30,13 +30,13 @@ model Employee {
   Department Department[] @relation("EmployeeToDepartment")
 
   Meeting_members Meeting_members[] @relation("EmployeeToMeeting")
+  education Education @relation("EmployeeToEducation",fields: [education_id],references: [id])
 
    Performance Performance @relation("EmployeeToPerformance",fields: [performance_id],references: [id])
    performance_id Int
 
   salary Int
   phone Int
-  education Education @relation("EmployeeToEducation",fields: [education_id],references: [id])
   education_id Int
 
   age Int
@@ -162,7 +162,7 @@ model Position{
 model Performance{
    id   Int       @id @default(autoincrement())
   employee Employee[]  @relation("EmployeeToPerformance")
-  performance_status performance_status @relation("performance_statusToPerformance",fields: [performance_id],references: [id])
+  performance_status performance_status @relation("performance_statusToPerformance",fields: [performance_status_id],references: [id])
   performance_status_id Int
    @@index([id])
 }
