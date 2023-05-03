@@ -4,12 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "node destroy node ./procedures/*.js node index", 
+    "build": "node destroy node ./procedures/*.js node index",
     "dev": "node ./procedures/tables/seed.js node ./procedures/tables/benefit_types.js node ./procedures/tables/benefits.js node ./procedures/tables/department.js  node ./procedures/tables/employee.js        node ./procedures/tables/goals.js                 node ./procedures/tables/leaves.js          node ./procedures/tables/levels.js     node ./procedures/tables/mail.js          node ./procedures/tables/meeting-members.js         node ./procedures/tables/meetings.js        node ./procedures/tables/messages.js            node ./procedures/tables/notifications.js node ./procedures/tables/over_time.js                node ./procedures/tables/performance.js                   node ./procedures/tables/phone.js        node ./procedures/tables/skills.js   node ./procedures/tables/status.js    node ./procedures/tables/users.js node ./procedures/tables/workingDays.js node ./procedures/triggers/meetings.js node ./procedures/triggers/salary.js node index"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@prisma/client": "^4.13.0",
     "bcrypt": "^5.1.0",
     "config": "^3.3.9",
     "debug": "^4.3.4",
@@ -21,5 +22,8 @@
     "nodemailer": "^6.9.1",
     "pg": "^8.10.0",
     "winston": "^2.4.0"
+  },
+  "devDependencies": {
+    "prisma": "^4.13.0"
   }
 }

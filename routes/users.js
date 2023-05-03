@@ -6,34 +6,37 @@ const auth = require("../middlewares/auth");
 const isAdmin = require("../middlewares/isAdmin");
 const email_verified = require("../middlewares/isMailCode");
 const config = require("config")
+const {prisma} = require("../startup/db")
 
 router.get("/average_salary",[auth,isAdmin],async (req, res) => {
-    const { rows } = await req.db.query(
-        `
-       SELECT AVG(salary) FROM Employees
-       `
-        ,
-        [
-        ]);
-    // we can select the employee's skill and it's skill_level using the same index for both arrays.
-        res.status(200).send({"average salary":rows[0]});
+    const avg_salary = prisma.employee.aggregate({
+        avg: {
+            salary: true
+        }
+    });
+        res.status(200).send(avg_salary);
 });
 
 router.get("/me", [auth, isAdmin], async (req, res) => {
-    const id = req.user.id;
-    const { rows } = await req.db.query(
-        `
-        SELECT e.name, sk.name, l.name
-        LEFT JOIN Skills sk ON sk.employee_id = e.id
-        LEFT JOIN Levels l ON sk.level_id = l.id
-        FROM Employees e
-        
-       `
-        ,
-        [
-            id
-        ]);
-    // we can select the employee's skill and it's skill_level using the same index for both arrays.
+    prisma.employee.findMany({
+        include: {
+            education: true,
+            experience: true,
+            notification: true,
+            ticket: true,
+            skills: true,
+            level: true,
+            benefit: true,
+            benefit_type: true,
+            meeting: true,
+            meeting_member: true,
+            department: true,
+            position: true,
+            performance: true,
+            performance_status  : true
+
+        }
+    })
     res.status(200).send({ "employee details": rows[0] });
 });
     
