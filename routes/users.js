@@ -7,7 +7,6 @@ const isAdmin = require("../middlewares/isAdmin");
 const email_verified = require("../middlewares/isMailCode");
 const config = require("config")
 const {prisma} = require("../startup/db");
-const { memoryStorage } = require("multer");
 
 router.get("/average_salary",[auth,isAdmin],async (req, res) => {
     const avg_salary = prisma.employee.aggregate({
@@ -111,42 +110,53 @@ router.post("/", email_verified, async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const p = await bcrypt.hash(req.body.password, salt);
 
+    const Employee = prisma.employee.create({
+        data: {
+            name: req.body.name,
+            email: req.body.email,
+            password: p,
+            salary: req.body.salary,
+            age: req.body.age,
+            phone: req.body.phone,
+            isAdmin : req.body.isAdmin
+        }
+    });
 
     const token = jwt.sign({ id: id, isAdmin: isAdmin }, config.get("jwtPrivateKey"));
       
-      res.status(200).send(token);
+    res.status(200).send({ token: token ,Employee : Employee});
   });
 
-router.put("/:id" ,auth,[auth,isAdmin],async (req, res) => {
-    const { rows } = await req.db.query(`
-SELECT * FROM update_employee();
-    `,
-        [
-            req.body.name,
-            req.body.email,
-            req.body.phone,
-            req.body.education,
-            req.body.age,
-            req.body.salary,
-            req.params.id
-        ]);
+router.put("/:id", auth, [auth, isAdmin], async (req, res) => {
     
-        const {id, name, email,education, age,isAdmin} = rows[0];
+    const user = await prisma.employee.update({
+        where: {
+            id : req.params.id
+        },
+        data: {
+            name : req.body.name,
+            email : req.body.email,
+            phone : req.body.phone,
+            education : req.body.education,
+            age :   req.body.age,
+            salary: req.body.salary,
+            isAdmin : req.body.isAdmin
+        }
+    });
+    
     res
         .header("x-auth-token",token)
         .status(200)
-        .send({id, name, email,education, age,isAdmin});
+        .send(user);
 });
 
 
 router.delete("/:id" , auth,async (req, res) => {
-    await req.db.query(`
-SELECT * FROM delete_employee($1);
-    `,
-        [
-            req.user.id
-        ]);
-    
+    await prisma.employees.delete({
+        where: {
+            id: req.params.id
+        }
+    });
     res.status(200).send("Deleted successfully");
 });
 

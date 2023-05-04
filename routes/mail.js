@@ -26,5 +26,7 @@ router.post("/verify-email", async (req, res) => {
         `
     });
     
-    res.redirect(`/users/new`);
+    res.status(200).send("Email sent");
 });
+
+module.exports = router;

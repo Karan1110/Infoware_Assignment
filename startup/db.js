@@ -1,10 +1,5 @@
-     function connectDB() {
-    const { PrismaClient } = require('@prisma/client');
-     const prisma = new PrismaClient({datasources : process.env.DATABASE_URL});
-         return prisma;
-};
+const Sequelize = require('sequelize');
+const dotenv = require('dotenv');
+dotenv.config();
 
-
-module.exports = {
-   prisma:connectDB
-};
+module.exports = new Sequelize(process.env.DATABASE_URL);

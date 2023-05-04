@@ -22,3 +22,5 @@ client.messages.create({
 .then(message => winston.info(message.sid))
 .catch(error => debug(error));
 }); 
+
+module.exports = router

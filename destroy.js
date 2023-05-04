@@ -5,7 +5,7 @@ const debug = require("debug")("destroy")
 
 const client = new Client({
   connectionString:
-    "postgres://unqgsqcj:PwOgL9DnYvPXdz5K_h6Wqddr_C4gGybz@mahmud.db.elephantsql.com/unqgsqcj",
+    "postgres://rnmqvabj:BE1S5huRkjmo7h8w7MgE1wFfmkrOTcBC@mahmud.db.elephantsql.com/rnmqvabj",
   ssl: {
     rejectUnauthorized: false,
   },

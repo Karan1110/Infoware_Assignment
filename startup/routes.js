@@ -10,9 +10,9 @@ const skills = require("../routes/skills");
 const error = require("../middlewares/error");
 const mails = require("../routes/mail");
 const db = require("../middlewares/connectWithDB");
-const chat = require("../routes/chat");
 
 module.exports = function (app) {
+    require("../routes/chat")(app);
     app.use(express.urlencoded({ extended: true }));
     app.use(express.json());
     app.use(db);
@@ -24,7 +24,6 @@ module.exports = function (app) {
     app.use("/performances", performances);
     app.use("/skills", skills);
     app.use("/statuses", statuses);
-    app.use("/verify-email", mails);
-    app.use("chat", chat);
+    app.use("/verify-email", mails)
     app.use(error);
 }

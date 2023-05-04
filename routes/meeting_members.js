@@ -2,30 +2,29 @@ const express = require("express");
 const router = express.Router();
 const auth = require("../middlewares/auth");
 const isAdmin = require("../middlewares/isAdmin");
+const { prisma } = require("../startup/db");
 
 router.post("/", [auth,isAdmin],async (req, res) => {
 
-    const {rows} = await req.db.query(`
-       SELECT * FROM create_meeting_member($1,$2);
-  `, [
-    1,
-        req.body.employee_id,
-        req.body.meeting_id
-      ]);
-      
-      res.status(200).send(rows[0]);
+    const meeting_member = await prisma.meeting_member.create({
+        data: {
+            employee_id: req.body.employee_id,
+            meeting_id : req.body.meeting_id
+        }
+    })
+      res.status(200).send(meeting_member);
   });
 
 router.put("/:id" ,[auth,isAdmin],async (req, res) => {
-    const { rows } = await req.db.query(`
-    SELECT * FROM update_meeting_member($1,$2);
-    `,
-        [
-            req.body.employee_id,
-            req.body.meeting_id
-         
-        ]);
-    
+    await prisma.meeting_member.update({
+        where: {
+            id :req.params.id
+        },
+        data: {
+            meeting_id: req.body.meeting_id,
+            employee_id : req.body.employee_id
+        }
+   })
     res
         .status(200)
         .send(rows[0]);
@@ -33,12 +32,12 @@ router.put("/:id" ,[auth,isAdmin],async (req, res) => {
 
 
 router.delete("/:id" ,[auth,isAdmin],async (req, res) => {
-    await req.db.query(`
-    SELECT * FROM delete_meeting_member($1);
-    `,
-        [
-            req.params.id
-        ]);
+    await prisma.meeting_member.delete({
+        where: {
+            meeting_id: req.body.meeting,
+            employee_id: req.body.employee_id
+        }
+    });
     
     res.status(200).send("Deleted successfully");
 });
