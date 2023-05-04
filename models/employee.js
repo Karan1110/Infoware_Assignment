@@ -25,8 +25,6 @@ const Employee = db.define('Employee', {
 });
 
 Employee.hasMany(Employee, { as: "manager", forgeinKey: "manager_id" });
-Employee.hasOne(Education,{as :"education" ,forgeinKey : "education_type"});
-
 
 Employee.sync().then(() => {
   winston.info('Employee table created');
