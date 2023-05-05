@@ -8,11 +8,12 @@ const Department = db.define('Department', {
 });
 
 Department.hasMany(
-    Employee, { as: "employee", foreignKey: "employee_id" }
+    Employee, { as: "Department", foreignKey: "department_id" }
 );
+
 Department.hasOne(
-    Position, { as: "Position", foreignKey: "position_id" }
-)
+  Position, { as: "Position", foreignKey: "position_id" }
+);
 
 Department.sync().then(() => {
   winston.info('Department table created');

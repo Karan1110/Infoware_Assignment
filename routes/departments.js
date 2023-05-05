@@ -5,15 +5,12 @@ const auth = require("../middlewares/auth");
 
 router.post("/", [auth,isAdmin],async (req, res) => {
 
-    const {rows} = await req.db.query(`
-       SELECT * FROM create_department($1,$2,$3);
-  `, [
-      req.user.id,
-      req.body.name,
-      req.body.position
-      ]);
+    const department = Department.create({
+        name: req.body.name,
+        position_id : req.body.position_id
+    });
     
-      res.status(200).send(rows[0]);
+      res.status(200).send(department);
   });
 
 router.put("/:id" ,[auth,isAdmin],async (req, res) => {
@@ -31,13 +28,12 @@ router.put("/:id" ,[auth,isAdmin],async (req, res) => {
 });
 
 
-router.delete("/:id" ,[auth,isAdmin],async (req, res) => {
-    await req.db.query(`
-    SELECT * FROM delete_department($1);
-    `,
-        [
-            req.params.id
-        ]);
+routerdestroy("/:id" ,[auth,isAdmin],async (req, res) => {
+    await Departmentdestroy({
+        where: {
+            id: req.params.id
+        }
+    });
     
     res.status(200).send("Deleted successfully");
 });

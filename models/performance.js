@@ -17,7 +17,7 @@ Performance.hasOne(Employee, {
     foreignKey : "employee_id"
 });
 
-Performance.belongsTo(Employee);
+Employee.belongsTo(Performance,{through : "employee_id"});
 
 Performance
     .sync()

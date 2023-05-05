@@ -7,8 +7,8 @@ const Ticket = db.define('Ticket', {
     steps : Sequelize.ARRAY(Sequelize.STRING)
 });
 
-Ticket.hasOne(Employee);
-Ticket.belongsTo(Employee);
+Ticket.hasOne(Employee, { as: " Employee", foreignKey: "employee_id" });
+Ticket.belongsTo(Employee, { through: "employee_id" });
 
 Ticket.sync().then(() => {
   winston.info('Ticket table created');

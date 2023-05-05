@@ -12,7 +12,8 @@ Position.hasOne(department, {
   as: "Department",
   foreignKey  :"department_key"
 });
-Position.belongsTo(department);
+
+Position.belongsTo(department,{through : "department_id"});
 
 Position.sync().then(() => {
   winston.info('Position table created');

@@ -12,10 +12,12 @@ Education.hasMany(Employee, {
   foreignKey: "employee_id"
 });
 
-Employee.hasOne(Education);
+Employee.hasOne(Education,{as : "Education",foreignKey  :"education_id"});
 
-Education.sync().then(() => {
+Education
+  .sync()
+  .then(() => {
   winston.info('Education table created');
-});
+  });
 
 module.exports = Education;

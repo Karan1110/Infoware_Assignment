@@ -28,11 +28,17 @@ Employee.prototype.generateAuthToken = function() {
   const token = jwt.sign(
     { id: this.id, isAdmin: this.isAdmin },
     config.get("jwtPrivateKey")
-  )
+  );
   return token;
 };
 
-Employee.hasMany(Employee, { as: "manager", forgeinKey: "manager_id" });
+Employee.hasMany(Employee, { as: "Employee", forgeinKey: "employee_id" });
+
+Employee.belongsTo(Employee, {
+  as: "Manager",
+  forgeinKey: "manager_id",
+  selfGranted : true
+});
 
 Employee.sync().then(() => {
   winston.info('Employee table created');

@@ -8,8 +8,17 @@ const Notification = db.define('Notification', {
     indexes : [message]
 });
 
-Notification.hasOne(Employee);
-Notification.belongsTo(Employee);
+Notification.hasOne(
+  Employee, {
+    as: "Employee",
+    foreignKey: "employee_id"
+});
+
+Notification.belongsTo(
+  Employee,
+  {
+    through: "employee_id"
+  });
 
 Notification.sync().then(() => {
   winston.info('Notification table created');

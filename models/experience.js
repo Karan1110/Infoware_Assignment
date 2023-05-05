@@ -8,12 +8,8 @@ const Experience = db.define('Experience', {
     to : Sequelize.STRING
 });
 
-Employee.hasMany(Experience, {
-  as: "employee",
-  foreignKey: "employee_id"
-});
-
-Experience.belongsTo(Employee);
+Employee.belongsToMany(Experience,{through  :"EmployeeExperience"});
+Experience.belongsToMany(Employee,{through : "EmployeeExperience"});
 
 Experience.sync().then(() => {
   winston.info('Experience table created');

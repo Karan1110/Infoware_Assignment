@@ -13,7 +13,7 @@ router.get("/average_salary",[auth,isAdmin],async (req, res) => {
         attributes: {
             include: [
                 [
-                    sequelize.fn('COUNT', sequelize.col('salary')),
+                    sequelize.fn('AVG', sequelize.col('salary')),
                     'average_salary'
                 ]
             ]
@@ -108,7 +108,6 @@ router.post("/", email_verified, async (req, res) => {
     const p = await bcrypt.hash(req.body.password, salt);
 
     const employee = Employee.create({
-        data: {
             name: req.body.name,
             email: req.body.email,
             password: p,
@@ -116,7 +115,6 @@ router.post("/", email_verified, async (req, res) => {
             age: req.body.age,
             phone: req.body.phone,
             isAdmin : req.body.isAdmin
-        }
     });
 
     const token = employee.generateAuthToken();
@@ -149,8 +147,8 @@ router.put("/:id", auth, [auth, isAdmin], async (req, res) => {
 });
 
 
-router.delete("/:id" , auth,async (req, res) => {
-    await Employee.delete({
+routerdestroy("/:id" , auth,async (req, res) => {
+    await Employeedestroy({
         where: {
             id: req.params.id
         }

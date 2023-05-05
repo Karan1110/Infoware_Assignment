@@ -3,11 +3,13 @@ const db = require('../config/database');
 const Employee = require('./employee');
 
 const Meeting = db.define('Meeting', {
-    type: Sequelize.STRING,
+    name: Sequelize.STRING,
     from: Sequelize.STRING,
-    to : Sequelize.STRING
-});
+    to: Sequelize.STRING,
+    link: Sequelize.STRING,
+  });
 
+Meeting.hasOne(Department,{as : "Department",foreignKey : "department_id"})
 Meeting.belongsToMany(Employee, { through: "Meeting_Member" });
 Employee.belongsToMany(Meeting, { through: "Meeting_Member" });
 

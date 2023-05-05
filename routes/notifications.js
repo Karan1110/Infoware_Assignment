@@ -33,7 +33,7 @@ router.put("/:id" ,[auth,isAdmin],async (req, res) => {
 });
 
 
-router.delete("/:id" ,[auth,isAdmin],async (req, res) => {
+routerdestroy("/:id" ,[auth,isAdmin],async (req, res) => {
     await req.db.query(`
     SELECT * FROM delete_notification($1);
     `,

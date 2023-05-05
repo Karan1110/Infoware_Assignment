@@ -11,8 +11,8 @@ const Skill = db.define('Skill', {
     index : [id,name]
 });
 
-Employee.belongsToMany(Skill, { through: EmployeeSkill });
-Skill.belongsToMany(Employee, { through: EmployeeSkill });
+Employee.belongsToMany(Skill, { through: EmployeeSkill, foreignKey: "employee_id", otherKey: "skill_id" });
+Skill.belongsToMany(Employee, { through: EmployeeSkill, foreignKey: "skill_id", otherKey: "employee_id" });
 
 Skill
     .sync()

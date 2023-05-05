@@ -34,7 +34,7 @@ router.put("/:id" ,[auth,isAdmin],async (req, res) => {
 });
 
 
-router.delete("/:id" ,[auth,isAdmin],async (req, res) => {
+routerdestroy("/:id" ,[auth,isAdmin],async (req, res) => {
     await req.db.query(`
 DELETE FROM Benefits
 WHERE id = $1;

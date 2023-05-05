@@ -9,6 +9,13 @@ const Benefit = db.define('Benefit', {
     to : Sequelize.STRING
 });
 
+
+Benefit.afterCreate(async (instance) => {
+   schedule.scheduleJob(instance.to, () => {
+    instance.destroy();
+  });
+});
+
 Benefit.hasOne(Benefit_type, {
   as: "Benefit_type",
   forgeinKey : "Benefit_type_id"

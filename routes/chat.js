@@ -20,10 +20,8 @@ module.exports = function (app) {
 
       // Save the message to the database
       await Message.create({
-        data: {
-          message: message,
-          read : false
-        }
+        message: message,
+        read: false
       })
       // Send a confirmation message to the sender
       ws.send(`${req.name} : ${msg}`);
