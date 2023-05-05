@@ -6,39 +6,41 @@ const auth = require("../middlewares/auth");
 const isAdmin = require("../middlewares/isAdmin");
 const email_verified = require("../middlewares/isMailCode");
 const config = require("config")
-const {prisma} = require("../startup/db");
+const Employee = require("../models/employee");
 
 router.get("/average_salary",[auth,isAdmin],async (req, res) => {
-    const avg_salary = prisma.employee.aggregate({
-        avg: {
-            salary: true
+    const Users = await Employee.findAll({
+        attributes: {
+            include: [
+                [
+                    sequelize.fn('COUNT', sequelize.col('salary')),
+                    'average_salary'
+                ]
+            ]
         }
     });
-        res.status(200).send(avg_salary);
+
+        res.status(200).send(Users.average_salary);
 });
 
 router.get("/me", [auth, isAdmin], async (req, res) => {
-    const me = prisma.employee.find({
+    const me = await Employee.findOne({
         where: {
            id  :req.user.id
        },
         include: {
-            manager : true,
-            education: true,
-            experience: true,
-            notification: true,
-            ticket: true,
-            skills: true,
-            level: true,
-            benefit: true,
-            benefit_type: true,
-            meeting: true,
-            meeting_member: true,
-            department: true,
-            position: true,
-            performance: true,
-            performance_status  : true
-
+            Manager : true,
+            Education: true,
+            Experience: true,
+            Notification: true,
+            Ticket: true,
+            EmployeeSkill: true,
+            EmployeeBenefit: true,
+            Benefit_type: true,
+            Meeting_Member: true,
+            Department: true,
+            Position: true,
+            Performance: true
         }
    });
     
@@ -50,47 +52,42 @@ router.get("/:id", [auth, isAdmin], async (req, res) => {
         where: {
            id  :req.params.id
        },
-        include: {
-            manager : true,
-            education: true,
-            experience: true,
-            notification: true,
-            ticket: true,
-            skills: true,
-            level: true,
-            benefit: true,
-            benefit_type: true,
-            meeting: true,
-            meeting_member: true,
-            department: true,
-            position: true,
-            performance: true,
-            performance_status  : true
-
-        }
+       include: {
+        Manager : true,
+        Education: true,
+        Experience: true,
+        Notification: true,
+        Ticket: true,
+        EmployeeSkill: true,
+        EmployeeBenefit: true,
+        Benefit_type: true,
+        Meeting_Member: true,
+        Department: true,
+        Position: true,
+        Performance: true
+    }
    });
     res.status(200).send(employee);
 });
 
 router.get("/",  [auth,isAdmin],async (req, res) => {
-    const employee = prisma.employee.findMany({
+    const employee = await Employee.findAll({
+        order: [['age', 'ASC']], // Sort by name in ascending order
+        offset: 10, // Skip the first 10 records
+        imit: 5,
         include: {
-            manager : true,
-            education: true,
-            experience: true,
-            notification: true,
-            ticket: true,
-            skills: true,
-            level: true,
-            benefit: true,
-            benefit_type: true,
-            meeting: true,
-            meeting_member: true,
-            department: true,
-            position: true,
-            performance: true,
-            performance_status  : true
-
+            Manager : true,
+            Education: true,
+            Experience: true,
+            Notification: true,
+            Ticket: true,
+            EmployeeSkill: true,
+            EmployeeBenefit: true,
+            Benefit_type: true,
+            Meeting_Member: true,
+            Department: true,
+            Position: true,
+            Performance: true
         }
     });
     
@@ -110,7 +107,7 @@ router.post("/", email_verified, async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const p = await bcrypt.hash(req.body.password, salt);
 
-    const Employee = prisma.employee.create({
+    const employee = Employee.create({
         data: {
             name: req.body.name,
             email: req.body.email,
@@ -122,14 +119,14 @@ router.post("/", email_verified, async (req, res) => {
         }
     });
 
-    const token = jwt.sign({ id: id, isAdmin: isAdmin }, config.get("jwtPrivateKey"));
+    const token = employee.generateAuthToken();
       
-    res.status(200).send({ token: token ,Employee : Employee});
+    res.status(200).send({ token: token ,Employee : employee});
   });
 
 router.put("/:id", auth, [auth, isAdmin], async (req, res) => {
     
-    const user = await prisma.employee.update({
+    const user = await Employee.update({
         where: {
             id : req.params.id
         },
@@ -137,13 +134,14 @@ router.put("/:id", auth, [auth, isAdmin], async (req, res) => {
             name : req.body.name,
             email : req.body.email,
             phone : req.body.phone,
-            education : req.body.education,
             age :   req.body.age,
             salary: req.body.salary,
             isAdmin : req.body.isAdmin
         }
     });
     
+    const token = user.generateAuthToken();
+
     res
         .header("x-auth-token",token)
         .status(200)
@@ -152,12 +150,14 @@ router.put("/:id", auth, [auth, isAdmin], async (req, res) => {
 
 
 router.delete("/:id" , auth,async (req, res) => {
-    await prisma.employees.delete({
+    await Employee.delete({
         where: {
             id: req.params.id
         }
     });
     res.status(200).send("Deleted successfully");
+
+
 });
 
 

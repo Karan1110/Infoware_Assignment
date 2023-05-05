@@ -3,19 +3,19 @@ const db = require('../config/database');
 const Employee = require('./employee');
 const Position = require('./position');
 
-const department = db.define('department', {
+const Department = db.define('Department', {
   name: Sequelize.STRING
 });
 
-department.hasMany(
+Department.hasMany(
     Employee, { as: "employee", foreignKey: "employee_id" }
 );
-department.hasOne(
+Department.hasOne(
     Position, { as: "Position", foreignKey: "position_id" }
 )
 
-department.sync().then(() => {
-  winston.info('department table created');
+Department.sync().then(() => {
+  winston.info('Department table created');
 });
 
-module.exports = department;
+module.exports = Department;

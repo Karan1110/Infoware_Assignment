@@ -1,5 +1,6 @@
 const Sequelize = require('sequelize');
 const db = require('../config/database');
+const Employee = require('./employee');
 
 const Performance = db.define('Performance', {
     name: {
@@ -10,6 +11,13 @@ const Performance = db.define('Performance', {
 }, {
     index : [name]
 });
+
+Performance.hasOne(Employee, {
+    as: "employee",
+    foreignKey : "employee_id"
+});
+
+Performance.belongsTo(Employee);
 
 Performance
     .sync()

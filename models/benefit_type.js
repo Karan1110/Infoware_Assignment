@@ -1,12 +1,12 @@
 const Sequelize = require('sequelize');
 const db = require('../config/database');
 
-const benefit_type = db.define('benefit_type', {
+const Benefit_type = db.define('Benefit_type', {
    name : Sequelize.STRING
 });
 
-benefit_type.sync().then(() => {
-  winston.info('benefit_type_TYPE table created');
+Benefit_type.sync().then(() => {
+  winston.info('Benefit_type_TYPE table created');
 });
 
-module.exports = benefit_type;
+module.exports = Benefit_type;

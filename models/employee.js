@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 const db = require('../config/database');
-const Education = require('./education');
+const jwt = require("jsonwebtoken");
 
 const Employee = db.define('Employee', {
   name: Sequelize.STRING,
@@ -23,6 +23,14 @@ const Employee = db.define('Employee', {
     }
   ]
 });
+
+Employee.prototype.generateAuthToken = function() {
+  const token = jwt.sign(
+    { id: this.id, isAdmin: this.isAdmin },
+    config.get("jwtPrivateKey")
+  )
+  return token;
+};
 
 Employee.hasMany(Employee, { as: "manager", forgeinKey: "manager_id" });
 

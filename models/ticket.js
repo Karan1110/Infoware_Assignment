@@ -2,16 +2,16 @@ const Sequelize = require('sequelize');
 const db = require('../config/database');
 const Employee = require('./employee');
 
-const ticket = db.define('ticket', {
+const Ticket = db.define('Ticket', {
     name: Sequelize.STRING,
     steps : Sequelize.ARRAY(Sequelize.STRING)
 });
 
-ticket.hasOne(Employee);
-ticket.belongsTo(Employee);
+Ticket.hasOne(Employee);
+Ticket.belongsTo(Employee);
 
-ticket.sync().then(() => {
-  winston.info('ticket table created');
+Ticket.sync().then(() => {
+  winston.info('Ticket table created');
 });
 
-module.exports = ticket;
+module.exports = Ticket;

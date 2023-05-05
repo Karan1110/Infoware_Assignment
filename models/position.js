@@ -8,7 +8,10 @@ const Position = db.define('Position', {
     indexes : [name]
 });
 
-Position.hasOne(department);
+Position.hasOne(department, {
+  as: "Department",
+  foreignKey  :"department_key"
+});
 Position.belongsTo(department);
 
 Position.sync().then(() => {

@@ -3,13 +3,16 @@ const db = require('../config/database');
 const Employee = require('./employee');
 
 const Message = db.define('Message', {
-  message  : Sequelize.STRING
+  message: Sequelize.STRING,
+  read: {
+    type: Sequelize.BOOLEAN,
+    allowNull : true
+  }
 }, {
     indexes : [message]
 });
 
-Message.hasOne(Employee);
-Message.belongsTo(Employee);
+Employee.hasMany(Message, { foreignKey: "employee_id" ,onDelete: 'CASCADE',onUpdate: 'CASCADE'});
 
 Message.sync().then(() => {
   winston.info('Message table created');
