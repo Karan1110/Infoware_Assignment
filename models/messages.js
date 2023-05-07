@@ -6,7 +6,7 @@ const Message = db.define('Message', {
   message: Sequelize.STRING,
   read: {
     type: Sequelize.BOOLEAN,
-    allowNull : true
+    default : false
   }
 }, {
     indexes : [message]

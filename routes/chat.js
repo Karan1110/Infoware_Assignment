@@ -22,7 +22,7 @@ module.exports = function (app) {
       await Message.create({
         message: message,
         read: false
-      })
+      });
       // Send a confirmation message to the sender
       ws.send(`${req.name} : ${msg}`);
     });

@@ -12,7 +12,7 @@ Notification.hasOne(
   Employee, {
     as: "Employee",
     foreignKey: "employee_id"
-});
+  });
 
 Notification.belongsTo(
   Employee,

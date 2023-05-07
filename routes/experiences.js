@@ -27,33 +27,26 @@ router.post("/", [auth,isAdmin],async (req, res) => {
   });
 
 router.put("/:id" ,[auth,isAdmin],async (req, res) => {
-    const { rows } = await req.db.query(`
-SELECT * FROM update_experience($1,$2,$3,$4)
-    `,
-        [
-        req.user.id,
-            req.body.company,
-            req.body.from,
-        req.body.to
-         
-        ]);
+   const experience =  await Experience.update({
+        comapny: req.body.company,
+        from: req.body.from,
+        to: req.body.to
+    });
     
     res
         .status(200)
-        .send(rows[0]);
+        .send(experience);
 });
 
 
 router.delete("/:id" ,[auth,isAdmin],async (req, res) => {
-    await req.db.query(`
-SELECT * FROM delete_experience($1)
-    `,
-        [
-            req.params.id
-        ]);
+    const experience = await Experience.destroy({
+        where: {
+            id: req.params.id
+        }
+    })
     
-    res.status(200).send("Deleted successfully");
+    res.status(200).send({message: "Deleted successfully",deleted : experience} );
 });
-
 
 module.exports = router;
