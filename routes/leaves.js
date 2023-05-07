@@ -9,7 +9,7 @@ router.post("/leaves", [auth,isAdmin],async (req, res) => {
   const employee = await Employee.update(
     {
       total_leaves: Sequelize.literal('total_leaves + 1'),
-      total_working_days: Sequelize.literal('total_working_days')
+      total_working_days: Sequelize.literal('total_working_days - 1')
     },
     { where: { id: 1 } }
   );

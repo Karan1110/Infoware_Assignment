@@ -10,9 +10,18 @@ const Employee = db.define('Employee', {
   phone: Sequelize.STRING,
   salary: Sequelize.INTEGER,
   isAdmin: Sequelize.BOOLEAN,
-  total_working_hours: Sequelize.DATE,
-  total_working_days: Sequelize.DATE,
-  salary_per_work : Sequelize.INTEGER
+  total_working_hours: {
+    type : Sequelize.DATE,
+    default : 8
+  },
+  total_working_days: {
+    type: Sequelize.DATE,
+    default : 25
+  },
+  salary_per_work: {
+    type: Sequelize.DATE,
+    default : 99
+  }
 },{
   indexes: [
     {
@@ -40,7 +49,10 @@ Employee.belongsTo(Employee, {
 
 Employee.afterCreate((instance,options) => {
   schedule.scheduleJob('0 12 1 * *', function() {
-    instance.salary = instance.salary_per_hour * total_working_hours * total_working_days;
+    instance.salary = instance.salary_per_hour * instance.total_working_hours * instance.total_working_days;
+    instance.total_working_days = null // set it to default
+    instance.total_working_hours = null // set it to default
+    instance.salary_per_hour = null // set it to default
     Notification.create({
       message: "salary credited",
       employee_id: instance.id

@@ -52,7 +52,7 @@ router.post("/", [auth,isAdmin],async (req, res) => {
   
 
 
-routerdestroy("/:id" ,[auth,isAdmin],async (req, res) => {
+router.delete("/:id" ,[auth,isAdmin],async (req, res) => {
 
   const benefit = await Benefit.findOne({
     where: {

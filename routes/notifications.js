@@ -5,43 +5,40 @@ const isAdmin = require("../middlewares/isAdmin");
 
 router.post("/", [auth,isAdmin],async (req, res) => {
 
-    const {rows} = await req.db.query(`
-       SELECT * FROM create_notification($1,$2)
-  `, [
-    1,
-        req.body.employee_id,
-        req.body.message_id
-      ]);
+  const notification =   await Notification.create({
+        message: req.body.message,
+        employee_id : req.body.employee_id
+    });
       
-      res.status(200).send(rows[0]);
+      res.status(200).send(notification);
   });
 
 router.put("/:id" ,[auth,isAdmin],async (req, res) => {
-    const { rows } = await req.db.query(`
-    SELECT * FROM update_notification($1,$2,$3)
-    `,
-        [
-            req.body.employee_id,
-            req.body.message_id,
-            req.params.id
-         
-        ]);
-    
-    res
-        .status(200)
-        .send(rows[0]);
+    const notification = await Notification.update({
+        where: {
+            id : req.params.id
+        }
+    },{
+        message: req.body.message,
+        employee_id : req.body.employee_id
+    });
+      
+      res.
+      status(200)
+      .send(notification);
 });
 
 
-routerdestroy("/:id" ,[auth,isAdmin],async (req, res) => {
-    await req.db.query(`
-    SELECT * FROM delete_notification($1);
-    `,
-        [
-            req.params.id
-        ]);
+router.delete("/:id", [auth, isAdmin], async (req, res) => {
+    const notification = await Notification.destroy({
+        where: {
+            id: req.params.id
+        }
+    });
     
-    res.status(200).send("Deleted successfully");
+    res
+        .status(200)
+        .send({DELETED : notification});
 });
 
 

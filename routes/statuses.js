@@ -28,7 +28,7 @@ router.put("/:id" ,[auth,isAdmin],async (req, res) => {
 });
 
 
-routerdestroy("/:id",
+router.delete("/:id",
     [auth, isAdmin],
     async(req, res) => {
     await req.db.query(`

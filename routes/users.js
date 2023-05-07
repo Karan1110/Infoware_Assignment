@@ -147,7 +147,7 @@ router.put("/:id", auth, [auth, isAdmin], async (req, res) => {
 });
 
 
-routerdestroy("/:id" , auth,async (req, res) => {
+router.delete("/:id" , auth,async (req, res) => {
     await Employeedestroy({
         where: {
             id: req.params.id

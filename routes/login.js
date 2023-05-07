@@ -5,7 +5,7 @@ const bcrypt = require("bcrypt");
 const { prisma } = require("../startup/db");
 
 router.post("/login", async (req,res) => {
-    const user = await prisma.employee.findOne({
+    const user = await Employee.findOne({
         where : {
             email  : req.body.email
         }

@@ -30,7 +30,7 @@ SELECT * FROM update_performance($1,$2);
 });
 
 
-routerdestroy("/:id" ,[auth,isAdmin],async (req, res) => {
+router.delete("/:id" ,[auth,isAdmin],async (req, res) => {
     await req.db.query(`
 SELECT * FROM delete_performance($1)
     `,
