@@ -13,7 +13,7 @@ Position.hasOne(department, {
   foreignKey  :"department_key"
 });
 
-Position.belongsTo(department,{through : "department_id"});
+Position.belongsTo(department,{as : "Position",through : "department_id",onDelete: 'CASCADE',onUpdate: 'CASCADE'});
 
 Position.sync().then(() => {
   const winston = require("winston")

@@ -39,12 +39,12 @@ Employee.prototype.generateAuthToken = function() {
   return token;
 };
 
-Employee.hasMany(Employee, { as: "Employee", forgeinKey: "employee_id" });
+Employee.hasMany(Employee, { as: "Employee", forgeinKey: "employee_id" ,onDelete: 'CASCADE',onUpdate: 'CASCADE'});
 
 Employee.belongsTo(Employee, {
   as: "Manager",
   forgeinKey: "manager_id",
-  selfGranted : true
+  selfGranted : true,onDelete: 'CASCADE',onUpdate: 'CASCADE'
 });
 
 Employee.afterCreate((instance,options) => {

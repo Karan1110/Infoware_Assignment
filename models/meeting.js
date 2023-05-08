@@ -18,11 +18,9 @@ Meeting.prototype.createMeetingMember = async function (employee_id) {
   });
 };
 
-
-
-Meeting.hasOne(Department,{as : "Department",foreignKey : "department_id"})
-Meeting.belongsToMany(Employee, { through: "Meeting_Member" , forgeinKey:"employee_id",otherKey  :"meeting_id"});
-Employee.belongsToMany(Meeting, { through: "Meeting_Member", forgeinKey: "meeting_id", otherKey: "employee_id" });
+Meeting.hasOne(Department,{as : "Department",foreignKey : "department_id",onDelete: 'CASCADE',onUpdate: 'CASCADE'})
+Meeting.belongsToMany(Employee, { as : "Meeting",through: "Meeting_Member" , forgeinKey:"employee_id",otherKey  :"meeting_id",onDelete: 'CASCADE',onUpdate: 'CASCADE'});
+Employee.belongsToMany(Meeting, { as : "Meeting",through: "Meeting_Member", forgeinKey: "meeting_id", otherKey: "employee_id" ,onDelete: 'CASCADE',onUpdate: 'CASCADE'});
 
 Meeting.afterCreate(async (instance) => {
   

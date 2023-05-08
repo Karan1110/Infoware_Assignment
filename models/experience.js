@@ -8,8 +8,8 @@ const Experience = db.define('Experience', {
     to : Sequelize.STRING
 });
 
-Employee.belongsToMany(Experience,{through  :"EmployeeExperience"});
-Experience.belongsToMany(Employee,{through : "EmployeeExperience"});
+Employee.belongsToMany(Experience,{as : "Experience",through  :"EmployeeExperience",onDelete: 'CASCADE',onUpdate: 'CASCADE'});
+Experience.belongsToMany(Employee,{as : "Experience",through : "EmployeeExperience",onDelete: 'CASCADE',onUpdate: 'CASCADE'});
 
 Experience.sync().then(() => {
   const winston = require("winston")

@@ -157,13 +157,13 @@ router.put("/:id", auth, [auth, isAdmin], async (req, res) => {
 
 
 router.delete("/:id" , auth,async (req, res) => {
-    await Employee.destroy({
+   const employee =  await Employee.destroy({
         where: {
             id: req.params.id
         }
     });
 
-    res.status(200).send("Deleted successfully");
+    res.status(200).send({Deleted : employee});
 });
 
 module.exports = router;

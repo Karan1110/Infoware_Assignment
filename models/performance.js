@@ -9,11 +9,11 @@ const Performance = db.define('Performance', {
 });
 
 Performance.hasOne(Employee, {
-    as: "employee",
+    as: "Employee",
     foreignKey : "employee_id"
 });
 
-Employee.belongsTo(Performance,{through : "employee_id"});
+Employee.belongsTo(Performance,{as  : "Performance",through : "employee_id",onDelete: 'CASCADE',onUpdate: 'CASCADE'});
 
 Performance
     .sync()

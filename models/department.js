@@ -8,11 +8,11 @@ const Department = db.define('Department', {
 });
 
 Department.hasMany(
-    Employee, { as: "Department", foreignKey: "department_id" }
+    Employee, { as: "Department", foreignKey: "department_id",onDelete: 'CASCADE',onUpdate: 'CASCADE' }
 );
 
 Department.hasOne(
-  Position, { as: "Position", foreignKey: "position_id" }
+  Position, { as: "Position", foreignKey: "position_id" ,onDelete: 'CASCADE',onUpdate: 'CASCADE'}
 );
 
 Department.sync().then(() => {
