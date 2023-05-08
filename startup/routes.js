@@ -19,7 +19,7 @@ module.exports = function (app) {
     app.use(express.urlencoded({ extended: true }));
     app.use(express.json());
     require("../web sockets/chat")(app);
-    app.use("/notifications",notifications)
+    app.use("/notifications", notifications);
     app.use("/employees", employees);
     app.use("/benefits", benefits);
     app.use("/departments", departments);

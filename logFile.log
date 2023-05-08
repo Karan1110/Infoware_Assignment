@@ -373,3 +373,9 @@
 {"level":"info","message":"Benefit table created","timestamp":"2023-05-08T13:59:54.213Z"}
 {"level":"info","message":"Experience table created","timestamp":"2023-05-08T13:59:54.294Z"}
 {"level":"info","message":"Message table created","timestamp":"2023-05-08T13:59:54.442Z"}
+{"level":"info","message":"Listening on  http://localhost:3001","timestamp":"2023-05-08T14:30:18.824Z"}
+{"level":"info","message":"Benefit table created","timestamp":"2023-05-08T14:30:24.400Z"}
+{"level":"info","message":"Benefit_type_TYPE table created","timestamp":"2023-05-08T14:30:24.405Z"}
+{"level":"info","message":"Experience table created","timestamp":"2023-05-08T14:30:24.408Z"}
+{"level":"info","message":"Employee table created","timestamp":"2023-05-08T14:30:24.411Z"}
+{"level":"info","message":"Message table created","timestamp":"2023-05-08T14:30:24.676Z"}
