@@ -2,6 +2,7 @@ const Sequelize = require('sequelize');
 const db = require('../startup/db');
 const Benefit_type = require("./benefit_type");
 const Employee = require('./employee');
+const winston = require("winston");
 
 const Benefit = db.define('Benefit', {
     type: Sequelize.STRING,
@@ -21,11 +22,10 @@ Benefit.hasOne(Benefit_type, {
   forgeinKey : "Benefit_type_id"
 });
 
-Benefit.belongsToMany(Employee, { through: "EmployeeBenefit" });
-Employee.belongsToMany(Benefit, { through: "EmployeeBenefit" });
+Employee.belongsToMany(Benefit, { as : "Benefit",through: "EmployeeBenefit", foreignKey: "employee_id", otherKey: "benefit_id" });
+Benefit.belongsToMany(Employee, { as : "Benefit",through: "EmployeeBenefit", foreignKey: "benefit_id", otherKey: "employee_id" });
 
 Benefit.sync().then(() => {
-  const winston = require("winston")
 winston.info('Benefit table created');
 });
 
