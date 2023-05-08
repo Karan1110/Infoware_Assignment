@@ -13,8 +13,7 @@ router.get("/average_salary",[auth,isAdmin],async (req, res) => {
         attributes: {
             include: [
                 [
-                    sequelize.fn('AVG', sequelize.col('salary')),
-                    'average_salary'
+                    sequelize.fn('AVG', sequelize.col('salary')),'average_salary'
                 ]
             ]
         }
@@ -28,44 +27,40 @@ router.get("/me", [auth, isAdmin], async (req, res) => {
         where: {
            id  :req.user.id
        },
-        include: {
-            Manager : true,
-            Education: true,
-            Experience: true,
-            Notification: true,
-            Ticket: true,
-            EmployeeSkill: true,
-            EmployeeBenefit: true,
-            Benefit_type: true,
-            Meeting_Member: true,
-            Department: true,
-            Position: true,
-            Performance: true
-        }
+       include: [
+        { model: Manager },
+        { model: Education },
+           { model: Experience },
+           { model: Notification },
+           { model:  Ticket },
+           { model: Skill },
+           { model: Benefit },
+           { model:  Meeting },
+           { model: Department },
+           { model: Performance }
+      ]
    });
     
     res.status(200).send(me);
 });
     
 router.get("/:id", [auth, isAdmin], async (req, res) => {
-    const employee = prisma.employee.find({
+    const employee = Employee.findOne({
         where: {
            id  :req.params.id
        },
-       include: {
-        Manager : true,
-        Education: true,
-        Experience: true,
-        Notification: true,
-        Ticket: true,
-        EmployeeSkill: true,
-        EmployeeBenefit: true,
-        Benefit_type: true,
-        Meeting_Member: true,
-        Department: true,
-        Position: true,
-        Performance: true
-    }
+       include: [
+        { model: Manager },
+        { model: Education },
+           { model: Experience },
+           { model: Notification },
+           { model:  Ticket },
+           { model: Skill },
+           { model: Benefit },
+           { model:  Meeting },
+           { model: Department },
+           { model: Performance }
+      ]
    });
     res.status(200).send(employee);
 });
@@ -75,20 +70,18 @@ router.get("/",  [auth,isAdmin],async (req, res) => {
         order: [['age', 'ASC']], // Sort by name in ascending order
         offset: 10, // Skip the first 10 records
         imit: 5,
-        include: {
-            Manager : true,
-            Education: true,
-            Experience: true,
-            Notification: true,
-            Ticket: true,
-            EmployeeSkill: true,
-            EmployeeBenefit: true,
-            Benefit_type: true,
-            Meeting_Member: true,
-            Department: true,
-            Position: true,
-            Performance: true
-        }
+        include: [
+            { model: Manager },
+            { model: Education },
+               { model: Experience },
+               { model: Notification },
+               { model:  Ticket },
+               { model: Skill },
+               { model: Benefit },
+               { model:  Meeting },
+               { model: Department },
+               { model: Performance }
+          ]
     });
     
     res.status(200).send(employee);

@@ -18,7 +18,7 @@ const Employee = db.define('Employee', {
     type: Sequelize.DATE,
     default : 25
   },
-  salary_per_work: {
+  salary_per_hour: {
     type: Sequelize.DATE,
     default : 99
   }
