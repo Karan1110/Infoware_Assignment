@@ -9,7 +9,7 @@ router.post("/", [auth, isAdmin], async (req, res) => {
     const end = moment(req.body.to);
     const over_time_duration = moment.diff(start,end,'hours');
 
-    await Employee.update({
+   const employee =  await Employee.update({
         where: {
             id : req.params.id
         }
@@ -17,7 +17,7 @@ router.post("/", [auth, isAdmin], async (req, res) => {
         working_hours: Sequelize.literal(`working_hours + ${over_time_duration}`)
     });
       
-      res.status(200).send(rows[0]);
+      res.status(200).send(employee);
   });
 
 module.exports = router;

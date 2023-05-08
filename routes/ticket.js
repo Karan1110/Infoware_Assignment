@@ -11,27 +11,25 @@ router.post("/", [auth, isAdmin], async (req, res) => {
     if (employee.manager_id !== req.user.id) return res.status(400).send("Not authorized");
 
 
-    await Ticket.create({
+  const ticket =   await Ticket.create({
         name: req.body.name,
         steps: req.body.steps,
         employee_id : req.body.employee_id
     });
       
-      res.status(200).send(rows[0]);
+      res.status(200).send(ticket);
   });
 
 router.put("/:id" ,[auth,isAdmin],async (req, res) => {
-    const { rows } = await req.db.query(`
-    SELECT * FROM update_goal($1,$2);
-    `,
-        [
-            req.body.name,
-            req.body.employee_id
-        ]);
-    
+    const ticket =   await Ticket.update({
+        name: req.body.name,
+        steps: req.body.steps,
+        employee_id : req.body.employee_id
+    });
+      
     res
         .status(200)
-        .send(rows[0]);
+        .send(ticket);
 });
 
 

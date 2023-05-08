@@ -3,13 +3,9 @@ const db = require('../config/database');
 const Employee = require('./employee');
 
 const Performance = db.define('Performance', {
-    name: {
-        type: Sequelize.STRING,
-        allowNull : false
-  },
   status : Sequelize.STRING
 }, {
-    index : [name]
+    index : [status]
 });
 
 Performance.hasOne(Employee, {

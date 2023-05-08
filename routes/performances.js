@@ -5,41 +5,27 @@ const isAdmin = require("../middlewares/isAdmin");
 
 router.post("/", [auth,isAdmin],async (req, res) => {
 
-    const {rows} = await req.db.query(`
-      SELECT * FROM create_performance($1,$2);
-  `, [
-    req.user.id,
-        req.body.status_id
-      ]);
+    const performance = await Performance.create({
+        status : req.body.status,
+        employee_id : req.body.employee_id
+    });
       
-      res.status(200).send(rows[0]);
+      res.status(200).send(performance);
   });
 
 router.put("/:id" ,[auth,isAdmin],async (req, res) => {
-    const { rows } = await req.db.query(`
-SELECT * FROM update_performance($1,$2);
-    `,
-        [
-            req.user.id,
-            req.body.status_id
-        ]);
-    
+
+    const performance = await Performance.create({
+        where: {
+            id : req.body.employee_id
+        }
+    },{
+        status : req.body.status,
+        employee_id : req.body.employee_id
+    });
     res
         .status(200)
-        .send(rows[0]);
+        .send(performance);
 });
-
-
-router.delete("/:id" ,[auth,isAdmin],async (req, res) => {
-    await req.db.query(`
-SELECT * FROM delete_performance($1)
-    `,
-        [
-            req.params.id
-        ]);
-    
-    res.status(200).send("Deleted successfully");
-});
-
 
 module.exports = router;
