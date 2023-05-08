@@ -96,7 +96,7 @@ router.get("/",  [auth,isAdmin],async (req, res) => {
 
 router.post("/", email_verified, async (req, res) => {
     
-    const userExists = prisma.employee.findOne({
+    const userExists = await Employee.findOne({
         where: {
             email: req.body.email
         }
@@ -107,7 +107,7 @@ router.post("/", email_verified, async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const p = await bcrypt.hash(req.body.password, salt);
 
-    const employee = Employee.create({
+    const employee = await Employee.create({
             name: req.body.name,
             email: req.body.email,
             password: p,
@@ -123,19 +123,35 @@ router.post("/", email_verified, async (req, res) => {
   });
 
 router.put("/:id", auth, [auth, isAdmin], async (req, res) => {
+
+    const userExists = await Employee.findOne({
+        where : {
+            email  : req.body.email
+        }
+    });
+
+    const _user = await Employee.findByPk(req.user.id);
+    if (!_user) return res.status(200).send("User Not Found.");
+
+    if (userExists) return res.status(200).send("email already in use");
+       
+    const { password } = _user;
+    const p = await bcrypt.compare(req.body.password, password);
+        
+    if (!p) return res.status(400).send("invalid credentials.");
     
+    const salt = await bcrypt.genSalt(10);
+    const pw = await bcrypt.hash(req.body.password, salt);
+
     const user = await Employee.update({
         where: {
-            id : req.params.id
-        },
-        data: {
-            name : req.body.name,
-            email : req.body.email,
-            phone : req.body.phone,
-            age :   req.body.age,
-            salary: req.body.salary,
-            isAdmin : req.body.isAdmin
+            id: req.params.id
         }
+    }, {
+        name: req.body.name,
+        email: req.body.email,
+        password: pw,
+        isadmin: req.body.isAdmin,
     });
     
     const token = user.generateAuthToken();
@@ -148,16 +164,13 @@ router.put("/:id", auth, [auth, isAdmin], async (req, res) => {
 
 
 router.delete("/:id" , auth,async (req, res) => {
-    await Employeedestroy({
+    await Employee.destroy({
         where: {
             id: req.params.id
         }
     });
+
     res.status(200).send("Deleted successfully");
-
-
 });
-
-
 
 module.exports = router;

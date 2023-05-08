@@ -1,10 +1,11 @@
-const Message = require("../models/Message");
+const Message = require("../models/message");
 
 module.exports = function (app) {
   const expressWs = require("express-ws")(app);
   
   app.ws("chat/:chatRoom/:userIDs*", async (ws, req) => {
-    winston.info("WebSocket connection established");
+    const winston = require("winston")
+winston.info("WebSocket connection established");
     const messages = await Message.findAll({
       where: {
         employee_id: [req.params.userIDs]
@@ -16,7 +17,8 @@ module.exports = function (app) {
 
     // Handle incoming messages
     ws.on("message", async (msg) => {
-      winston.info(`Received message: ${msg}`);
+      const winston = require("winston")
+winston.info(`Received message: ${msg}`);
 
       // Save the message to the database
       await Message.create({
@@ -41,7 +43,8 @@ module.exports = function (app) {
     });
 
     ws.on("close", () => {
-      winston.info("WebSocket connection closed");
+      const winston = require("winston")
+winston.info("WebSocket connection closed");
     });
 
   });

@@ -1,5 +1,5 @@
 const Sequelize = require('sequelize');
-const db = require('../config/database');
+const db = require('../startup/db');
 const Employee = require('./employee');
 
 const Message = db.define('Message', {
@@ -9,13 +9,18 @@ const Message = db.define('Message', {
     default : false
   }
 }, {
-    indexes : [message]
+  indexes: [
+    {
+      fields: ['message']
+    }
+  ]
 });
 
 Employee.hasMany(Message, { foreignKey: "employee_id" ,onDelete: 'CASCADE',onUpdate: 'CASCADE'});
 
 Message.sync().then(() => {
-  winston.info('Message table created');
+  const winston = require("winston")
+winston.info('Message table created');
 });
 
 module.exports = Message;

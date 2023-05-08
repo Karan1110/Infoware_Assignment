@@ -1,5 +1,5 @@
 const Sequelize = require('sequelize');
-const db = require('../config/database');
+const db = require('../startup/db');
 const Employee = require('./employee');
 
 const Meeting = db.define('Meeting', {
@@ -33,7 +33,8 @@ Meeting.afterCreate(async (instance) => {
 
 
 Meeting.sync().then(() => {
-  winston.info('Meeting table created');
+  const winston = require("winston")
+winston.info('Meeting table created');
 });
 
 module.exports = Meeting;

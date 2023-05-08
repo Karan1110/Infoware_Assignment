@@ -1,17 +1,13 @@
 {
   "name": "infoware_assignment",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "node destroy node ./procedures/*.js node index",
-    "dev": "node ./procedures/tables/seed.js node ./procedures/tables/benefit_types.js node ./procedures/tables/benefits.js node ./procedures/tables/department.js  node ./procedures/tables/employee.js        node ./procedures/tables/goals.js                 node ./procedures/tables/leaves.js          node ./procedures/tables/levels.js     node ./procedures/tables/mail.js          node ./procedures/tables/meeting-members.js         node ./procedures/tables/meetings.js        node ./procedures/tables/messages.js            node ./procedures/tables/notifications.js node ./procedures/tables/over_time.js                node ./procedures/tables/performance.js                   node ./procedures/tables/phone.js        node ./procedures/tables/skills.js   node ./procedures/tables/status.js    node ./procedures/tables/users.js node ./procedures/tables/workingDays.js node ./procedures/triggers/meetings.js node ./procedures/triggers/salary.js node index"
+    "build": "nodemon index"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@prisma/client": "^4.13.0",
-    "@types/node": "^18.16.3",
     "bcrypt": "^5.1.0",
     "config": "^3.3.9",
     "debug": "^4.3.4",
@@ -20,16 +16,12 @@
     "express-ws": "^5.0.2",
     "jsonwebtoken": "^9.0.0",
     "moment": "^2.29.4",
-    "multer": "^1.4.5-lts.1",
     "node-schedule": "^2.1.1",
     "nodemailer": "^6.9.1",
     "pg": "^8.10.0",
     "sequelize": "^6.31.1",
     "winston": "^2.4.0"
   },
-  "devDependencies": {
-    "prisma": "^4.13.0",
-    "ts-node": "^10.9.1",
-    "typescript": "^5.0.4"
-  }
+  "keywords": [],
+  "description": ""
 }

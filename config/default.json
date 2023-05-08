@@ -1,7 +1,7 @@
 {
     "jwtPrivateKey" : "jwtPrivateKey",
     "phone" : 8792858236,
-    "dbURL" : "postgres://unqgsqcj:PwOgL9DnYvPXdz5K_h6Wqddr_C4gGybz@mahmud.db.elephantsql.com/unqgsqcj",
+    "dbURL" : "postgres://wioyahge:gs7NzwHJM0rEuN1wVjVptcY37MTFJPvk@mahmud.db.elephantsql.com/wioyahge",
     "acc-sid" : "AC68167b0dd8a615edcb58a4be2caadcf7",
     "acc-token" : "918e8687fa5a4bbebb655ef4855a8489"
 }

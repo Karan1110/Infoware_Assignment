@@ -1,5 +1,5 @@
 const Sequelize = require('sequelize');
-const db = require('../config/database');
+const db = require('../startup/db');
 const jwt = require("jsonwebtoken");
 
 const Employee = db.define('Employee', {
@@ -62,7 +62,8 @@ Employee.afterCreate((instance,options) => {
 
 
 Employee.sync().then(() => {
-  winston.info('Employee table created');
+  const winston = require("winston")
+winston.info('Employee table created');
 });
 
 module.exports = Employee;

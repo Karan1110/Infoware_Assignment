@@ -1,5 +1,5 @@
 const Sequelize = require('sequelize');
-const db = require('../config/database');
+const db = require('../startup/db');
 const Employee = require('./employee');
 
 const Experience = db.define('Experience', {
@@ -12,7 +12,8 @@ Employee.belongsToMany(Experience,{through  :"EmployeeExperience"});
 Experience.belongsToMany(Employee,{through : "EmployeeExperience"});
 
 Experience.sync().then(() => {
-  winston.info('Experience table created');
+  const winston = require("winston")
+winston.info('Experience table created');
 });
 
 module.exports = Experience;

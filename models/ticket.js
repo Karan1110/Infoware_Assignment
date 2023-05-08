@@ -1,5 +1,5 @@
 const Sequelize = require('sequelize');
-const db = require('../config/database');
+const db = require('../startup/db');
 const Employee = require('./employee');
 const moment = require("moment");
 
@@ -31,7 +31,8 @@ Ticket.hasOne(Employee, { as: " Employee", foreignKey: "employee_id" });
 Ticket.belongsTo(Employee, { through: "employee_id" });
 
 Ticket.sync().then(() => {
-  winston.info('Ticket table created');
+  const winston = require("winston")
+winston.info('Ticket table created');
 });
 
 module.exports = Ticket;

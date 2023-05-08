@@ -1,11 +1,11 @@
 const Sequelize = require('sequelize');
-const db = require('../config/database');
+const db = require('../startup/db');
 const department = require('./department');
 
 const Position = db.define('Position', {
   name  : Sequelize.STRING
 }, {
-    indexes : [name]
+    indexes : ["name"]
 });
 
 Position.hasOne(department, {
@@ -16,7 +16,8 @@ Position.hasOne(department, {
 Position.belongsTo(department,{through : "department_id"});
 
 Position.sync().then(() => {
-  winston.info('Position table created');
+  const winston = require("winston")
+winston.info('Position table created');
 });
 
 module.exports = Position;

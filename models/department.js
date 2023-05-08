@@ -1,5 +1,5 @@
 const Sequelize = require('sequelize');
-const db = require('../config/database');
+const db = require('../startup/db');
 const Employee = require('./employee');
 const Position = require('./position');
 
@@ -16,7 +16,8 @@ Department.hasOne(
 );
 
 Department.sync().then(() => {
-  winston.info('Department table created');
+  const winston = require("winston")
+winston.info('Department table created');
 });
 
 module.exports = Department;

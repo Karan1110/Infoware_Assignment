@@ -1,5 +1,5 @@
 const Sequelize = require('sequelize');
-const db = require('../config/database');
+const db = require('../startup/db');
 const Employee = require('./employee');
 
 const Performance = db.define('Performance', {
@@ -18,7 +18,8 @@ Employee.belongsTo(Performance,{through : "employee_id"});
 Performance
     .sync()
     .then(() => {
-    winston.info('Performance table created');
+    const winston = require("winston")
+winston.info('Performance table created');
     });
 
 module.exports = Performance;

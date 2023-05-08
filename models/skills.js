@@ -1,5 +1,6 @@
 const Sequelize = require('sequelize');
-const db = require('../config/database');
+const db = require('../startup/db');
+const winston = require("winston")
 
 const Skill = db.define('Skill', {
     name: {
@@ -11,13 +12,14 @@ const Skill = db.define('Skill', {
     index : [id,name]
 });
 
-Employee.belongsToMany(Skill, { through: EmployeeSkill, foreignKey: "employee_id", otherKey: "skill_id" });
-Skill.belongsToMany(Employee, { through: EmployeeSkill, foreignKey: "skill_id", otherKey: "employee_id" });
+Employee.belongsToMany(Skill, { as : "Skill",through: "EmployeeSkill", foreignKey: "employee_id", otherKey: "skill_id" });
+Skill.belongsToMany(Employee, { as : "Skill",through: "EmployeeSkill", foreignKey: "skill_id", otherKey: "employee_id" });
 
 Skill
     .sync()
     .then(() => {
-    winston.info('Skill table created');
+        
+winston.info('Skill table created');
     });
 
 module.exports = Skill;

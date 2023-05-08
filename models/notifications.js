@@ -1,5 +1,5 @@
 const Sequelize = require('sequelize');
-const db = require('../config/database');
+const db = require('../startup/db');
 const Employee = require('./employee');
 
 const Notification = db.define('Notification', {
@@ -21,7 +21,8 @@ Notification.belongsTo(
   });
 
 Notification.sync().then(() => {
-  winston.info('Notification table created');
+  const winston = require("winston")
+winston.info('Notification table created');
 });
 
 module.exports = Notification;

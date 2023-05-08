@@ -1,5 +1,5 @@
 const Sequelize = require('sequelize');
-const db = require('../config/database');
+const db = require('../startup/db');
 const Employee = require('./employee');
 
 const Education = db.define('Education', {
@@ -17,7 +17,8 @@ Employee.hasOne(Education,{as : "Education",foreignKey  :"education_id"});
 Education
   .sync()
   .then(() => {
-  winston.info('Education table created');
+  const winston = require("winston")
+winston.info('Education table created');
   });
 
 module.exports = Education;

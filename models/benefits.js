@@ -1,5 +1,5 @@
 const Sequelize = require('sequelize');
-const db = require('../config/database');
+const db = require('../startup/db');
 const Benefit_type = require("./benefit_type");
 const Employee = require('./employee');
 
@@ -25,7 +25,8 @@ Benefit.belongsToMany(Employee, { through: "EmployeeBenefit" });
 Employee.belongsToMany(Benefit, { through: "EmployeeBenefit" });
 
 Benefit.sync().then(() => {
-  winston.info('Benefit table created');
+  const winston = require("winston")
+winston.info('Benefit table created');
 });
 
 module.exports = Benefit;

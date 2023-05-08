@@ -2,7 +2,6 @@ const express = require("express")
 const router = express.Router();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const { prisma } = require("../startup/db");
 
 router.post("/login", async (req,res) => {
     const user = await Employee.findOne({

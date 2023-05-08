@@ -5,7 +5,6 @@ const config = require("config");
 const debug = require("debug")("phone-verify")
 
 router.post("/verify-phone", async (req, res) => {
-    
 // Load the Twilio module
 const accountSid = config.get("acc-sid");
 const authToken = config.get("acc-token");
@@ -19,7 +18,9 @@ client.messages.create({
   from: config.get("phone"),
   to: req.body.phone
 })
-.then(message => winston.info(message.sid))
+.then(message => 
+  winston.info(message.sid)
+)
 .catch(error => debug(error));
 }); 
 
