@@ -16,7 +16,12 @@ const Message = db.define('Message', {
   ]
 });
 
-Employee.hasMany(Message, { as : "Message", foreignKey: "employee_id" ,onDelete: 'CASCADE',onUpdate: 'CASCADE'});
+Employee.hasMany(Message, {
+  as: "Message",
+  foreignKey: "employee_id",
+  onDelete: 'CASCADE',
+  onUpdate: 'CASCADE'
+});
 
 Message.sync().then(() => {
   const winston = require("winston")

@@ -1,6 +1,6 @@
 const debug = require("debug")("email-verify");
 
-module.exports = function (res, req, next) {
+module.exports = function (req,res, next) {
     try {
         if(req.body.mailCode !== req.mailCode) return res.status(401).send("email verification failed. the email code is wrong")
         next();

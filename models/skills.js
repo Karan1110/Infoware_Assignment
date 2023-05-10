@@ -1,4 +1,5 @@
 const Sequelize = require('sequelize');
+const Employee = require("./employee");
 const db = require('../startup/db');
 const winston = require("winston")
 
@@ -9,7 +10,12 @@ const Skill = db.define('Skill', {
   },
   level : Sequelize.STRING
 }, {
-    index : [id,name]
+    indexes: [
+        { 
+            unique : true,
+            fields : ['name']
+        }
+    ]
 });
 
 Employee.belongsToMany(Skill, { as : "Skill",through: "EmployeeSkill", foreignKey: "employee_id", otherKey: "skill_id" ,onDelete: 'CASCADE',onUpdate: 'CASCADE'});

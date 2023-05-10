@@ -1,25 +1,33 @@
 const Sequelize = require('sequelize');
 const db = require('../startup/db');
+const winston = require("winston")
 const Employee = require('./employee');
 
 const Notification = db.define('Notification', {
   message  : Sequelize.STRING
 }, {
-    indexes : [message]
+  indexes: [
+    {
+        fields : ['message']
+      }
+    ]
 });
 
 Notification.belongsTo(
   Employee,
   {
-    as : "Notifications",
-    through: "employee_id",
-    onDelete: 'CASCADE',onUpdate: 'CASCADE'
-  });
+  as: "NotificationEmployee",
+  foreignKey: "employee_id",
+  onDelete: "CASCADE",
+  onUpdate: "CASCADE"
+});
+
+
+Employee.hasMany(Notification);
 
 Notification
   .sync()
   .then(() => {
-  const winston = require("winston")
 winston.info('Notification table created');
 });
 

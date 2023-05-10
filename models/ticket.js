@@ -27,8 +27,8 @@ Ticket.afterCreate(async (instance) => {
   });
 })
 
-Ticket.hasOne(Employee, { as: " Employee", foreignKey: "employee_id" ,onDelete: 'CASCADE',onUpdate: 'CASCADE'});
-Employee.hasMany(Ticket, { as: "Ticket" ,foreignKey: "employee_id",onDelete: 'CASCADE',onUpdate: 'CASCADE'});
+Ticket.hasOne(Employee, { as: "TicketEmployee", foreignKey: "employee_id" ,onDelete: 'CASCADE',onUpdate: 'CASCADE'});
+Employee.hasMany(Ticket);
 
 Ticket.sync().then(() => {
   const winston = require("winston")

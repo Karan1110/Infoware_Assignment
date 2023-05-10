@@ -5,15 +5,20 @@ const Employee = require('./employee');
 const Performance = db.define('Performance', {
   status : Sequelize.STRING
 }, {
-    index : [status]
+    index: [
+        {
+            unique : false,
+            fields : ['status']
+        }
+    ]
 });
+
+Employee.belongsTo(Performance);
 
 Performance.hasOne(Employee, {
-    as: "Employee",
+    as: "PerformanceEmployee",
     foreignKey : "employee_id"
 });
-
-Employee.belongsTo(Performance,{as  : "Performance",through : "employee_id",onDelete: 'CASCADE',onUpdate: 'CASCADE'});
 
 Performance
     .sync()

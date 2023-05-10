@@ -1,23 +1,25 @@
-const Sequelize = require('sequelize');
-const db = require('../startup/db');
-const Employee = require('./employee');
-const Position = require('./position');
+const winston = require("winston");
+const Sequelize = require("sequelize");
+const db = require("../startup/db");
+const Employee = require("./employee");
 
-const Department = db.define('Department', {
-  name: Sequelize.STRING
+const Department = db.define("Department", {
+  name: Sequelize.STRING,
 });
 
-Department.hasMany(
-    Employee, { as: "Department", foreignKey: "department_id",onDelete: 'CASCADE',onUpdate: 'CASCADE' }
-);
+Department.hasMany(Employee, {
+  as: "DepartmentEmployee",
+  foreignKey: "department_id",
+  onDelete: "CASCADE",
+  onUpdate: "CASCADE",
+});
 
-Department.hasOne(
-  Position, { as: "Position", foreignKey: "position_id" ,onDelete: 'CASCADE',onUpdate: 'CASCADE'}
-);
+Employee.belongsTo(Department);
 
-Department.sync().then(() => {
-  const winston = require("winston")
-winston.info('Department table created');
+Department
+  .sync()
+  .then(() => {
+  winston.info("Department table created");
 });
 
 module.exports = Department;

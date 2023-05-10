@@ -1,6 +1,7 @@
 const Sequelize = require('sequelize');
 const db = require('../startup/db');
 const Employee = require('./employee');
+const Department = require('./department');
 
 const Meeting = db.define('Meeting', {
     name: Sequelize.STRING,
@@ -18,13 +19,13 @@ Meeting.prototype.createMeetingMember = async function (employee_id) {
   });
 };
 
-Meeting.hasOne(Department,{as : "Department",foreignKey : "department_id",onDelete: 'CASCADE',onUpdate: 'CASCADE'})
-Meeting.belongsToMany(Employee, { as : "Meeting",through: "Meeting_Member" , forgeinKey:"employee_id",otherKey  :"meeting_id",onDelete: 'CASCADE',onUpdate: 'CASCADE'});
+Meeting.hasOne(Department,{as : "MeetingDepartment",foreignKey : "department_id",onDelete: 'CASCADE',onUpdate: 'CASCADE'})
+Meeting.belongsToMany(Employee, { as : "MeetingEmployee",through: "Meeting_Member" , forgeinKey:"employee_id",otherKey  :"meeting_id",onDelete: 'CASCADE',onUpdate: 'CASCADE'});
 Employee.belongsToMany(Meeting, { as : "Meeting",through: "Meeting_Member", forgeinKey: "meeting_id", otherKey: "employee_id" ,onDelete: 'CASCADE',onUpdate: 'CASCADE'});
 
 Meeting.afterCreate(async (instance) => {
   
-  Notification.create({
+ await  Notification.create({
     message: "new meeting scheduled"
   });
 });

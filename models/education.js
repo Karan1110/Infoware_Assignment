@@ -8,12 +8,12 @@ const Education = db.define('Education', {
 });
 
 Education.hasMany(Employee, {
-  as: "employee",
+  as: "EducationEmployee",
   foreignKey: "employee_id",
   onDelete: 'CASCADE',onUpdate: 'CASCADE'
 });
 
-Employee.hasOne(Education,{as : "Education",foreignKey  :"education_id",onDelete: 'CASCADE',onUpdate: 'CASCADE'});
+Employee.hasOne(Education);
 
 Education
   .sync()

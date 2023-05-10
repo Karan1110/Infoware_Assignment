@@ -1,6 +1,8 @@
 const Sequelize = require('sequelize');
 const db = require('../startup/db');
 const jwt = require("jsonwebtoken");
+const config = require("config");
+const schedule = require('node-schedule');
 
 const Employee = db.define('Employee', {
   name: Sequelize.STRING,
@@ -11,15 +13,18 @@ const Employee = db.define('Employee', {
   salary: Sequelize.INTEGER,
   isAdmin: Sequelize.BOOLEAN,
   total_working_hours: {
-    type : Sequelize.DATE,
+    type : Sequelize.INTEGER,
+    allowNull : true,
     default : 8
   },
   total_working_days: {
-    type: Sequelize.DATE,
+    type: Sequelize.INTEGER,
+    allowNull : true,
     default : 25
   },
   salary_per_hour: {
-    type: Sequelize.DATE,
+    type: Sequelize.INTEGER,
+    allowNull : true,
     default : 99
   }
 },{
@@ -31,7 +36,7 @@ const Employee = db.define('Employee', {
   ]
 });
 
-Employee.prototype.generateAuthToken = function() {
+Employee.generateAuthToken = function () {
   const token = jwt.sign(
     { id: this.id, isAdmin: this.isAdmin },
     config.get("jwtPrivateKey")
@@ -39,24 +44,35 @@ Employee.prototype.generateAuthToken = function() {
   return token;
 };
 
-Employee.hasMany(Employee, { as: "Employee", forgeinKey: "employee_id" ,onDelete: 'CASCADE',onUpdate: 'CASCADE'});
-
 Employee.belongsTo(Employee, {
-  as: "Manager",
-  forgeinKey: "manager_id",
-  selfGranted : true,onDelete: 'CASCADE',onUpdate: 'CASCADE'
+  as: "EmployeeManager",
+  foreignKey: "manager_id",
+  selfGranted: true,
+  onDelete: 'CASCADE',
+  onUpdate: 'CASCADE'
 });
 
 Employee.afterCreate((instance,options) => {
-  schedule.scheduleJob('0 12 1 * *', function() {
-    instance.salary = instance.salary_per_hour * instance.total_working_hours * instance.total_working_days;
-    instance.total_working_days = null // set it to default
-    instance.total_working_hours = null // set it to default
-    instance.salary_per_hour = null // set it to default
-    Notification.create({
-      message: "salary credited",
-      employee_id: instance.id
-    });
+  const job = schedule.scheduleJob('0 12 1 * *', async () => {
+    try {
+      instance.salary = instance.salary_per_hour * instance.total_working_hours * instance.total_working_days;
+      instance.total_working_days = null // set it to default
+      instance.total_working_hours = null // set it to default
+      instance.salary_per_hour = null // set it to default
+      Notification.create({
+        message: "salary credited",
+        employee_id: instance.id
+      })
+        .then(() => {
+          console.log("sus")
+        })
+        .catch((ex) => {
+          console.log("Error :",ex)
+         });
+    }
+    catch (ex) {
+     await  job.cancel();
+   }
   });
 })
 
