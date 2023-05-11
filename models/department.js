@@ -7,19 +7,17 @@ const Department = db.define("Department", {
   name: Sequelize.STRING,
 });
 
-Department.hasMany(Employee, {
-  as: "DepartmentEmployee",
-  foreignKey: "department_id",
+Employee.hasOne(Department, {
+  as: 'EmployeeDepartment',
+  foreignKey: 'department_id',
   onDelete: "CASCADE",
-  onUpdate: "CASCADE",
+  onUpdate: "CASCADE"
 });
 
-Employee.belongsTo(Department);
-
 Department
-  .sync()
+  .sync({force:true})
   .then(() => {
   winston.info("Department table created");
 });
 
-module.exports = Department;
+module.exports = Department; 

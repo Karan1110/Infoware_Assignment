@@ -23,7 +23,9 @@ Employee.hasMany(Message, {
   onUpdate: 'CASCADE'
 });
 
-Message.sync().then(() => {
+Message.belongsTo(Employee);
+
+Message.sync({force:true}).then(() => {
   const winston = require("winston")
 winston.info('Message table created');
 });

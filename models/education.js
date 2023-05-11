@@ -7,19 +7,22 @@ const Education = db.define('Education', {
   type : Sequelize.STRING
 });
 
-Education.hasMany(Employee, {
-  as: "EducationEmployee",
-  foreignKey: "employee_id",
-  onDelete: 'CASCADE',onUpdate: 'CASCADE'
+Employee.hasOne(Education,{
+  as: 'EmployeeEducation',
+  foreignKey: 'education_id',
+  onUpdate: 'CASCADE',
+  onDelete : 'CASCADE'
 });
 
-Employee.hasOne(Education);
+const winston = require("winston")
 
 Education
-  .sync()
+  .sync({force:true})
   .then(() => {
-  const winston = require("winston")
 winston.info('Education table created');
+  })
+  .catch((ex) => {
+    winston.info('education error lolemon',ex)
   });
 
 module.exports = Education;

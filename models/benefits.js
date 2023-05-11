@@ -25,7 +25,7 @@ Benefit.hasOne(Benefit_type, {
 Employee.belongsToMany(Benefit, { as : "Benefit",through: "EmployeeBenefit", foreignKey: "employee_id", otherKey: "benefit_id",onDelete: 'CASCADE',onUpdate: 'CASCADE' });
 Benefit.belongsToMany(Employee, { as : "Benefit",through: "EmployeeBenefit", foreignKey: "benefit_id", otherKey: "employee_id",onDelete: 'CASCADE',onUpdate: 'CASCADE' });
 
-Benefit.sync().then(() => {
+Benefit.sync({force:true}).then(() => {
 winston.info('Benefit table created');
 });
 

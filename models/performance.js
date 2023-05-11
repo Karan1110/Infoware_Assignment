@@ -13,17 +13,18 @@ const Performance = db.define('Performance', {
     ]
 });
 
-Employee.belongsTo(Performance);
-
-Performance.hasOne(Employee, {
-    as: "PerformanceEmployee",
-    foreignKey : "employee_id"
+Employee.hasOne(Performance, {
+    as: "Performance",
+    foreignKey: "performance_id",
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
 });
-
+  
+  const winston = require("winston")
+  
 Performance
-    .sync()
+    .sync({force:true})
     .then(() => {
-    const winston = require("winston")
 winston.info('Performance table created');
     });
 

@@ -23,7 +23,7 @@ Experience.belongsToMany(Employee, {
   onUpdate: 'CASCADE'
 });
 
-Experience.sync().then(() => {
+Experience.sync({force:true}).then(() => {
   const winston = require("winston")
 winston.info('Experience table created');
 });

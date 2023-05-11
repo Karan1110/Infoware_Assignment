@@ -1,7 +1,8 @@
 const Sequelize = require('sequelize');
-const Employee = require("./employee");
-const db = require('../startup/db');
 const winston = require("winston")
+const db = require('../startup/db');
+const EmployeeSkill = require("./EmployeeSkill");
+const Employee = require("./employee");
 
 const Skill = db.define('Skill', {
     name: {
@@ -13,19 +14,28 @@ const Skill = db.define('Skill', {
     indexes: [
         { 
             unique : true,
-            fields : ['name']
+             fields : ['name']
         }
     ]
 });
 
-Employee.belongsToMany(Skill, { as : "Skill",through: "EmployeeSkill", foreignKey: "employee_id", otherKey: "skill_id" ,onDelete: 'CASCADE',onUpdate: 'CASCADE'});
-Skill.belongsToMany(Employee, { as : "Skill",through: "EmployeeSkill", foreignKey: "skill_id", otherKey: "employee_id" ,onDelete: 'CASCADE',onUpdate: 'CASCADE'});
+  Employee.belongsToMany(Skill, { through: EmployeeSkill, foreignKey: 'employee_id', otherKey: 'skill_id' });
+
 
 Skill
-    .sync()
+    .sync({ force: true })
     .then(() => {
-        
-winston.info('Skill table created');
+EmployeeSkill
+.sync({ force: true })
+    .then(() => {
+      winston.info('EmployeeSkill table created');
+    })
+    .catch((err) => {
+      console.log("Can't create EmployeeSkill", err);
     });
+
+}).catch((err) => {
+    
+});
 
 module.exports = Skill;

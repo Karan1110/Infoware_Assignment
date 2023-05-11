@@ -13,22 +13,23 @@ const Notification = db.define('Notification', {
     ]
 });
 
-Notification.belongsTo(
-  Employee,
+
+Employee.hasMany(
+  Notification,
   {
   as: "NotificationEmployee",
   foreignKey: "employee_id",
   onDelete: "CASCADE",
   onUpdate: "CASCADE"
 });
-
-
-Employee.hasMany(Notification);
-
+ 
 Notification
-  .sync()
+  .sync({ force: true })
   .then(() => {
-winston.info('Notification table created');
-});
+    winston.info('Notification table created');
+  })
+  .catch((ex) => { 
+    winston.info(ex);
+  }); 
 
 module.exports = Notification;

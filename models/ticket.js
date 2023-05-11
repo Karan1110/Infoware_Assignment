@@ -15,8 +15,8 @@ Ticket.afterCreate(async (instance) => {
   const deadline = moment(instance.deadline);
   const newDate = deadline.subtract(1, 'days');
 
-  schedule.scheduleJob(newDate, () => {
-    Notification.create({
+  schedule.scheduleJob(newDate,async () => {
+    await Notification.create({
       message: `Ticket pending! complete now!, name  : ${instance.name}`
     });
     
@@ -27,10 +27,14 @@ Ticket.afterCreate(async (instance) => {
   });
 })
 
-Ticket.hasOne(Employee, { as: "TicketEmployee", foreignKey: "employee_id" ,onDelete: 'CASCADE',onUpdate: 'CASCADE'});
-Employee.hasMany(Ticket);
+Employee.hasMany(Ticket, {
+  as: "TicketEmployee",
+  foreignKey: "employee_id",
+  onDelete: 'CASCADE',
+  onUpdate: 'CASCADE'
+});
 
-Ticket.sync().then(() => {
+Ticket.sync({force:true}).then(() => {
   const winston = require("winston")
 winston.info('Ticket table created');
 });

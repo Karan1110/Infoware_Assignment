@@ -12,7 +12,7 @@ const Ticket = require("../models/Ticket");
 const Skill = require("../models/skills");
 const Benefit = require("../models/benefits");
 const Meeting = require("../models/meeting");
-const Notification = require("../models/Notifications");
+const Notification = require("../models/notifications");
 const Performance = require("../models/Performance");
 const Department = require("../models/department");
 const sequelize = require("../startup/db");
@@ -32,49 +32,49 @@ router.get("/average_salary", [auth, isAdmin], async (req, res) => {
 router.get("/me", [auth, isAdmin], async (req, res) => {
   const me = await Employee.findOne({
     where: {
-      id: req.user.id,
+      id: 1,
     },
     include: [
+      // {
+      //   model: Employee,
+      //   as: "Manager",
+      // },
+      // {
+      //   model: Education,
+      //   as: "Education",
+      // },
+      // {
+      //   model: Experience,
+      //   as: "Experience",
+      // },
+      // {
+      //   model: Notification,
+      //   as: "Notifications",
+      // },
+      // {
+      //   model: Ticket,
+      //   as: "Ticket",
+      // },
       {
-        model: Employee,
-        as: "Manager",
+        model: Skill,
+        as: "Skills",
       },
-      {
-        model: Education,
-        as: "Education",
-      },
-      {
-          model: Experience,
-          as  :"Experience"
-      },
-    //    {
-    //       model: Notification,
-    //       as: "Notifications"
-    //     },
-        {
-            model: Ticket,
-            as: "Ticket"
-        },
-        {
-            model: Skill,
-            as: "Skill"
-        },
-        {
-            model: Benefit,
-            as: "Benefit"
-        },
-        {
-            model: Meeting,
-            as: "Meeting"
-        },
-        {
-            model: Department,
-            as: 'Department'
-        },
-        {
-            model: Performance,
-            as: "Performance"
-        },
+      // {
+      //   model: Benefit,
+      //   as: "Benefit",
+      // },
+      // {
+      //   model: Meeting,
+      //   as: "Meeting",
+      // },
+      // {
+      //   model: Department,
+      //   as: "Department",
+      // },
+      // {
+      //   model: Performance,
+      //   as: "Performance",
+      // },
     ],
   });
 
@@ -125,37 +125,34 @@ router.get("/", [auth, isAdmin], async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
-  try {
-    const userExists = await Employee.findOne({
-      where: {
-        email: req.body.email,
-      },
-    });
-
-    if (userExists) {
-      return res.status(400).send("User already registered.");
-    }
-
-    const salt = await bcrypt.genSalt(10);
-    const p = await bcrypt.hash(req.body.password, salt);
-
-    const employee = await Employee.create({
-      name: req.body.name,
+  const userExists = await Employee.findOne({
+    where: {
       email: req.body.email,
-      password: p,
-      salary: req.body.salary,
-      age: req.body.age,
-      phone: req.body.phone,
-      isAdmin: req.body.isadmin,
-    });
+    },
+  });
 
-    const token = Employee.generateAuthToken(employee);
-
-    res.status(200).send({ token: token, Employee: employee });
-  } catch (ex) {
-    console.log(ex);
-    res.status(500).send("Internal server error.");
+  if (userExists) {
+    return res.status(400).send("User already registered.");
+  } else {
+    console.log("sus");
   }
+
+  const salt = await bcrypt.genSalt(10);
+  const p = await bcrypt.hash(req.body.password, salt);
+
+  const employee = await Employee.create({
+    name: req.body.name,
+    email: req.body.email,
+    password: p,
+    salary: req.body.salary,
+    age: req.body.age,
+    phone: req.body.phone,
+    isAdmin: req.body.isadmin,
+  });
+
+  const token = Employee.generateAuthToken();
+
+  res.status(200).send({ token: token, Employee: employee });
 });
 
 router.put("/:id", auth, [auth, isAdmin], async (req, res) => {

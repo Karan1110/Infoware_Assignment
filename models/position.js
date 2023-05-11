@@ -21,7 +21,7 @@ Position.belongsTo(Department, {
 
 Department.hasMany(Position);
 
-Position.sync().then(() => {
+Position.sync({force:true}).then(() => {
   const winston = require('winston');
   winston.info('Position table created');
 });
