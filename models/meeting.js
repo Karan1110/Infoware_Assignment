@@ -2,7 +2,7 @@ const Sequelize = require('sequelize');
 const db = require('../startup/db');
 const Employee = require('./employee');
 const Department = require('./department');
-const Meeting_Member = require("./MeetingMember");
+const MeetingMember = require("./MeetingMember");
 
 const Meeting = db.define('Meeting', {
     name: Sequelize.STRING,
@@ -12,15 +12,15 @@ const Meeting = db.define('Meeting', {
 });
   
 Meeting.hasOne(Department, {
-  as: "MeetingDepartment",
+  as: "EmployeeMeeting",
   foreignKey: "department_id",
   onDelete: 'CASCADE',
   onUpdate: 'CASCADE'
 });
 
 Meeting.belongsToMany(Employee, {
-  as: "MeetingEmployee",
-  through: "Meeting_Member",
+  as: "EmployeeMeeting",
+  through:  MeetingMember,
   foreignKey: "meeting_id",
   onDelete: 'CASCADE',
   onUpdate: 'CASCADE'
@@ -28,7 +28,7 @@ Meeting.belongsToMany(Employee, {
 
 Employee.belongsToMany(Meeting, {
   as: "Meeting",
-  through: "Meeting_Member",
+  through:  MeetingMember,
   foreignKey: "employee_id",
   otherKey: "meeting_id",
   onDelete: 'CASCADE',
