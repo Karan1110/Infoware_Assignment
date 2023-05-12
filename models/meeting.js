@@ -2,6 +2,7 @@ const Sequelize = require('sequelize');
 const db = require('../startup/db');
 const Employee = require('./employee');
 const Department = require('./department');
+const Meeting_Member = require("./MeetingMember");
 
 const Meeting = db.define('Meeting', {
     name: Sequelize.STRING,
@@ -10,7 +11,6 @@ const Meeting = db.define('Meeting', {
     link: Sequelize.STRING
 });
   
-
 Meeting.hasOne(Department, {
   as: "MeetingDepartment",
   foreignKey: "department_id",
@@ -45,9 +45,22 @@ Meeting.createMeetingMember = async function (employee_id) {
   });
 };
 
-Meeting.sync({force:true}).then(() => {
-  const winston = require("winston")
-winston.info('Meeting table created');
-});
+const winston = require("winston");
+
+Meeting
+  .sync({ force: true })
+  .then(() => {
+    Meeting_Member
+      .sync({ force: true })
+      .then(() => {
+        winston.info("MeetingMember created...")
+      }).catch((ex) => {
+        winston.info('Error creating MeetingMember...', ex)
+      });
+    winston.info('Meeting table created...');
+  })
+  .catch((ex) => { 
+    winston.error('Meeting table error...',ex);
+  });
 
 module.exports = Meeting;

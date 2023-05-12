@@ -1,18 +1,18 @@
 const db = require("../startup/db");
 const Sequelize = require('sequelize');
 
-const EmployeeSkill = db.define('EmployeeSkill', {
+const MeetingMember = db.define(' MeetingMember', {
   employee_id: {
     type: Sequelize.INTEGER,
     allowNull: false
   },
-  skill_id: {
+  meeting_id: {
     type: Sequelize.INTEGER,
     allowNull: false
   }
 }, {
-  tableName: 'EmployeeSkill',
+  tableName: ' MeetingMember',
   timestamps: false
 });
 
-module.exports = EmployeeSkill;
+module.exports =  MeetingMember;
