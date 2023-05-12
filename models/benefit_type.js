@@ -12,10 +12,6 @@ const Benefit_type = db.define('Benefit_type', {
   ]
 });
 
-Benefit_type
-  .sync({force:true})
-  .then(() => {
-winston.info('Benefit_type_TYPE table created');
-});
+
 
 module.exports = Benefit_type;

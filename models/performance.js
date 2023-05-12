@@ -15,7 +15,7 @@ const Performance = db.define('Performance', {
 
 Employee.hasOne(Performance, {
     as: "Performance",
-    foreignKey: "performance_id",
+    foreignKey: "employee_id",
     onDelete: "CASCADE",
     onUpdate: "CASCADE",
 });

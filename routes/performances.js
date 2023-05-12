@@ -2,8 +2,10 @@ const express = require("express");
 const router = express.Router();
 const auth = require("../middlewares/auth");
 const isAdmin = require("../middlewares/isAdmin");
+// [auth,isAdmin]
+const Performance = require("../models/Performance.js");
 
-router.post("/", [auth,isAdmin],async (req, res) => {
+router.post("/",async (req, res) => {
 
     const performance = await Performance.create({
         status : req.body.status,

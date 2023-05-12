@@ -14,16 +14,24 @@ const Ticket = db.define('Ticket', {
 Ticket.afterCreate(async (instance) => {
   const deadline = moment(instance.deadline);
   const newDate = deadline.subtract(1, 'days');
+  const notificationDD = moment(newDate);
+  const NDDY = notificationDD.year();
+  const NDDM = notificationDD.month();
+  const NDDD = notificationDD.date(); 
 
-  schedule.scheduleJob(newDate,async () => {
+  schedule.scheduleJob({NDDY,NDDM,NDDD},async () => {
     await Notification.create({
       message: `Ticket pending! complete now!, name  : ${instance.name}`
     });
+
+    const DY = deadline.year();
+    const DM = deadline.month();
+    const DD = deadline.date();
     
-    schedule.scheduleJob(instance.deadline, () => {
-      instance.destroy();
+    schedule.scheduleJob({DY,DM,DD}, async () => {
+      await instance.destroy();
+
     });
-    
   });
 })
 

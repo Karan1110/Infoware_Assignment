@@ -47,10 +47,10 @@ router.get("/me", [auth, isAdmin], async (req, res) => {
       //   model: Experience,
       //   as: "Experience",
       // },
-      // {
-      //   model: Notification,
-      //   as: "Notifications",
-      // },
+     {
+       model: Notification,
+       as: "NotificationEmployee",
+      },
       // {
       //   model: Ticket,
       //   as: "Ticket",
@@ -59,10 +59,10 @@ router.get("/me", [auth, isAdmin], async (req, res) => {
         model: Skill,
         as: "Skills",
       },
-      // {
-      //   model: Benefit,
-      //   as: "Benefit",
-      // },
+       {
+         model: Benefit,
+         as: "EmployeeBenefit",
+     },
       // {
       //   model: Meeting,
       //   as: "Meeting",
@@ -71,11 +71,11 @@ router.get("/me", [auth, isAdmin], async (req, res) => {
       //   model: Department,
       //   as: "Department",
       // },
-      // {
-      //   model: Performance,
-      //   as: "Performance",
-      // },
-    ],
+     {
+       model: Performance,
+        as: "Performance",
+     }
+    ]
   });
 
   res.status(200).send(me);

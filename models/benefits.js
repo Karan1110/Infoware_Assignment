@@ -1,32 +1,56 @@
-const Sequelize = require('sequelize');
-const db = require('../startup/db');
+const Sequelize = require("sequelize");
+const db = require("../startup/db");
 const Benefit_type = require("./benefit_type");
-const Employee = require('./employee');
+const Employee = require("./employee");
 const winston = require("winston");
+const schedule = require("node-schedule");
+const moment = require("moment");
 
-const Benefit = db.define('Benefit', {
-    type: Sequelize.STRING,
-    from: Sequelize.STRING,
-    to : Sequelize.STRING
+const Benefit = db.define("Benefit", {
+  from: Sequelize.DATE,
+  to: Sequelize.DATE,
+  benefit_type_id: Sequelize.INTEGER,
 });
 
-
-Benefit.afterCreate(async (instance) => {
-   schedule.scheduleJob(instance.to, () => {
-    instance.destroy();
+Benefit.afterCreate(async (benefit) => {
+  const to = moment(benefit.to);
+  const year = to.year();
+  const month = to.month();
+  schedule.scheduleJob({year : year ,month:month,hour:6,minute:0}, () => {
+   benefit.destroy();
   });
 });
 
+
 Benefit.hasOne(Benefit_type, {
   as: "Benefit_type",
-  forgeinKey : "Benefit_type_id"
+  foreignKey: "benefit_type_id", 
 });
 
-Employee.belongsToMany(Benefit, { as : "Benefit",through: "EmployeeBenefit", foreignKey: "employee_id", otherKey: "benefit_id",onDelete: 'CASCADE',onUpdate: 'CASCADE' });
-Benefit.belongsToMany(Employee, { as : "Benefit",through: "EmployeeBenefit", foreignKey: "benefit_id", otherKey: "employee_id",onDelete: 'CASCADE',onUpdate: 'CASCADE' });
-
-Benefit.sync({force:true}).then(() => {
-winston.info('Benefit table created');
+Employee.hasMany(Benefit, {
+  as: "EmployeeBenefit",
+  foreignKey: "employee_id",
 });
+
+Benefit.belongsTo(Employee, {
+  as: "EmployeeBenefit",
+  foreignKey: "employee_id",
+});
+
+Benefit_type
+  .sync({ force: true })
+  .then(() => {
+    Benefit.sync({ force: true })
+      .then(() => {
+        winston.info("Benefit table created");
+      })
+      .catch((ex) => {
+        winston.info(ex);
+      });
+    winston.info("Benefit_type table created");
+  })
+  .catch((ex) => {
+    winston.info(ex);
+  });
 
 module.exports = Benefit;

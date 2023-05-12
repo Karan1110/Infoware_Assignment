@@ -5,27 +5,42 @@ const moment = require("moment");
 const isAdmin = require("../middlewares/isAdmin");
 const Employee = require("../models/employee");
 const Benefit = require("../models/benefits");
+const Benefit_type = require("../models/benefit_type");
+// [auth,isAdmin]
+router.post("/", async (req, res) => {
+  const from = moment();
+  from.format("YYYY-MM");
+  const to = moment.duration({ year: req.body.fromYear, months: req.body.fromMonths });
+  const { benefit_type_id } = req.body;
+  let benefit_type;
+  let benefit;
 
-router.post("/", [auth,isAdmin],async (req, res) => {
-    const from = moment(new Date());
-    const to = moment.duration({ year: req.body.fromYear, months: req.body.fromMonths });
-    from.format("YYYY-MM");
-    
-  const benefit = await Benefit.create({
-    name: req.body.name,
-    from: from,
-    to: from.add(to).format("YYYY-MM")
-  });
+  if (!benefit_type_id) {
+    benefit_type = await Benefit_type.create({
+      name: 'medical'
+    });
 
+
+    console.log(benefit_type);
+    benefit = await Benefit.create({
+      name: req.body.name,
+      from: from,
+      to: from.add(to).format("YYYY-MM"),
+      benefit_type_id: benefit_type.dataValues.id,
+      employee_id : req.body.employee_id
+    });
+    console.log(benefit);
+  } else {
+      benefit_type = await Benefit_type.findByPk(req.body.benefit_type_id);
+      console.log(benefit_type);
+    }
+  
   const employee = await Employee.findOne({
     where: {
       id  : req.body.employee_id
     }
   });
 
-   await Employee.addBenefit(benefit);
-  await Benefit.addEmployee(employee);
-      
       res.status(200).send(benefit);
   });
 
@@ -53,23 +68,6 @@ router.post("/", [auth,isAdmin],async (req, res) => {
 
 
 router.delete("/:id" ,[auth,isAdmin],async (req, res) => {
-
-  const benefit = await Benefit.findOne({
-    where: {
-      id: req.body.beenfit_id
-    }
-  });
-
-  const employee = await Employee.findOne({
-    where: {
-      id  : req.body.employee_id
-    }
-  });
-
-   await Employee.addBenefit(benefit);
-   await Benefit.addEmployee(employee);
-
-
     await Benefit.destroy({
         where: {
             id : req.params.id

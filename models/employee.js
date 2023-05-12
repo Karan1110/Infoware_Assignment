@@ -59,7 +59,7 @@ Employee.afterCreate(async (employee, options) => {
     employee.salary = employee.salary_per_hour * employee.total_working_hours * employee.total_working_days;
 
     // Schedule the job
-     job = schedule.scheduleJob('0 12 1 * *', async () => {
+     job = schedule.scheduleJob({ day: 1, hour: 0, minute: 0 }, async () => {
       // try {
       //   // Create the notification or perform other actions
       //   await Notification.create({
