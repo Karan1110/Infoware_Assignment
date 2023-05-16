@@ -29,7 +29,7 @@ Notification
     winston.info('Notification table created');
   })
   .catch((ex) => { 
-    winston.info(ex);
+    winston.info("NOTIFICATION ERROR",ex);
   }); 
 
 module.exports = Notification;

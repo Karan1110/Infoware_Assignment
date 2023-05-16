@@ -125,17 +125,18 @@ router.get("/", [auth, isAdmin], async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
-  const userExists = await Employee.findOne({
-    where: {
-      email: req.body.email,
-    },
-  });
+  // const userExists = await Employee.findOne({
+  //   where: {
+  //     email: req.body.email,
+  //   }
+  // });
 
-  if (userExists) {
-    return res.status(400).send("User already registered.");
-  } else {
-    console.log("sus");
-  }
+  // if (userExists) {
+  //   return res.status(400).send("User already registered.");
+  // } else {
+  //   winston.info("sus");
+  //   return res.status(400).send("User already registered.");
+  // }
 
   const salt = await bcrypt.genSalt(10);
   const p = await bcrypt.hash(req.body.password, salt);
@@ -150,7 +151,7 @@ router.post("/", async (req, res) => {
     isAdmin: req.body.isadmin,
   });
 
-  const token = Employee.generateAuthToken();
+  const token = Employee.generateAuthToken(); 
 
   res.status(200).send({ token: token, Employee: employee });
 });
@@ -167,7 +168,7 @@ router.put("/:id", auth, [auth, isAdmin], async (req, res) => {
 
   if (userExists) return res.status(200).send("email already in use");
 
-  const { password } = _user;
+  const { password } = _user.dataValues;
   const p = await bcrypt.compare(req.body.password, password);
 
   if (!p) return res.status(400).send("invalid credentials.");

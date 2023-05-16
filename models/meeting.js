@@ -12,19 +12,12 @@ const Meeting = db.define('Meeting', {
 });
   
 Meeting.hasOne(Department, {
-  as: "EmployeeMeeting",
+  as: "MeetingDepartment",
   foreignKey: "department_id",
   onDelete: 'CASCADE',
   onUpdate: 'CASCADE'
 });
 
-Meeting.belongsToMany(Employee, {
-  as: "EmployeeMeeting",
-  through:  MeetingMember,
-  foreignKey: "meeting_id",
-  onDelete: 'CASCADE',
-  onUpdate: 'CASCADE'
-});
 
 Employee.belongsToMany(Meeting, {
   as: "Meeting",
@@ -34,24 +27,22 @@ Employee.belongsToMany(Meeting, {
   onDelete: 'CASCADE',
   onUpdate: 'CASCADE'
 });
- 
 
-
-Meeting.createMeetingMember = async function (employee_id) {
-  await this.addMeetingEmployee(employee_id);
-  await Notification.create({
-    message: "new meeting scheduled",
-    employee_id: employee_id
-  });
-};
+Meeting.belongsToMany(Employee, {
+  as: "Employee",
+  through:  MeetingMember,
+  foreignKey: "meeting_id",
+  otherKey: "employee_id",
+  onDelete: 'CASCADE',
+  onUpdate: 'CASCADE'
+});
 
 const winston = require("winston");
 
 Meeting
   .sync({ force: true })
   .then(() => {
-    Meeting_Member
-      .sync({ force: true })
+    MeetingMember.sync({ force: true })
       .then(() => {
         winston.info("MeetingMember created...")
       }).catch((ex) => {
@@ -64,3 +55,8 @@ Meeting
   });
 
 module.exports = Meeting;
+
+4
+
+
+4

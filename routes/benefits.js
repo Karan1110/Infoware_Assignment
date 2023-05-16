@@ -21,7 +21,7 @@ router.post("/", async (req, res) => {
     });
 
 
-    console.log(benefit_type);
+    winston.info(benefit_type);
     benefit = await Benefit.create({
       name: req.body.name,
       from: from,
@@ -29,10 +29,10 @@ router.post("/", async (req, res) => {
       benefit_type_id: benefit_type.dataValues.id,
       employee_id : req.body.employee_id
     });
-    console.log(benefit);
+    winston.info(benefit);
   } else {
       benefit_type = await Benefit_type.findByPk(req.body.benefit_type_id);
-      console.log(benefit_type);
+      winston.info(benefit_type);
     }
   
   const employee = await Employee.findOne({

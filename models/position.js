@@ -12,17 +12,23 @@ const Position = db.define('Position', {
   ]
 });
 
-Position.belongsTo(Department, {
+Position.hasMany(Department, {
   as: 'DepartmentPosition',
   foreignKey: 'department_id',
   onDelete: 'CASCADE',
   onUpdate: 'CASCADE'
 });
 
-Department.hasMany(Position);
+Department.belongsTo(Position, {
+  as: 'DepartmentPosition',
+  foreignKey: 'department_id',
+  onDelete: 'CASCADE',
+  onUpdate: 'CASCADE'
+});
+
+const winston = require('winston');
 
 Position.sync({force:true}).then(() => {
-  const winston = require('winston');
   winston.info('Position table created');
 });
 

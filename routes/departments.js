@@ -2,12 +2,13 @@ const express = require("express");
 const router = express.Router();
 const isAdmin = require("../middlewares/isAdmin");
 const auth = require("../middlewares/auth");
+const Department = require("../models/department");
 
 router.post("/", [auth,isAdmin],async (req, res) => {
 
-    const department = Department.create({
+    const department = await Department.create({
         name: req.body.name,
-        position_id : req.body.position_id
+        position_id: req.body.position_id
     });
     
       res.status(200).send(department);
@@ -15,7 +16,7 @@ router.post("/", [auth,isAdmin],async (req, res) => {
 
 router.put("/:id" ,[auth,isAdmin],async (req, res) => {
    
-    const department = Department.update({
+    const department = await Department.update({
         name: req.body.name
     });
 

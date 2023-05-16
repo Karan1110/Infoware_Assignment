@@ -11,7 +11,6 @@ const MeetingMember = db.define(' MeetingMember', {
     allowNull: false
   }
 }, {
-  tableName: ' MeetingMember',
   timestamps: false
 });
 

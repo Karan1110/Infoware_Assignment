@@ -11,7 +11,6 @@ const EmployeeSkill = db.define('EmployeeSkill', {
     allowNull: false
   }
 }, {
-  tableName: 'EmployeeSkill',
   timestamps: false
 });
 

@@ -1,6 +1,5 @@
 const Sequelize = require('sequelize');
 const db = require('../startup/db');
-const winston = require("winston");
 
 const Benefit_type = db.define('Benefit_type', {
    name : Sequelize.STRING
@@ -11,7 +10,5 @@ const Benefit_type = db.define('Benefit_type', {
     }
   ]
 });
-
-
 
 module.exports = Benefit_type;

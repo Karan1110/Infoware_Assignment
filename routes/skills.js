@@ -23,7 +23,7 @@ router.post("/", [auth, isAdmin], async (req, res) => {
     const employee = await Employee.findByPk(employee_id);
     if (!employee) return res.status(400).send("User not found");
     
-  console.log(skill.dataValues.id,employee.dataValues.id);
+  winston.info(skill.dataValues.id,employee.dataValues.id);
   
     await EmployeeSkill.create({
       employee_id: employee.dataValues.id,

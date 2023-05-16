@@ -45,12 +45,12 @@ Benefit_type
         winston.info("Benefit table created");
       })
       .catch((ex) => {
-        winston.info(ex);
+        winston.info('benefitTable',ex);
       });
     winston.info("Benefit_type table created");
   })
   .catch((ex) => {
-    winston.info(ex);
+    winston.info('Benefit table',ex);
   });
 
 module.exports = Benefit;

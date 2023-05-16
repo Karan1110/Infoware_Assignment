@@ -22,10 +22,15 @@ Experience.belongsToMany(Employee, {
   onDelete: 'CASCADE',
   onUpdate: 'CASCADE'
 });
+const winston = require("winston")
 
-Experience.sync({force:true}).then(() => {
-  const winston = require("winston")
-winston.info('Experience table created');
-});
+Experience
+  .sync({ force: true })
+  .then(() => {
+    winston.info('Experience table created');
+  })
+  .catch((ex) => {
+    winston.info("ERROR Experience table", ex)
+  });
 
 module.exports = Experience;

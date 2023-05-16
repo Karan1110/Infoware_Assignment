@@ -25,9 +25,16 @@ Employee.hasMany(Message, {
 
 Message.belongsTo(Employee);
 
-Message.sync({force:true}).then(() => {
-  const winston = require("winston")
+const winston = require("winston")
+
 winston.info('Message table created');
+
+Message
+    .sync({ force: true })
+    .then(() => {
+      winston.info('created Message table.');
+    }) .catch((ex) => { 
+  winston.info('ERROR creating Message table.');
 });
 
 module.exports = Message;

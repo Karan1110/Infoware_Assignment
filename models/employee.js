@@ -8,7 +8,7 @@ const Employee = db.define('Employee', {
   name: Sequelize.STRING,
   email: {
     type: Sequelize.STRING,
-    unique : true
+    unique: true
   },
   password: Sequelize.STRING,
   age: Sequelize.INTEGER,
@@ -17,6 +17,7 @@ const Employee = db.define('Employee', {
   isAdmin: Sequelize.BOOLEAN,
   manager_id: Sequelize.INTEGER,
   education_id: Sequelize.INTEGER,
+  department_id: Sequelize.INTEGER,
   total_working_hours: {
     type: Sequelize.INTEGER,
     defaultValue: 8,
@@ -38,45 +39,45 @@ const Employee = db.define('Employee', {
       unique: false,
       fields: ['id', 'name', 'age']
     }
-  ]
+  ],
+  tableName: 'employees' // Specify the custom table name here
 });
-
 
 let job;
 
-Employee.afterCreate(async (employee, options) => {
-  console.log('sus');
-  try {
-    // Reload the employee to get the latest values from the database
-    await employee.reload();
+// Employee.afterCreate(async (employee, options) => {
+//   winston.info('sus');
+//   try {
+//     // Reload the employee to get the latest values from the database
+//     await employee.reload();
 
-    // Set the attributes to their default values
-    employee.total_working_days = 25;
-    employee.total_working_hours = 8;
-    employee.salary_per_hour = 99;
+//     // Set the attributes to their default values
+//     employee.total_working_days = 25;
+//     employee.total_working_hours = 8;
+//     employee.salary_per_hour = 99;
 
-    // Calculate the salary
-    employee.salary = employee.salary_per_hour * employee.total_working_hours * employee.total_working_days;
+//     // Calculate the salary
+//     employee.salary = employee.salary_per_hour * employee.total_working_hours * employee.total_working_days;
 
-    // Schedule the job
-     job = schedule.scheduleJob({ day: 1, hour: 0, minute: 0 }, async () => {
-      // try {
-      //   // Create the notification or perform other actions
-      //   await Notification.create({
-      //     message: 'Salary credited',
-      //     employee_id: employee.id
-      //   });
-      //   console.log('Notification created');
-      // } catch (error) {
-      //   console.log('Error creating notification:', error);
-      // }
-    });
+//     // Schedule the job
+//      job = schedule.scheduleJob({ day: 1, hour: 0, minute: 0 }, async () => {
+//       // try {
+//       //   // Create the notification or perform other actions
+//       //   await Notification.create({
+//       //     message: 'Salary credited',
+//       //     employee_id: employee.id
+//       //   });
+//       //   winston.info('Notification created');
+//       // } catch (error) {
+//       //   winston.info('Error creating notification:', error);
+//       // }
+//     });
 
-    console.log('Job scheduled');
-  } catch (error) {
-    console.log('Error in afterCreate hook:', error);
-  }
-});
+//     winston.info('Job scheduled');
+//   } catch (error) {
+//     winston.info('Error in afterCreate hook:', error);
+//   }
+// });
 
 Employee.generateAuthToken = function () {
   const token = jwt.sign(
@@ -95,8 +96,12 @@ Employee.belongsTo(Employee, {
 
 const winston = require("winston");
 
-Employee.sync({ force: true }).then(() => {
-  winston.info('Employee table created');
-});
-
+Employee
+  .sync({ force: true })
+  .then(() => {
+    winston.info('Employee table created');
+  })
+  .catch((ex) => {
+    winston.error("Employee table NOT created", ex)
+  });
 module.exports = Employee;

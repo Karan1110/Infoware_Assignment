@@ -13,5 +13,5 @@ winston.info("Listening on  http://localhost:3001")
 });
      
 db.authenticate()
-  .then(() => console.log('Database connected...'))
-  .catch(err => console.log('Error: ' + err));
+  .then(() => winston.info('Database connected...'))
+  .catch(err => winston.info('Error: ' + err));

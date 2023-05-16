@@ -20,6 +20,7 @@ const Skill = db.define('Skill', {
 });
 
   Employee.belongsToMany(Skill, { through: EmployeeSkill, foreignKey: 'employee_id', otherKey: 'skill_id' });
+  Skill.belongsToMany(Employee, { through: EmployeeSkill, foreignKey: 'skill_id', otherKey: 'employee_id' });
 
 
 Skill
@@ -31,11 +32,11 @@ EmployeeSkill
       winston.info('EmployeeSkill table created');
     })
     .catch((err) => {
-      console.log("Can't create EmployeeSkill", err);
+      winston.info("Can't create EmployeeSkill", err);
     });
 
 }).catch((err) => {
-    
+    winston.info('ERROR creating skill table',err)
 });
 
 module.exports = Skill;

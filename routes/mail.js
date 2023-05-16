@@ -1,9 +1,18 @@
-const express = require("express");
-const router = express.Router();
 const nodemailer = require("nodemailer");
+const mailCode = require("../models/mailCode");
+const bcrypt = require("bcrypt");
+const router = require('express').Router();
 
-router.post("/verify-email", async (req, res) => {
-    
+router.post('verify-email', async (req, res, next) => {
+    const c = Math.floor(Math.random() % 100 + 1);
+    const salt = await bcrypt.genSalt(10);
+    const code = await bcrypt.hash(c, salt);
+
+    const mail_code = await mailCode.create({
+        code: code,
+        email: req.body.email
+    });
+
     const transport = nodemailer.createTransport({
         service: "gmail",
         auth: {
@@ -11,9 +20,6 @@ router.post("/verify-email", async (req, res) => {
             pass: req.body.password
         }
     });
-    
-    const mailCode = Math.floor(Math.random() % 100 + 1);
-    req.mailCode = mailCode;
     
     await transport.sendMail({
         to: req.body.email,
@@ -26,7 +32,7 @@ router.post("/verify-email", async (req, res) => {
         `
     });
     
-    res.status(200).send("Email sent");
+    res.status(200).send({mailCodeSent : mail_code});
 });
 
 module.exports = router;
