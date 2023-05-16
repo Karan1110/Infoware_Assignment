@@ -16,6 +16,10 @@ const Message = db.define('Message', {
   ]
 });
 
+const winston = require("winston")
+
+winston.info('Message table created');
+
 Employee.hasMany(Message, {
   as: "Message",
   foreignKey: "employee_id",
@@ -23,18 +27,12 @@ Employee.hasMany(Message, {
   onUpdate: 'CASCADE'
 });
 
-Message.belongsTo(Employee);
-
-const winston = require("winston")
-
-winston.info('Message table created');
-
-Message
-    .sync({ force: true })
-    .then(() => {
-      winston.info('created Message table.');
-    }) .catch((ex) => { 
-  winston.info('ERROR creating Message table.');
+Message.belongsTo(Employee, {
+  as: "Message",
+  foreignKey: "employee_id",
+  onDelete: 'CASCADE',
+  onUpdate: 'CASCADE'
 });
+
 
 module.exports = Message;

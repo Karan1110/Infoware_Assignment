@@ -1,7 +1,8 @@
 const Sequelize = require('sequelize');
 const db = require('../startup/db');
+const winston = require("winston");
 
-const Benefit_type = db.define('Benefit_type', {
+const Benefit_Type = db.define('Benefit_Type', {
    name : Sequelize.STRING
 },{
   indexes: [
@@ -11,4 +12,6 @@ const Benefit_type = db.define('Benefit_type', {
   ]
 });
 
-module.exports = Benefit_type;
+
+
+module.exports = Benefit_Type;

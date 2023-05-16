@@ -1,20 +1,22 @@
 const express = require("express");
 const router = express.Router();
 const auth = require("../middlewares/auth");
-
 const isAdmin = require("../middlewares/isAdmin");
-
-router.post("/", [auth, isAdmin], async (req, res) => {
-    const employee = await Employee.findByPk(req.body.employee_id);
+const Employee = require("../models/employee");
+const Ticket = require("../models/ticket");
+// [auth, isAdmin]
+router.post("/", async (req, res) => {
+         const employee = await Employee.findByPk(req.body.employee_id);
+        
     if (!employee) return res.status(400).send("user not found");
     
-    if (employee.manager_id !== req.user.id) return res.status(400).send("Not authorized");
-
+    // if (employee.manager_id !== req.user.id) return res.status(400).send("Not authorized");
 
   const ticket =   await Ticket.create({
         name: req.body.name,
         steps: req.body.steps,
-        employee_id : req.body.employee_id
+      employee_id: req.body.employee_id,
+        deadline : req.body.deadline
     });
       
       res.status(200).send(ticket);

@@ -1,4 +1,6 @@
 const express = require("express");
+const helmet = require("helmet");
+const cors = require("cors");
 const employees = require("../routes/employees");
 const benefits = require("../routes/benefits");
 const performances = require("../routes/performances");
@@ -18,6 +20,8 @@ const mails = require("../routes/mail");
 module.exports = function (app) {
     app.use(express.urlencoded({ extended: true }));
     app.use(express.json());
+    app.use(helmet());
+    app.use(cors());
     require("../web sockets/chat")(app);
     app.use("/notifications", notifications);
     app.use("/employees", employees);

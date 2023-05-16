@@ -3,8 +3,8 @@ const router = express.Router();
 const isAdmin = require("../middlewares/isAdmin");
 const auth = require("../middlewares/auth");
 const Department = require("../models/department");
-
-router.post("/", [auth,isAdmin],async (req, res) => {
+// , [auth,isAdmin]
+router.post("/",async (req, res) => {
 
     const department = await Department.create({
         name: req.body.name,

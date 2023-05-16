@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const winston = require("winston");
 const auth = require("../middlewares/auth");
 const moment = require("moment");
 const isAdmin = require("../middlewares/isAdmin");
@@ -9,8 +10,9 @@ const Benefit_type = require("../models/benefit_type");
 // [auth,isAdmin]
 router.post("/", async (req, res) => {
   const from = moment();
-  from.format("YYYY-MM");
-  const to = moment.duration({ year: req.body.fromYear, months: req.body.fromMonths });
+  from.format("YYYY-MM-DD");
+  const to = moment(req.body.to);
+
   const { benefit_type_id } = req.body;
   let benefit_type;
   let benefit;
@@ -20,33 +22,35 @@ router.post("/", async (req, res) => {
       name: 'medical'
     });
 
+    winston.info(benefit_type,`this is beenfit type id ${benefit_type.dataValues.id}`);
 
-    winston.info(benefit_type);
     benefit = await Benefit.create({
       name: req.body.name,
       from: from,
-      to: from.add(to).format("YYYY-MM"),
+      to: to.format("YYYY-MM-DD"),
       benefit_type_id: benefit_type.dataValues.id,
       employee_id : req.body.employee_id
     });
-    winston.info(benefit);
-  } else {
-      benefit_type = await Benefit_type.findByPk(req.body.benefit_type_id);
-      winston.info(benefit_type);
-    }
-  
-  const employee = await Employee.findOne({
-    where: {
-      id  : req.body.employee_id
-    }
-  });
 
-      res.status(200).send(benefit);
+  } else {
+    benefit_type = await Benefit_type.findByPk(req.body.benefit_type_id);
+    benefit = await Benefit.create({
+      name: req.body.name,
+      from: from,
+      to: from.format("YYYY-MM-DD"),
+      benefit_type_id: benefit_type.dataValues.id,
+      employee_id : req.body.employee_id
+    });
+    }
+
+      res
+      .status(200)
+      .send(benefit);
   });
 
   router.put("/:id", [auth, isAdmin], async (req, res) => {
     const from = moment(new Date());
-    const to = moment(from).add({ years: req.body.fromYear, months: req.body.fromMonths });
+    const to = req.body.to
     from.format("YYYY-MM");
   
     const benefit = await Benefit.update(

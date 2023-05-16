@@ -1,5 +1,6 @@
 const db = require("../startup/db");
 const Sequelize = require('sequelize');
+const winston = require("winston")
 
 const EmployeeSkill = db.define('EmployeeSkill', {
   employee_id: {
@@ -11,7 +12,11 @@ const EmployeeSkill = db.define('EmployeeSkill', {
     allowNull: false
   }
 }, {
-  timestamps: false
+  timestamps: false,
+  tableName : 'EmployeeSkill'
 });
+
+
+
 
 module.exports = EmployeeSkill;

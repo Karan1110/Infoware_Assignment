@@ -1,61 +1,55 @@
-const Sequelize = require('sequelize');
-const db = require('../startup/db');
+const winston = require("winston");
+const Sequelize = require("sequelize");
+const db = require("../startup/db");
 const moment = require("moment");
+const Employee = require("./employee"); // Move the require statement here
+const schedule = require("node-schedule");
+const Notification = require("../models/notifications");
 
-const Ticket = db.define('Ticket', {
-  name: Sequelize.STRING,
-  steps: Sequelize.ARRAY(Sequelize.STRING),
-  deadline: Sequelize.DATE
-}, {
-  timestamps: true
-});
+const Ticket = db.define(
+  "Ticket",
+  {
+    name: Sequelize.STRING,
+    steps: Sequelize.ARRAY(Sequelize.STRING),
+    deadline: Sequelize.DATE,
+  },
+  {
+    timestamps: true,
+  }
+);
 
-const Employee = require('./employee'); // Move the require statement here
+Ticket.afterCreate(async (ticket) => {
+  const deadline = moment(ticket.deadline);
+  const newDate = deadline.subtract(1, "days").format("YYYY-MM-DD HH:MM:SS");
+  console.log(ticket.steps);
+  await Notification.create({
+    message: `Ticket pending! complete now!, name  : ${ticket.name}`,
+    employee_id : ticket.employee_id
+  });
+  schedule.scheduleJob(newDate, async () => {
+    await Notification.create({
+      message: `Ticket pending! complete now!, name  : ${ticket.name}`,
+      employee_id : ticket.employee_id
+    });
 
-Ticket.belongsTo(Employee, {
-  as: "Ticket",
-  foreignKey: "employee_id",
-  onDelete: 'CASCADE',
-  onUpdate: 'CASCADE'
+    schedule.scheduleJob({date : deadline.format('YYYY-MM-DD HH:MM:SS')}, async () => {
+      await ticket.destroy();
+    });
+  });
 });
 
 Employee.hasMany(Ticket, {
   as: "Ticket",
   foreignKey: "employee_id",
-  onDelete: 'CASCADE',
-  onUpdate: 'CASCADE'
+  onDelete: "CASCADE",
+  onUpdate: "CASCADE",
 });
-Ticket.afterCreate(async (instance) => {
-  const deadline = moment(instance.deadline);
-  const newDate = deadline.subtract(1, 'days');
-  const notificationDD = moment(newDate);
-  const NDDY = notificationDD.year();
-  const NDDM = notificationDD.month();   const NDDD = notificationDD.date(); 
 
-  schedule.scheduleJob({NDDY,NDDM,NDDD},async () => {
-    await Notification.create({
-      message: `Ticket pending! complete now!, name  : ${instance.name}`
- });
-
-    const DY = deadline.year();     const DM = deadline.month();
-    const DD = deadline.date();
-   
-    schedule.scheduleJob({DY,DM,DD}, async () => {
-      await instance.destroy();
-
-    });
-  });
-})
-
-const winston = require("winston");
-
-Ticket
-  .sync({ force: true })
-  .then(() => {
-    winston.info('Ticket table created');
-  })
-  .catch((ex) => {
-    winston.error("Error while creating TICKET table", ex);
-  });
+Ticket.belongsTo(Employee, {
+  as: "Employee",
+  foreignKey: "employee_id",
+  onDelete: "CASCADE",
+  onUpdate: "CASCADE",
+});
 
 module.exports = Ticket;

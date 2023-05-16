@@ -7,7 +7,7 @@ module.exports = function (req, res, next) {
       }
       try {
         const token = req.header("x-auth-token");
-        const decoded = jwt.verify(token, config.get("jwtPrivateKey"));
+        const decoded = jwt.verify(token, "karan112010");
         req.user = decoded;
         next();
       } catch (ex) {

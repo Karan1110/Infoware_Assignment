@@ -1,32 +1,39 @@
+const winston = require("winston");
 const Message = require("../models/message");
 
 module.exports = function (app) {
   const expressWs = require("express-ws")(app);
-  
+
   app.ws("chat/:chatRoom/:userIDs*", async (ws, req) => {
-    const winston = require("winston")
-winston.info("WebSocket connection established");
+    winston.info("WebSocket connection established");
+
     const messages = await Message.findAll({
       where: {
-        employee_id: [req.params.userIDs]
-      }
+        employee_id: [req.params.userIDs],
+      },
     });
+
     messages.forEach((message) => {
-      ws.send(`Message: ${message.message}, Read: ${message.read}`);
+      const message = {
+        message: message.message,
+        username: name,
+        read: message.read,
+      };
+      ws.send(message);
     });
 
     // Handle incoming messages
     ws.on("message", async (msg) => {
-      const winston = require("winston")
-winston.info(`Received message: ${msg}`);
+      winston.info(`Received message: ${msg}`);
 
       // Save the message to the database
       await Message.create({
-        message: message,
-        read: false
+        message: msg.message,
+        read: false,
+        username : msg.username
       });
       // Send a confirmation message to the sender
-      ws.send(`${req.name} : ${msg}`);
+      ws.send({message : msg});
     });
 
     // Handle the "read" event
@@ -34,18 +41,15 @@ winston.info(`Received message: ${msg}`);
       // Update the status of the message in the database
       await Message.update({
         where: {
-          id : msgId
-        },
-        data: {
-          read : true
+          id: msgId
         }
-      })
+      }, {
+        read: true
+      });
     });
 
     ws.on("close", () => {
-      const winston = require("winston")
-winston.info("WebSocket connection closed");
+      winston.info("WebSocket connection closed");
     });
-
   });
 };

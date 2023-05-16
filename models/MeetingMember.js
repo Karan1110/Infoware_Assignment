@@ -1,5 +1,6 @@
 const db = require("../startup/db");
 const Sequelize = require('sequelize');
+const winston = require("winston");
 
 const MeetingMember = db.define(' MeetingMember', {
   employee_id: {
@@ -11,7 +12,10 @@ const MeetingMember = db.define(' MeetingMember', {
     allowNull: false
   }
 }, {
+  tableName : 'MeetingMember',
   timestamps: false
 });
+
+
 
 module.exports =  MeetingMember;

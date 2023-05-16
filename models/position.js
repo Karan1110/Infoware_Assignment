@@ -12,6 +12,7 @@ const Position = db.define('Position', {
   ]
 });
 
+const winston = require('winston');
 Position.hasMany(Department, {
   as: 'DepartmentPosition',
   foreignKey: 'department_id',
@@ -26,10 +27,5 @@ Department.belongsTo(Position, {
   onUpdate: 'CASCADE'
 });
 
-const winston = require('winston');
-
-Position.sync({force:true}).then(() => {
-  winston.info('Position table created');
-});
 
 module.exports = Position;

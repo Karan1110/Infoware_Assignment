@@ -1,12 +1,15 @@
 const Sequelize = require("sequelize");
-const Employee = require("./employee");
 const db = require("../startup/db");
+const Employee = require("./employee");
 
 const Education = db.define("Education", {
   name: Sequelize.STRING,
   type: Sequelize.STRING,
 });
 
+
+
+const winston = require("winston");
 
 Education.hasMany(Employee, {
   as: "EmployeeEducation",
@@ -22,15 +25,17 @@ Employee.belongsTo(Education, {
   onDelete: "CASCADE",
 });
 
-const winston = require("winston");
 
-Education
-  .sync({ force: true })
-  .then(() => {
-    winston.info("Education table created...")
-  })
-  .catch((ex) => {
-    winston.info("Education table Error... ", ex); 
-  });
+
+
+
+// Education
+// .sync({ force: true })
+// .then(() => {
+//   winston.info("Education table created...");
+//   })
+//   .catch((ex) => {
+//     winston.info("Education table Error... ", ex); 
+//   });
 
 module.exports = Education;
