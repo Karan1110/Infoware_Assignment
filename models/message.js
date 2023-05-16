@@ -4,10 +4,11 @@ const Employee = require('./employee');
 
 const Message = db.define('Message', {
   message: Sequelize.STRING,
-  read: {
+  isRead: {
     type: Sequelize.BOOLEAN,
     default : false
-  }
+  },
+  chatRoom : Sequelize.STRING
 }, {
   indexes: [
     {

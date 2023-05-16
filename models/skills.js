@@ -1,7 +1,7 @@
 const Sequelize = require("sequelize");
 const winston = require("winston");
 const db = require("../startup/db");
-const EmployeeSkill = require("./intermediate models./EmployeeSkill");
+const EmployeeSkill = require("./intermediate models/EmployeeSkill");
 const Employee = require("./employee");
 
 const Skill = db.define(

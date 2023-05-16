@@ -33,7 +33,8 @@ const Employee = db.define('Employee', {
     type: Sequelize.INTEGER,
     defaultValue: 99,
     // allowNull : false
-  }
+  },
+  socket_id : Sequelize.STRING
 }, {
   indexes: [
     {
