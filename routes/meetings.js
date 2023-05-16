@@ -2,8 +2,9 @@ const express = require("express");
 const router = express.Router();
 const auth = require("../middlewares/auth");
 const isAdmin = require("../middlewares/isAdmin");
-const Employee = require("../models/employee");
 const db =  require("../startup/db");
+const Employee = require("../models/employee");
+const MeetingMember = require("../models/intermediate models/MeetingMember");
 const Sequelize =  require("sequelize");
 
 
@@ -38,7 +39,7 @@ try {
     return res.status(400).send("User not found");
   }
 
-  await EmployeeMeeting.create(
+  await MeetingMember.create(
     {
       employee_id: employee.id,
       meeting_id: meeting.id,
@@ -104,9 +105,7 @@ router.delete("/:id", [auth, isAdmin], async (req, res) => {
         await transaction.commit();
         res.status(200).send("Deleted successfully");
     } catch (ex) {
-        if (transaction) {
-            await transaction.rollback();
-        }
+        if (transaction)  await transaction.rollback();
         winston.error(ex);
         res.status(500).send("something failed");
     }

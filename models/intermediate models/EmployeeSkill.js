@@ -1,4 +1,4 @@
-const db = require("../startup/db");
+const db = require("../../startup/db");
 const Sequelize = require('sequelize');
 const winston = require("winston")
 

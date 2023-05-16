@@ -4,7 +4,7 @@ const auth = require("../middlewares/auth");
 const isAdmin = require("../middlewares/isAdmin");
 const Employee = require("../models/employee");
 const Skill = require("../models/skills");
-const EmployeeSkill = require("../models/EmployeeSkill")
+const EmployeeSkill = require("../models/intermediate models/EmployeeSkill")
 
 
 router.post("/", [auth, isAdmin], async (req, res) => {
