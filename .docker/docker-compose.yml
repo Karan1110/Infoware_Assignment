@@ -1,0 +1,14 @@
+version: "3.9"
+services:
+  api:
+    build: .
+    ports:
+      - "2900:2900"
+    volumes:
+      - .:/app
+  database:
+    image: postgres:15-alpine
+    volumes:
+      - "/db"
+    ports:
+      - "7000:8081"

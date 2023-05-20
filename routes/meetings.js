@@ -4,20 +4,20 @@ const auth = require("../middlewares/auth");
 const isAdmin = require("../middlewares/isAdmin");
 const db =  require("../startup/db");
 const Employee = require("../models/employee");
+const Sequelize = require("sequelize");
 const MeetingMember = require("../models/intermediate models/MeetingMember");
-const Sequelize =  require("sequelize");
-
+const  Meeting = require("../models/meeting");
 
 router.post("/", [auth, isAdmin], async (req, res) => {
 const { meeting_id, employee_id } = req.body;
-
 let transaction;
+  let meeting;
+  
 try {
   transaction = await db.transaction({
     isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE,
   });
 
-  let meeting;
   if (!meeting_id) {
     meeting = await Meeting.create(
       {
@@ -49,12 +49,13 @@ try {
 
   await transaction.commit();
   res.status(200).send(meeting);
+
 } catch (error) {
   if (transaction) {
     await transaction.rollback();
   }
   console.log("Transaction rolled back:", error);
-  res.status(500).send("An error occurred during the transaction.");
+  res.status(500).send("Something failed.");
 }
 
 });

@@ -3,31 +3,33 @@ const router = express.Router();
 const auth = require("../middlewares/auth");
 const isAdmin = require("../middlewares/isAdmin");
 // [auth,isAdmin]
-const Performance = require("../models/performance.js");
+const Education = require("../models/education.js");
 
 router.post("/",async (req, res) => {
 
-    const performance = await Performance.create({
-        status : req.body.status,
+    const Education = await Education.create({
+        field : req.body.field,
+        type : req.body.type,
         employee_id : req.body.employee_id
     });
       
-      res.status(200).send(performance);
+      res.status(200).send(Education);
   });
 
 router.put("/:id" ,[auth,isAdmin],async (req, res) => {
 
-    const performance = await Performance.create({
+    const Education = await Education.create({
         where: {
             id : req.body.employee_id
         }
     },{
-        status : req.body.status,
+        field : req.body.field,
+        type : req.body.type,
         employee_id : req.body.employee_id
     });
     res
         .status(200)
-        .send(performance);
+        .send(Education);
 });
 
 module.exports = router;

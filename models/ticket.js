@@ -20,7 +20,7 @@ const Ticket = db.define(
 
 Ticket.afterCreate(async (ticket) => {
   const deadline = moment(ticket.deadline);
-  const newDate = deadline.subtract(1, "days").format("YYYY-MM-DD HH:MM:SS");
+  const newDate = deadline.subtract(1, "days").format("YYYY-MM-DD HH:MM:SS HH:MM:SS");
   console.log(ticket.steps);
   await Notification.create({
     message: `Ticket pending! complete now!, name  : ${ticket.name}`,
@@ -32,7 +32,7 @@ Ticket.afterCreate(async (ticket) => {
       employee_id : ticket.employee_id
     });
 
-    schedule.scheduleJob({date : deadline.format('YYYY-MM-DD HH:MM:SS')}, async () => {
+    schedule.scheduleJob({date : deadline.format('YYYY-MM-DD HH:MM:SS HH:MM:SS')}, async () => {
       await ticket.destroy();
     });
   });

@@ -15,7 +15,7 @@ const Benefit = db.define("Benefit", {
 Benefit.afterCreate(async (benefit) => {
   const to = moment(benefit.to);
   console.log(` this is benefit to ${to}`);
-  schedule.scheduleJob({ date: to.format("YYYY-MM-DD HH:MM:SS") }, async () => {
+  schedule.scheduleJob({ date: to.format("YYYY-MM-DD HH:MM:SS HH:MM:SS") }, async () => {
     await benefit.destroy();
   });
 });

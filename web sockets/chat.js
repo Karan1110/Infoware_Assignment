@@ -1,12 +1,15 @@
 const winston = require("winston");
 const Message = require("../models/message");
 
+// Create an object to store online users
+const onlineUsers = {};
+
 module.exports = function (app) {
   require("express-ws")(app);
   app.ws("/chat/:chatRoom/:employeeId*", async (ws, req) => {
     winston.info("WebSocket connection established");
     const username = req.query.username;
-    
+
     if (!username) {
       return ws.close(4000, "Missing username");
     }
@@ -14,6 +17,10 @@ module.exports = function (app) {
     await Employee.update({
       socket_id: ws.id
     });
+
+    // Add the user to the online users object
+    onlineUsers[username] = ws.id;
+
     // Get all messages for the current chat room
     const messages = await Message.findAll({
       where: {
@@ -22,18 +29,23 @@ module.exports = function (app) {
       },
     });
 
+    if (!messages || messages.length === 0) {
+      ws.send("Starting of the conversation");
+    } else {
+      // Send all messages to the WebSocket connection
+      messages.forEach((msg) => {
+        ws.send(JSON.stringify({
+          message: msg.message,
+          username: msg.username,
+          isRead: msg.isRead,
+        }));
+      });
+    }
 
-    if (!messages || messages.length === 0) return ws.send(`Starting of the conversation`)
-  
-
-    // Send all messages to the WebSocket connection
-    messages.forEach((msg) => {
-      ws.send(JSON.stringify({
-        message: msg.message,
-        username: msg.username,
-        isRead: msg.isRead,
-      }));
-    });
+    // Send the list of online users
+    ws.send(JSON.stringify({
+      onlineUsers: Object.keys(onlineUsers),
+    }));
 
     // Handle incoming messages
     ws.on("message", async (msg) => {
@@ -47,31 +59,14 @@ module.exports = function (app) {
       });
 
       // Send a confirmation message to the sender
-      ws.send({ message: msg });
+      ws.send(JSON.stringify({ message: msg }));
     });
 
     ws.on("close", () => {
       winston.info("WebSocket connection closed");
 
       // Remove the user from the online users object
-      delete onlineUsers[msg.username];
+      delete onlineUsers[username];
     });
-
-    // Handle the online event
-    ws.on("online", () => {
-      winston.info(`User ${ws.id} is online`);
-
-      // Add the user to the online users object
-      onlineUsers[ws.username] = ws.id;
-    });
-
-    // Handle the offline event
-    ws.on("offline", () => {
-      winston.info(`User ${ws.id} is offline`);
-
-      // Remove the user from the online users object
-      delete onlineUsers[ws.username];
-    });
-    // ws.username = req.query.username;
   });
-}
+};

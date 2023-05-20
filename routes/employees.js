@@ -7,13 +7,13 @@ const isAdmin = require("../middlewares/isAdmin");
 // const config = require("config")
 const Employee = require("../models/employee");
 const Education = require("../models/education");
-const Experience = require("../models/Experience");
+const Experience = require("../models/experience");
 const Ticket = require("../models/ticket");
 const Skill = require("../models/skills");
 const Benefit = require("../models/benefits");
 const Meeting = require("../models/meeting");
 const Notification = require("../models/notifications");
-const Performance = require("../models/Performance");
+const Performance = require("../models/performance.js");
 const Department = require("../models/department");
 const winston = require("winston");
 const Sequelize = require('sequelize');
@@ -30,6 +30,88 @@ router.get("/average_salary", [auth, isAdmin], async (req, res) => {
 
   // res.status(200).send(Users.dataValues.average_salary);
   res.status(200).send(Users);
+});
+
+router.get("/statistics", [auth, isAdmin], async (req, res)=> {
+  const employeeStatistics = {};
+
+  // Performance statistics
+  employeeStatistics.Employee_Performance_Below_Average = await Employee.findAll({
+    include: [{
+      model: Performance,
+      as: 'Performance',
+      where: {
+        classification: 'Below Average'
+      }
+    }]
+  });
+  
+  employeeStatistics.Employee_Performance_Average = await Employee.findAll({
+    include: [{
+      model: Performance,
+      as: 'Performance',
+      where: {
+        classification: 'Average'
+      }
+    }]
+  });
+  
+  employeeStatistics.Employee_Performance_Above_Average = await Employee.findAll({
+    include: [{
+      model: Performance,
+      as: 'Performance',
+      where: {
+        classification: 'Above Average'
+      }
+    }]
+  });
+  
+  // Department statistics
+  
+  employeeStatistics.Department = await Employee.findAll({
+    include: [{
+      model: Department,
+      as: 'Department',
+      where: {
+        name: req.body.department
+      }
+    }]
+  });
+  
+  employeeStatistics.Education = await Employee.findAll({
+    include: [{
+      model: Education,
+      as: 'Education',
+      where: {
+        name: req.body.education_type
+      }
+    }]
+  });
+  employeeStatistics.Manager = await Employee.findAll({
+    include: [{
+      model: Employee,
+      as: 'Employee',
+      where: {
+        name: req.body.manager_name
+      }
+    }]
+  });
+
+  employeeStatistics.Manager = await Employee.findAll({
+    include: [{
+      model: Employee,
+      as: 'Employee',
+      where: {
+        name: req.body.manager_name
+      }
+    }]
+  });
+
+
+
+  console.log(employeeStatistics);
+  
+
 });
 
 router.get("/", [auth, isAdmin], async (req, res) => {
@@ -205,17 +287,17 @@ router.get("/", [auth, isAdmin], async (req, res) => {
 });
 
 router.post("/", async(req, res) => {
-  // const userExists = await Employee.findOne({
-  //   where: {
-  //     email: req.body.email,
-  //   }
-  // });
+  const userExists = await Employee.findOne({
+    where: {
+      email: req.body.email,
+    }
+  });
 
-  // if (!userExists) {
-  //   winston.info("No user exists...")
-  // } else {
-  //   return res.status(400).send("USER ALREADY EXISTS...");
-  // }
+  if (!userExists) {
+    winston.info("No user exists...")
+  } else {
+    return res.status(400).send("USER ALREADY EXISTS...");
+  }
 
     const salt = await bcrypt.genSalt(10);
     const p = await bcrypt.hash(req.body.password, salt);
@@ -315,7 +397,6 @@ router.put("/:id", auth, [auth, isAdmin], async (req, res) => {
 
   res.header("x-auth-token", token).status(200).send(user);
 });
-
 
 
 

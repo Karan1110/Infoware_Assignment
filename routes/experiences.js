@@ -11,17 +11,9 @@ router.post("/", [auth,isAdmin],async (req, res) => {
     const experience = await Experience.create({
         company: req.body.company,
         from: req.body.from,
-        to: req.body.to
+        to: req.body.to,
+        employee_id : req.body.employee_id
     });
-      
-    const employee = await Employee.findOne({
-        where: {
-            id: req.body.employee_id
-        }
-    });
-
-    Employee.addExperience(experience);
-    Experience.addEmployee(employee);
 
       res.status(200).send(experience);
   });
