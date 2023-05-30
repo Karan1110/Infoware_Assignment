@@ -38,5 +38,4 @@ Meeting.belongsToMany(Employee, {
   onUpdate: "CASCADE",
 });
 
-
 module.exports = Meeting;

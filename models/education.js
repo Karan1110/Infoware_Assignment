@@ -5,9 +5,9 @@ const Employee = require("./employee");
 const Education = db.define("Education", {
   field: Sequelize.STRING,
   type: {
-    type: Sequelize.ENUM('Bachelors', 'Masters', 'Phd'),
+    type: Sequelize.ENUM("Bachelors", "Masters", "Phd"),
     allowNull: false
-  }
+  },
 });
 
 Employee.belongsTo(Education, {

@@ -1,15 +1,10 @@
-const mailCode = require("../models/mailCode");
 const bcrypt = require("bcrypt");
 const LimMailer = require("lim-mailer");
-const router = require("express").Router();
 
-router.post("verify-email", async (req, res, next) => {
-  const c = Math.floor((Math.random() % 100) + 1).toString();
-  
-  const mail_code = await mailCode.create({
-    code: c,
-    email: req.body.email,
-  });
+(async () => {
+    const c = Math.floor((Math.random() % 100) + 1).toString();
+  const salt = await bcrypt.genSalt(10);
+  const code = await bcrypt.hash(c, salt);
 
   // pass in the mailbox configuration when creating the instance:
   const mailer = new LimMailer(
@@ -34,8 +29,8 @@ router.post("verify-email", async (req, res, next) => {
   mailer
     .sendMail({
       subject: "Welcome to Veera", // Subject line
-      text: `Welcome to lim-mailer, Your verification code is ${c}!`, // plain text body
-      html: `<b> Your email-code is ${c}</b>`, // HTML body
+      text: `Welcome to lim-mailer, Your verification code is ${code}!` // plain text body
+    //   html: `<b> Your email-code is ${code}</b>`, // HTML body
     })
     .then((info) => {
       console.log(info);
@@ -43,8 +38,5 @@ router.post("verify-email", async (req, res, next) => {
     .catch((ex) => {
       console.log(ex);
     });
-
-  res.status(200).send({ mailCodeSent: mail_code });
-});
-
-module.exports = router;
+})();
+// module.exports = router;

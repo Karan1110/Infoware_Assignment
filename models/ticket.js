@@ -1,10 +1,9 @@
 const winston = require("winston");
 const Sequelize = require("sequelize");
 const db = require("../startup/db");
-const moment = require("moment");
-const Employee = require("./employee"); // Move the require statement here
-const schedule = require("node-schedule");
+const Employee = require("./employee");
 const Notification = require("../models/notifications");
+const moment = require("moment");
 
 const Ticket = db.define(
   "Ticket",
@@ -12,30 +11,52 @@ const Ticket = db.define(
     name: Sequelize.STRING,
     steps: Sequelize.ARRAY(Sequelize.STRING),
     deadline: Sequelize.DATE,
+    completed: {
+      type: Sequelize.BOOLEAN,
+      defaultValue: false,
+    },
   },
   {
     timestamps: true,
   }
 );
+// Ticket.
 
 Ticket.afterCreate(async (ticket) => {
-  const deadline = moment(ticket.deadline);
-  const newDate = deadline.subtract(1, "days").format("YYYY-MM-DD HH:MM:SS HH:MM:SS");
-  console.log(ticket.steps);
-  await Notification.create({
-    message: `Ticket pending! complete now!, name  : ${ticket.name}`,
-    employee_id : ticket.employee_id
-  });
-  schedule.scheduleJob(newDate, async () => {
-    await Notification.create({
-      message: `Ticket pending! complete now!, name  : ${ticket.name}`,
-      employee_id : ticket.employee_id
-    });
+  try {
+    const d = new Date(
+      ticket.deadline.getUTCFullYear(),
+      ticket.deadline.getUTCMonth(),
+      ticket.deadline.getUTCDate(),
+      ticket.deadline.getUTCHours(),
+      ticket.deadline.getUTCMinutes(),
+      ticket.deadline.getUTCSeconds()
+    );
 
-    schedule.scheduleJob({date : deadline.format('YYYY-MM-DD HH:MM:SS HH:MM:SS')}, async () => {
+    const start_date = moment(d).format("YYYY-MM-DDTHH:mm:ss.SSSZ");
+    const s = new Date(start_date);
+
+    const time_out = s.getTime() - Date.now();
+
+    setTimeout(async () => {
+      console.log("Event firing...");
       await ticket.destroy();
-    });
-  });
+    }, time_out);
+
+    const time_out_ii = s;
+    time_out_ii.setDate(s.getDate() - 1);
+    console.log(time_out_ii);
+    const real_timeout = time_out_ii.getTime() - Date.now();
+
+    setTimeout(async () => {
+      await Notification.create({
+        message: `Ticket pending! complete now! ${ticket.name}`,
+        employee_id: ticket.employee_id,
+      });
+    }, real_timeout);
+  } catch (ex) {
+    winston.info(ex);
+  }
 });
 
 Employee.hasMany(Ticket, {

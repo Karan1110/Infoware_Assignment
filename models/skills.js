@@ -4,12 +4,10 @@ const db = require("../startup/db");
 const EmployeeSkill = require("./intermediate models/EmployeeSkill");
 const Employee = require("./employee");
 
-const Skill = db.define(
-  "Skill",
-  {
+const Skill = db.define("Skill",{
     name: {
       type: Sequelize.STRING,
-      unique: true,
+      unique: true
     },
     level: Sequelize.STRING,
   },
@@ -22,14 +20,20 @@ const Skill = db.define(
     ],
   }
 );
+
+Skill.hasMany(EmployeeSkill, { foreignKey: 'skill_id' });
+Employee.hasMany(EmployeeSkill, { foreignKey: 'employee_id' });
+
 Employee.belongsToMany(Skill, {
   through: EmployeeSkill,
-  foreignKey: "employee_id"
-});
-Skill.belongsToMany(Employee, {
-  through: EmployeeSkill,
-  foreignKey: "skill_id"
+  foreignKey: "employee_id",
+  as : "Skill"
 });
 
+Skill.belongsToMany(Employee, {
+  through: EmployeeSkill,
+  foreignKey: "skill_id",
+  as : "Employee"
+});
 
 module.exports = Skill;

@@ -8,11 +8,10 @@ const Department = db.define("Department", {
 });
 
 Employee.belongsTo(Department, {
-  as: 'Department',
-  foreignKey: 'department_id',
+  as: "Department",
+  foreignKey: "department_id",
   onDelete: "CASCADE",
-  onUpdate: "CASCADE"
+  onUpdate: "CASCADE",
 });
-
 
 module.exports = Department;

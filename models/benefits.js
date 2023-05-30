@@ -3,7 +3,6 @@ const db = require("../startup/db");
 const Benefit_Type = require("./benefit_type");
 const Employee = require("./employee");
 const winston = require("winston");
-const schedule = require("node-schedule");
 const moment = require("moment");
 
 const Benefit = db.define("Benefit", {
@@ -13,11 +12,24 @@ const Benefit = db.define("Benefit", {
 });
 
 Benefit.afterCreate(async (benefit) => {
-  const to = moment(benefit.to);
-  console.log(` this is benefit to ${to}`);
-  schedule.scheduleJob({ date: to.format("YYYY-MM-DD HH:MM:SS HH:MM:SS") }, async () => {
-    await benefit.destroy();
-  });
+  try {
+    const d = new Date(
+      benefit.to.getUTCFullYear(),
+      benefit.to.getUTCMonth(),
+      benefit.to.getUTCDate(),
+      benefit.to.getUTCHours(),
+      benefit.to.getUTCMinutes(),
+      benefit.to.getUTCSeconds()
+    );
+    const time_out = d.getTime() - Date.now();
+
+    setTimeout(async () => {
+      console.log("Event firing...");
+      await benefit.destroy();
+    }, time_out);
+  } catch (ex) {
+    winston.info(ex);
+  }
 });
 
 Benefit.hasOne(Benefit_Type, {
