@@ -1,5 +1,4 @@
 const Sequelize = require("sequelize");
-const winston = require("winston");
 const db = require("../startup/db");
 const EmployeeSkill = require("./intermediate models/EmployeeSkill");
 const Employee = require("./employee");
@@ -9,14 +8,14 @@ const Skill = db.define("Skill",{
       type: Sequelize.STRING,
       unique: true
     },
-    level: Sequelize.STRING,
+    level: Sequelize.STRING
   },
   {
     indexes: [
       {
         unique: true,
-        fields: ["name"],
-      },
+        fields: ["name"]
+      }
     ],
   }
 );

@@ -4,7 +4,7 @@ const Employee = require("./employee");
 const ChatRoom = require("./chatRoom");
 // ChatRoom
 
-const Message = db.define(
+const Message = db.define( 
   "Message",
   {
     message: Sequelize.STRING,

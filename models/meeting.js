@@ -9,6 +9,7 @@ const Meeting = db.define("Meeting", {
   from: Sequelize.STRING,
   to: Sequelize.STRING,
   link: Sequelize.STRING,
+  department_id : Sequelize.INTEGER
 });
 
 const winston = require("winston");

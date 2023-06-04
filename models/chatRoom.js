@@ -8,6 +8,7 @@ const ChatRoom = db.define(
       type: Sequelize.INTEGER,
       primaryKey: true
     },
+    employee_id : Sequelize.ARRAY(Sequelize.INTEGER)
   }
 );
 

@@ -15,7 +15,7 @@ app.listen(3001, () => {
 db.authenticate({force:true})
   .then(() => {
     winston.info("Database connected...");
-    db.sync()
+    db.sync({force : true})
       .then(() => {
         winston.info("Tables created....");
       })

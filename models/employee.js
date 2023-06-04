@@ -8,7 +8,7 @@ const Notification = require("./notifications");
 const moment = require("moment");
 
 const Employee = db.define(
-  "Employee",
+  'Employee',
   {
     name: Sequelize.STRING,
     email: {
@@ -38,14 +38,32 @@ const Employee = db.define(
       defaultValue: 99,
       // allowNull : false
     },
-    socket_id: Sequelize.STRING,
-    total_meeting: Sequelize.INTEGER,
-    attended_meetings: Sequelize.INTEGER,
+    total_meetings: {
+      type : Sequelize.INTEGER,
+      defaultValue : 0
+    },
+    attended_meetings: {
+      type: Sequelize.INTEGER,
+      defaultValue : 0
+    },
     last_seen: Sequelize.DATE,
+    isOnline: Sequelize.BOOLEAN,
+    punctuality_score: {
+      type: Sequelize.VIRTUAL,
+      get() {
+        const temp = (100/this.getDataValue('total_meetings')) * this.getDataValue('attended_meetings');
+      if (Math.round(temp) > 75) {
+        return "Probably will attend meetings";
+      } else if (Math.round(temp) < 75) {
+        return "May or may not attend";
+      } else if (Math.round(temp) < 25) {
+        return "Probably will not attend";
+      }
+      }
+    },
   },
   {
-    timestamps: true,
-    tableName: "Employees",
+    // timestamps: true,
     indexes: [
       {
         unique: false,
@@ -61,7 +79,7 @@ Employee.hasMany(Experience, {
   onDelete: "CASCADE",
   onUpdate: "CASCADE",
 });
-Experience.belongsTo(Employee,{
+Experience.belongsTo(Employee, {
   as: "Employee",
   foreignKey: "employee_id",
   onDelete: "CASCADE",
@@ -101,19 +119,17 @@ Employee.prototype.generateAuthToken = function () {
 
 Employee.countExperience = async function () {
   const experience = await Experience.findAll({
-    attributes: [
-      [Sequelize.literal('("to" - "from")'), 'duration']
-    ],
-    order: [[Sequelize.literal('duration'), 'DESC']],
+    attributes: [[Sequelize.literal('("to" - "from")'), "duration"]],
+    order: [[Sequelize.literal("duration"), "DESC"]],
     limit: 10,
     include: [
       {
-        model  : Employee,
-        as : "Employee"
-      }
-    ]
+        model: Employee,
+        as: "Employee",
+      },
+    ],
   });
-  
+
   return experience;
 };
 
@@ -150,6 +166,5 @@ Employee.afterCreate(async (employee, options) => {
 Employee.afterDestroy(async () => {
   await j.cancel();
 });
-
 
 module.exports = Employee;

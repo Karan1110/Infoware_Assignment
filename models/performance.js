@@ -10,13 +10,17 @@ const Performance = db.define(
       primaryKey: true,
     },
     status: Sequelize.STRING,
-    points: Sequelize.INTEGER,
+    points: {
+      type: Sequelize.INTEGER,
+      defaultValue : 0
+    },
     classification: {
       type: Sequelize.VIRTUAL,
-      get: function () {
-        if (this.points > 60) {
+      get  (){
+        const points = this.getDataValue('points')
+        if (points > 60) {
           return "Below Average";
-        } else if (this.points > 100) {
+        } else if (points > 100) {
           return "Average";
         } else {
           return "Above Average";

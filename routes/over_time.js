@@ -15,17 +15,11 @@ router.post("/", [auth, isAdmin], async (req, res) => {
     {
       where: {
         id: req.params.id,
-      },
-      include: [
-        {
-          model: Performance,
-          as: "Performance",
-        },
-      ],
+      }
     },
     {
       Performance: { points: Sequelize.literal("points + 1") },
-      working_hours: Sequelize.literal(`working_hours + ${over_time_diff}`),
+      working_hours: literal(`working_hours + ${over_time_diff}`),
     }
   );
 

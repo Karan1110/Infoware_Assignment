@@ -178,8 +178,8 @@ router.get("/", [auth, isAdmin], async (req, res) => {
     exclude: ["password"],
     where: {
       [Op.like]: {
-        pn: pv,
-      },
+        pn: pv
+      }
     },
   });
 
@@ -215,7 +215,7 @@ router.get("/me", [auth, isAdmin], async (req, res) => {
       },
       {
         model: Skill,
-        as: "Skills",
+        as: "Skill",
       },
       {
         model: Benefit,
@@ -369,10 +369,15 @@ router.post("/", async (req, res) => {
     manager_id: req.body.manager_id,
     education_id: req.body.education_id,
     performance_id: req.body.performance_id,
+    total_working_days: req.body.total_working_days,
+    total_working_hours : req.body.total_working_hours,
+    salary_per_hour: req.body.salary_per_hour,
+    last_seen: req.body.last_seen,
+    attended_meetings: req.body.attended_meetings,
+    total_meetings : req.body.total_meetings
   });
 
   const token = employee.generateAuthToken();
-  req.session.user = req.body.name;
   res.status(201).send({ token: token, Employee: employee });
 });
 
@@ -443,8 +448,20 @@ router.put("/:id", auth, [auth, isAdmin], async (req, res) => {
     {
       name: req.body.name,
       email: req.body.email,
-      password: pw,
-      isadmin: req.body.isAdmin,
+      password: p,
+      salary: req.body.salary,
+      age: req.body.age,
+      isAdmin: req.body.isadmin,
+      department_id: req.body.department_id,
+      manager_id: req.body.manager_id,
+      education_id: req.body.education_id,
+      performance_id: req.body.performance_id,
+      total_working_days: req.body.total_working_days,
+      total_working_hours : req.body.total_working_hours,
+      salary_per_hour: req.body.salary_per_hour,
+      last_seen: req.body.last_seen,
+      attended_meetings: req.body.attended_meetings,
+      total_meetings : req.body.total_meetings
     }
   );
 

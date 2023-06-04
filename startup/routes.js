@@ -17,6 +17,7 @@ const tickets = require("../routes/ticket");
 const over_times = require("../routes/over_time");
 const error = require("../middlewares/error");
 const mails = require("../routes/mail");
+const messages = require("../routes/messages");
 
 module.exports = function (app) {
   app.use(express.urlencoded({ extended: true }));
@@ -36,6 +37,7 @@ module.exports = function (app) {
   app.use("/verify-email", mails);
   app.use("/leaves", leaves);
   app.use("/meetings", meetings);
+  app.use("/messages", messages);
   app.use("/login", login);
   app.use(error);
 };
