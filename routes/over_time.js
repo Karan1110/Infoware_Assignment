@@ -2,11 +2,11 @@ const express = require("express");
 const router = express.Router();
 const auth = require("../middlewares/auth");
 const moment = require("moment");
-const isAdmin = require("../middlewares/isAdmin");
+const isadmin = require("../middlewares/isadmin");
 const Sequelize = require("sequelize");
 const Performance = require("../models/performance.js");
 
-router.post("/", [auth, isAdmin], async (req, res) => {
+router.post("/", [auth, isadmin], async (req, res) => {
   const start = moment(req.body.from).format("YYYY-MM-DDTHH:MM:SS.000Z");
   const end = moment(req.body.to).format("YYYY-MM-DDTHH:MM:SS.000Z");
   const over_time_diff = moment.diff(start, end, "hours");
@@ -15,7 +15,7 @@ router.post("/", [auth, isAdmin], async (req, res) => {
     {
       where: {
         id: req.params.id,
-      }
+      },
     },
     {
       Performance: { points: Sequelize.literal("points + 1") },

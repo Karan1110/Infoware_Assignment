@@ -1,12 +1,12 @@
 const express = require("express");
 const router = express.Router();
 const auth = require("../middlewares/auth");
-const isAdmin = require("../middlewares/isAdmin");
+const isadmin = require("../middlewares/isadmin");
 const Employee = require("../models/employee");
 const Skill = require("../models/skills");
 const EmployeeSkill = require("../models/intermediate models/EmployeeSkill");
 
-router.post("/", [auth, isAdmin], async (req, res) => {
+router.post("/", [auth, isadmin], async (req, res) => {
   const { skill_id, employee_id } = req.body;
 
   let skill;
@@ -32,7 +32,7 @@ router.post("/", [auth, isAdmin], async (req, res) => {
   res.status(200).send(skill);
 });
 
-router.put("/:id", [auth, isAdmin], async (req, res) => {
+router.put("/:id", [auth, isadmin], async (req, res) => {
   const skill = Skill.update(
     {
       where: {
@@ -48,7 +48,7 @@ router.put("/:id", [auth, isAdmin], async (req, res) => {
   res.status(200).send(skill);
 });
 
-router.delete("/:id", [auth, isAdmin], async (req, res) => {
+router.delete("/:id", [auth, isadmin], async (req, res) => {
   await Skill.destroy({
     where: {
       id: req.params.id,

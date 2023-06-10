@@ -1,12 +1,12 @@
 const express = require("express");
 const router = express.Router();
 const auth = require("../middlewares/auth");
-const isAdmin = require("../middlewares/isAdmin");
+const isadmin = require("../middlewares/isadmin");
 const Employee = require("../models/employee");
 const Ticket = require("../models/ticket");
 const moment = require("moment");
 
-router.post("/", [auth, isAdmin], async (req, res) => {
+router.post("/", [auth, isadmin], async (req, res) => {
   const employee = await Employee.findByPk(req.body.employee_id);
 
   if (!employee) return res.status(400).send("user not found");
@@ -28,7 +28,7 @@ router.post("/", [auth, isAdmin], async (req, res) => {
   res.status(200).send(ticket);
 });
 
-router.put("/:id", [auth, isAdmin], async (req, res) => {
+router.put("/:id", [auth, isadmin], async (req, res) => {
   const ticket = await Ticket.update({
     name: req.body.name,
     steps: req.body.steps,
@@ -38,7 +38,7 @@ router.put("/:id", [auth, isAdmin], async (req, res) => {
   res.status(200).send(ticket);
 });
 
-router.delete("/:id", [auth, isAdmin], async (req, res) => {
+router.delete("/:id", [auth, isadmin], async (req, res) => {
   await Ticket.destroy({
     where: {
       id: req.params.id,

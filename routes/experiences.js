@@ -1,12 +1,12 @@
 const express = require("express");
 const router = express.Router();
 const auth = require("../middlewares/auth");
-const isAdmin = require("../middlewares/isAdmin");
+const isadmin = require("../middlewares/isadmin");
 const Employee = require("../models/employee");
 const Experience = require("../models/experience");
 const moment = require("moment");
 
-router.post("/", [auth, isAdmin], async (req, res) => {
+router.post("/", [auth, isadmin], async (req, res) => {
   const start_date = moment(req.body.from).format("YYYY-MM-DDTHH:mm:ss.SSSZ");
   const s = new Date(start_date);
   const end_date = moment(req.body.to).format("YYYY-MM-DDTHH:mm:ss.SSSZ");
@@ -22,7 +22,7 @@ router.post("/", [auth, isAdmin], async (req, res) => {
   res.status(200).send(experience);
 });
 
-router.put("/:id", [auth, isAdmin], async (req, res) => {
+router.put("/:id", [auth, isadmin], async (req, res) => {
   const start_date = moment(req.body.from).format("YYYY-MM-DDTHH:mm:ss.SSSZ");
   const s = new Date(start_date);
   const end_date = moment(req.body.to).format("YYYY-MM-DDTHH:mm:ss.SSSZ");
@@ -38,7 +38,7 @@ router.put("/:id", [auth, isAdmin], async (req, res) => {
   res.status(200).send(experience);
 });
 
-router.delete("/:id", [auth, isAdmin], async (req, res) => {
+router.delete("/:id", [auth, isadmin], async (req, res) => {
   const experience = await Experience.destroy({
     where: {
       id: req.params.id,

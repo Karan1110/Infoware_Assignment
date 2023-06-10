@@ -3,11 +3,11 @@ const router = express.Router();
 const winston = require("winston");
 const auth = require("../middlewares/auth");
 const moment = require("moment");
-const isAdmin = require("../middlewares/isAdmin");
+const isadmin = require("../middlewares/isadmin");
 const Employee = require("../models/employee");
 const Benefit = require("../models/benefits");
 const Benefit_type = require("../models/benefit_type");
-// [auth,isAdmin]
+// [auth,isadmin]
 router.post("/", async (req, res) => {
   const from = moment();
   from.format("YYYY-MM-DDTHH:MM:SS.000Z");
@@ -48,7 +48,7 @@ router.post("/", async (req, res) => {
   res.status(200).send(benefit);
 });
 
-router.put("/:id", [auth, isAdmin], async (req, res) => {
+router.put("/:id", [auth, isadmin], async (req, res) => {
   const from = moment();
   from.format("YYYY-MM-DDTHH:MM:SS.000Z");
   const to = moment(req.body.to);
@@ -102,7 +102,7 @@ router.put("/:id", [auth, isAdmin], async (req, res) => {
   res.status(200).send(benefit);
 });
 
-router.delete("/:id", [auth, isAdmin], async (req, res) => {
+router.delete("/:id", [auth, isadmin], async (req, res) => {
   await Benefit.destroy({
     where: {
       id: req.params.id,

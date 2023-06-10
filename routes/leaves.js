@@ -2,10 +2,10 @@ const express = require("express");
 const router = express.Router();
 const auth = require("../middlewares/auth");
 const Employee = require("../models/employee");
-const isAdmin = require("../middlewares/isAdmin");
+const isadmin = require("../middlewares/isadmin");
 const Sequelize = require("sequelize");
 
-router.post("/leaves", [auth, isAdmin], async (req, res) => {
+router.post("/leaves", [auth, isadmin], async (req, res) => {
   const employee = await Employee.update(
     {
       total_leaves: Sequelize.literal("total_leaves + 1"),
@@ -17,7 +17,7 @@ router.post("/leaves", [auth, isAdmin], async (req, res) => {
   res.status(401).send(employee);
 });
 
-router.post("/leaves", [auth, isAdmin], async (req, res) => {
+router.post("/leaves", [auth, isadmin], async (req, res) => {
   const employee = await Employee.update(
     {
       total_leaves: Sequelize.literal("total_working_hours + 1"),

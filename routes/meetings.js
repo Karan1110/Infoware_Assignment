@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const auth = require("../middlewares/auth");
-const isAdmin = require("../middlewares/isadmin");
+const isadmin = require("../middlewares/isadmin");
 const db = require("../startup/db");
 const Employee = require("../models/employee");
 const Sequelize = require("sequelize");
@@ -10,7 +10,7 @@ const Meeting = require("../models/meeting");
 const winston = require("winston");
 const moment = require("moment");
 
-router.post("/", [auth, isAdmin], async (req, res) => {
+router.post("/", [auth, isadmin], async (req, res) => {
   let transaction;
   let meeting;
   try {
@@ -33,18 +33,18 @@ router.post("/", [auth, isAdmin], async (req, res) => {
           from: req.body.from,
           to: req.body.to,
           department_id: req.body.department_id,
-          employee_id: req.body.employee_id
+          employee_id: req.body.employee_id,
         },
         { transaction }
       );
     } else {
       meeting = await Meeting.findByPk(meeting_id);
     }
-    console.log(`!!!!`, meeting.dataValues.employee_id,meeting);
+    console.log(`!!!!`, meeting.dataValues.employee_id, meeting);
     await MeetingMember.create(
       {
         employee_id: employee_id,
-        meeting_id:meeting.dataValues.id,
+        meeting_id: meeting.dataValues.id,
       },
       { transaction }
     );
@@ -71,7 +71,7 @@ router.post("/", [auth, isAdmin], async (req, res) => {
   }
 });
 
-router.put("/:id", [auth, isAdmin], async (req, res) => {
+router.put("/:id", [auth, isadmin], async (req, res) => {
   let transaction;
   try {
     transaction = await db.transaction({
@@ -113,7 +113,7 @@ router.put("/:id", [auth, isAdmin], async (req, res) => {
   }
 });
 
-router.put("/", [auth, isAdmin], async (req, res) => {
+router.put("/", [auth, isadmin], async (req, res) => {
   let transaction;
   try {
     const { employee_id } = req.body;
@@ -133,7 +133,7 @@ router.put("/", [auth, isAdmin], async (req, res) => {
       where: {
         employee_id: req.body.employee_id,
         meeting_id: req.body.meeting_id,
-      }
+      },
     });
 
     const meeting = await Meeting.findByPk(meeting_member.meeting_id);
@@ -156,7 +156,8 @@ router.put("/", [auth, isAdmin], async (req, res) => {
     const employeeDiff = employee_end.diff(employee_start, "minutes"); // Calculate the employee's diff in minutes
 
     const attendedMeetingPercentile = (100 / meetingDiff) * employeeDiff; // Calculate the percentile and round to two decimal places
-    const attendedMeetingPercentileMember = (100 / meetingDiff) * meetingDiffMember; // Calculate the percentile and round to two decimal places
+    const attendedMeetingPercentileMember =
+      (100 / meetingDiff) * meetingDiffMember; // Calculate the percentile and round to two decimal places
 
     // temp for adding in db
     // tempp for reference meeting_member
@@ -164,17 +165,19 @@ router.put("/", [auth, isAdmin], async (req, res) => {
     const tempp = Math.round(attendedMeetingPercentileMember) / 100;
 
     console.log(`this is fucking`, temp, tempp);
-/*
+    /*
   // if (temp === 1) {
     //   return res.status(400).send("The employee has already attended the full meeting.");
     // } else
 */
-   if (isNaN(tempp) === false) {
+    if (isNaN(tempp) === false) {
       if (tempp === 1 || tempp > 1) {
-        return res.status(400).send("The input has exceeded the meeting fraction.")
+        return res
+          .status(400)
+          .send("The input has exceeded the meeting fraction.");
       }
     }
-console.log(isNaN(tempp))
+    console.log(isNaN(tempp));
     const m_m = await MeetingMember.update(
       {
         to: req.body.to,
@@ -185,7 +188,7 @@ console.log(isNaN(tempp))
           employee_id: req.body.employee_id,
           meeting_id: req.body.meeting_id,
         },
-        transaction
+        transaction,
       }
     );
 
@@ -212,8 +215,7 @@ console.log(isNaN(tempp))
   }
 });
 
-
-router.delete("/:id", [auth, isAdmin], async (req, res) => {
+router.delete("/:id", [auth, isadmin], async (req, res) => {
   try {
     let transaction;
     transaction = await db.transaction({

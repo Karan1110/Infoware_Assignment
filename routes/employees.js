@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
 const auth = require("../middlewares/auth");
-const isAdmin = require("../middlewares/isadmin");
+const isadmin = require("../middlewares/isadmin");
 const email_verified = require("../middlewares/isMailCode");
 // const config = require("config")
 const Skill = require("../models/skills");
@@ -19,7 +19,7 @@ const Department = require("../models/department");
 const winston = require("winston");
 const { Sequelize, Op } = require("sequelize");
 
-router.get("/average_salary", [auth, isAdmin], async (req, res) => {
+router.get("/average_salary", [auth, isadmin], async (req, res) => {
   const Users = await Employee.findAll({
     attributes: [
       [Sequelize.fn("AVG", Sequelize.col("salary")), "average_salary"],
@@ -30,7 +30,7 @@ router.get("/average_salary", [auth, isAdmin], async (req, res) => {
   res.status(200).send(Users);
 });
 
-router.get("/statistics", [auth, isAdmin], async (req, res) => {
+router.get("/statistics", [auth, isadmin], async (req, res) => {
   const employeeStatistics = {};
   //  employeeStatistics
   // Performance statistics
@@ -170,7 +170,7 @@ router.get("/statistics", [auth, isAdmin], async (req, res) => {
   res.status(200).send(employeeStatistics);
 });
 
-router.get("/", [auth, isAdmin], async (req, res) => {
+router.get("/", [auth, isadmin], async (req, res) => {
   const pn = req.query.propertyName;
   const pv = req.query.propertyValue;
 
@@ -186,7 +186,7 @@ router.get("/", [auth, isAdmin], async (req, res) => {
   res.status(200).send(Users);
 });
 
-router.get("/me", [auth, isAdmin], async (req, res) => {
+router.get("/me", [auth, isadmin], async (req, res) => {
   winston.info(req.user.id);
   const me = await Employee.findOne({
     where: {
@@ -239,7 +239,7 @@ router.get("/me", [auth, isAdmin], async (req, res) => {
   res.status(200).send(me);
 });
 
-router.get("/:id", [auth, isAdmin], async (req, res) => {
+router.get("/:id", [auth, isadmin], async (req, res) => {
   const employee = Employee.findOne({
     where: {
       id: req.params.id,
@@ -290,7 +290,7 @@ router.get("/:id", [auth, isAdmin], async (req, res) => {
   res.status(200).send(employee);
 });
 // performance department employee_id
-router.get("/", [auth, isAdmin], async (req, res) => {
+router.get("/", [auth, isadmin], async (req, res) => {
   const employee = await Employee.findAll({
     order: [["salary", "ASC"]], // Sort by salary in ascending order
     offset: 10, // Skip the first 10 records
@@ -360,7 +360,7 @@ router.post("/", async (req, res) => {
     password: p,
     salary: req.body.salary,
     age: req.body.age,
-    isAdmin: req.body.isadmin,
+    isadmin: req.body.isadmin,
     department_id: req.body.department_id,
     manager_id: req.body.manager_id,
     education_id: req.body.education_id,
@@ -377,7 +377,7 @@ router.post("/", async (req, res) => {
   res.status(201).send({ token: token, Employee: employee });
 });
 
-router.put("/:propertyName", auth, [auth, isAdmin], async (req, res) => {
+router.put("/:propertyName", auth, [auth, isadmin], async (req, res) => {
   const userExists = await Employee.findOne({
     where: {
       email: req.body.email,
@@ -415,7 +415,7 @@ router.put("/:propertyName", auth, [auth, isAdmin], async (req, res) => {
 
   res.header("x-auth-token", token).status(200).send(user);
 });
-router.put("/:id", auth, [auth, isAdmin], async (req, res) => {
+router.put("/:id", auth, [auth, isadmin], async (req, res) => {
   const userExists = await Employee.findOne({
     where: {
       email: req.body.email,
@@ -447,7 +447,7 @@ router.put("/:id", auth, [auth, isAdmin], async (req, res) => {
       password: pw,
       salary: req.body.salary,
       age: req.body.age,
-      isAdmin: req.body.isadmin,
+      isadmin: req.body.isadmin,
       department_id: req.body.department_id,
       manager_id: req.body.manager_id,
       education_id: req.body.education_id,

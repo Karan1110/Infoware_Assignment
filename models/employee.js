@@ -8,7 +8,7 @@ const Notification = require("./notifications");
 const moment = require("moment");
 
 const Employee = db.define(
-  'Employee',
+  "Employee",
   {
     name: Sequelize.STRING,
     email: {
@@ -18,7 +18,7 @@ const Employee = db.define(
     password: Sequelize.STRING,
     age: Sequelize.INTEGER,
     salary: Sequelize.INTEGER,
-    isAdmin: Sequelize.BOOLEAN,
+    isadmin: Sequelize.BOOLEAN,
     manager_id: Sequelize.INTEGER,
     education_id: Sequelize.INTEGER,
     department_id: Sequelize.INTEGER,
@@ -39,27 +39,29 @@ const Employee = db.define(
       // allowNull : false
     },
     total_meetings: {
-      type : Sequelize.INTEGER,
-      defaultValue : 0
+      type: Sequelize.INTEGER,
+      defaultValue: 0,
     },
     attended_meetings: {
       type: Sequelize.INTEGER,
-      defaultValue : 0
+      defaultValue: 0,
     },
     last_seen: Sequelize.DATE,
     isOnline: Sequelize.BOOLEAN,
     punctuality_score: {
       type: Sequelize.VIRTUAL,
       get() {
-        const temp = (100/this.getDataValue('total_meetings')) * this.getDataValue('attended_meetings');
-      if (Math.round(temp) > 75) {
-        return "Probably will attend meetings";
-      } else if (Math.round(temp) < 75) {
-        return "May or may not attend";
-      } else if (Math.round(temp) < 25) {
-        return "Probably will not attend";
-      }
-      }
+        const temp =
+          (100 / this.getDataValue("total_meetings")) *
+          this.getDataValue("attended_meetings");
+        if (Math.round(temp) > 75) {
+          return "Probably will attend meetings";
+        } else if (Math.round(temp) < 75) {
+          return "May or may not attend";
+        } else if (Math.round(temp) < 25) {
+          return "Probably will not attend";
+        }
+      },
     },
   },
   {
@@ -111,7 +113,7 @@ Employee.hasMany(Employee, {
 
 Employee.prototype.generateAuthToken = function () {
   const token = jwt.sign(
-    { id: this.getDataValue("id"), isAdmin: this.getDataValue("isAdmin") },
+    { id: this.getDataValue("id"), isadmin: this.getDataValue("isadmin") },
     "karan112010"
   );
   return token;
