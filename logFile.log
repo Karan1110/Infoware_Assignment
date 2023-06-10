@@ -1047,3 +1047,5 @@
 {"level":"info","message":"Database connected...","timestamp":"2023-06-08T16:13:55.409Z"}
 {"level":"info","message":"Listening on  http://localhost:1111","timestamp":"2023-06-08T16:21:15.573Z"}
 {"level":"info","message":"Database connected...","timestamp":"2023-06-08T16:21:19.838Z"}
+{"level":"info","message":"Listening on  http://localhost:1111","timestamp":"2023-06-10T15:37:02.070Z"}
+{"level":"info","message":"Database connected...","timestamp":"2023-06-10T15:37:07.141Z"}
