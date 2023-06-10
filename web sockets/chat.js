@@ -1,11 +1,9 @@
 const winston = require("winston");
-const { Op } = require("sequelize");
 const Message = require("../models/message");
 const Employee = require("../models/employee");
 
 module.exports = function (app) {
   require("express-ws")(app);
-
   // Store WebSocket connections for each chat room
   const chatRooms = {};
 
@@ -26,7 +24,7 @@ module.exports = function (app) {
 
       // Add the WebSocket connection to the chat room
       chatRooms[chatRoom].push(ws);
-
+      
       // Event listener for message updates
       Message.addHook("afterUpdate", async (updatedMessage) => {
         const chatRoomId = updatedMessage.chatRoom_id;
@@ -64,7 +62,7 @@ module.exports = function (app) {
           chatRoom_id: parseInt(chatRoom),
         },
       });
-
+if(!messages) ws.send(`This is the beginning of the conversation...`)
       // Send all messages to the WebSocket connection
       for (const msg of messages) {
         ws.send(
@@ -96,9 +94,6 @@ module.exports = function (app) {
             })
           );
         });
-
-        // Send a confirmation message to the sender
-        ws.send(JSON.stringify({ message: msg, m }));
       });
 
       ws.on("close", async () => {

@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "build": "nodemon index"
+    "build": "nodemon index",
+    "test": "jest --coverage --verbose --watch ./tests"
   },
   "author": "",
   "license": "ISC",
@@ -34,6 +35,8 @@
   "keywords": [],
   "description": "",
   "devDependencies": {
-    "@faker-js/faker": "^8.0.1"
+    "@faker-js/faker": "^8.0.1",
+    "jest": "^29.5.0",
+    "supertest": "^6.3.3"
   }
 }

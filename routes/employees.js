@@ -349,11 +349,7 @@ router.post("/", async (req, res) => {
     },
   });
 
-  if (!userExists) {
-    winston.info("No user exists...");
-  } else {
-    return res.status(400).send("USER ALREADY EXISTS...");
-  }
+  if (userExists)  return res.status(400).send("USER ALREADY EXISTS...");
 
   const salt = await bcrypt.genSalt(10);
   const p = await bcrypt.hash(req.body.password, salt);
@@ -448,7 +444,7 @@ router.put("/:id", auth, [auth, isAdmin], async (req, res) => {
     {
       name: req.body.name,
       email: req.body.email,
-      password: p,
+      password: pw,
       salary: req.body.salary,
       age: req.body.age,
       isAdmin: req.body.isadmin,
@@ -457,17 +453,17 @@ router.put("/:id", auth, [auth, isAdmin], async (req, res) => {
       education_id: req.body.education_id,
       performance_id: req.body.performance_id,
       total_working_days: req.body.total_working_days,
-      total_working_hours : req.body.total_working_hours,
+      total_working_hours: req.body.total_working_hours,
       salary_per_hour: req.body.salary_per_hour,
       last_seen: req.body.last_seen,
       attended_meetings: req.body.attended_meetings,
-      total_meetings : req.body.total_meetings
+      total_meetings: req.body.total_meetings
     }
   );
 
   const token = user.generateAuthToken();
 
-  res.header("x-auth-token", token).status(200).send(user);
+  res.header("x-auth-token", token).status(200).send({Employee :user});
 });
 
 router.delete("/:id", auth, async (req, res) => {
