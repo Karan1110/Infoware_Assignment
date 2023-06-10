@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "build": "nodemon index",
+    "dev": "nodemon index",
+    "build": "node index",
     "test": "jest --coverage --verbose --watch ./tests"
   },
   "author": "",
