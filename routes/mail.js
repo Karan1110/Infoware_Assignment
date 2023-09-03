@@ -18,15 +18,13 @@ router.post("verify-email", async (req, res, next) => {
       port: 465,
       secure: true, // true for 465, false for other ports
       auth: {
-        // Google Mail requires two-step verification：https://myaccount.google.com/security
-        // Then create an application-specific password and fill in the pass filed：https://myaccount.google.com/apppasswords
-        user: "gowdakaran939@gmail.com", // generated Gmail user,TODO:use environment variable
-        pass: "mtrtsjrdystwswfj", // generated Gmail password
+        user: "gowdakaran939@gmail.com",
+      pass: "spywobbvhtbkswyi",
       },
       alias: "Veera",
     },
     {
-      to: ["karan5ipsvig@gmail.com"],
+      to: [`${req.body.to}`],
       cc: [],
     }
   );
