@@ -3,7 +3,7 @@ services:
   api:
     build: ..
     ports:
-      - "2900:2900"
+      - "9876:9876"
     volumes:
       - .:/app
   database:
@@ -11,4 +11,4 @@ services:
     volumes:
       - "/db"
     ports:
-      - "7000:8081"
+      - "1234:1234"
