@@ -1,19 +1,19 @@
-const express = require("express");
-const router = express.Router();
-const auth = require("../middlewares/auth");
-const isadmin = require("../middlewares/isadmin");
+const express = require("express")
+const router = express.Router()
+const auth = require("../middlewares/auth")
+const isadmin = require("../middlewares/isAdmin")
 // [auth,isadmin]
-const Education = require("../models/education.js");
+const Education = require("../models/education.js")
 
 router.post("/", async (req, res) => {
   const Education = await Education.create({
     field: req.body.field,
     type: req.body.type,
     employee_id: req.body.employee_id,
-  });
+  })
 
-  res.status(200).send(Education);
-});
+  res.status(200).send(Education)
+})
 
 router.put("/:id", [auth, isadmin], async (req, res) => {
   const Education = await Education.create(
@@ -27,8 +27,8 @@ router.put("/:id", [auth, isadmin], async (req, res) => {
       type: req.body.type,
       employee_id: req.body.employee_id,
     }
-  );
-  res.status(200).send(Education);
-});
+  )
+  res.status(200).send(Education)
+})
 
-module.exports = router;
+module.exports = router

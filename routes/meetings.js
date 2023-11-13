@@ -1,28 +1,28 @@
-const express = require("express");
-const router = express.Router();
-const auth = require("../middlewares/auth");
-const isadmin = require("../middlewares/isadmin");
-const db = require("../startup/db");
-const Employee = require("../models/employee");
-const Sequelize = require("sequelize");
-const MeetingMember = require("../models/intermediate models/MeetingMember");
-const Meeting = require("../models/meeting");
-const winston = require("winston");
-const moment = require("moment");
+const express = require("express")
+const router = express.Router()
+const auth = require("../middlewares/auth")
+const isadmin = require("../middlewares/isAdmin")
+const db = require("../startup/db")
+const Employee = require("../models/employee")
+const Sequelize = require("sequelize")
+const MeetingMember = require("../models/intermediate models/MeetingMember")
+const Meeting = require("../models/meeting")
+const winston = require("winston")
+const moment = require("moment")
 
 router.post("/", [auth, isadmin], async (req, res) => {
-  let transaction;
-  let meeting;
+  let transaction
+  let meeting
   try {
-    const { meeting_id, employee_id } = req.body;
+    const { meeting_id, employee_id } = req.body
     transaction = await db.transaction({
       isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE,
-    });
+    })
 
-    const employee = await Employee.findByPk(employee_id, { transaction });
+    const employee = await Employee.findByPk(employee_id, { transaction })
     if (!employee) {
-      await transaction.rollback();
-      return res.status(400).send("User not found");
+      await transaction.rollback()
+      return res.status(400).send("User not found")
     }
 
     if (!meeting_id) {
@@ -36,18 +36,18 @@ router.post("/", [auth, isadmin], async (req, res) => {
           employee_id: req.body.employee_id,
         },
         { transaction }
-      );
+      )
     } else {
-      meeting = await Meeting.findByPk(meeting_id);
+      meeting = await Meeting.findByPk(meeting_id)
     }
-    console.log(`!!!!`, meeting.dataValues.employee_id, meeting);
+    console.log(`!!!!`, meeting.dataValues.employee_id, meeting)
     await MeetingMember.create(
       {
         employee_id: employee_id,
         meeting_id: meeting.dataValues.id,
       },
       { transaction }
-    );
+    )
 
     await Employee.update(
       {
@@ -58,31 +58,31 @@ router.post("/", [auth, isadmin], async (req, res) => {
           id: employee_id,
         },
       }
-    );
+    )
 
-    await transaction.commit();
-    res.status(200).send(meeting);
+    await transaction.commit()
+    res.status(200).send(meeting)
   } catch (error) {
     if (transaction) {
-      await transaction.rollback();
+      await transaction.rollback()
     }
-    console.log("Transaction rolled back:", error);
-    res.status(500).send("Something failed.");
+    console.log("Transaction rolled back:", error)
+    res.status(500).send("Something failed.")
   }
-});
+})
 
 router.put("/:id", [auth, isadmin], async (req, res) => {
-  let transaction;
+  let transaction
   try {
     transaction = await db.transaction({
       isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE,
-    });
+    })
     const employee = await Employee.findByPk(req.body.employee_id, {
       transaction,
-    });
+    })
     if (!employee) {
-      await transaction.rollback();
-      return res.status(400).send("User not found");
+      await transaction.rollback()
+      return res.status(400).send("User not found")
     }
 
     const meeting = await Meeting.update(
@@ -101,32 +101,32 @@ router.put("/:id", [auth, isadmin], async (req, res) => {
       {
         transaction,
       }
-    );
-    await transaction.commit();
-    res.status(200).send(meeting);
+    )
+    await transaction.commit()
+    res.status(200).send(meeting)
   } catch (ex) {
     if (transaction) {
-      await transaction.rollback();
+      await transaction.rollback()
     }
-    winston.error(ex);
-    res.status(500).send("Something failed.");
+    winston.error(ex)
+    res.status(500).send("Something failed.")
   }
-});
+})
 
 router.put("/", [auth, isadmin], async (req, res) => {
-  let transaction;
+  let transaction
   try {
-    const { employee_id } = req.body;
+    const { employee_id } = req.body
 
     transaction = await db.transaction({
       isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE,
-    });
+    })
 
-    const employee = await Employee.findByPk(employee_id);
+    const employee = await Employee.findByPk(employee_id)
 
     if (!employee) {
-      await transaction.rollback();
-      return res.status(400).send("User not found");
+      await transaction.rollback()
+      return res.status(400).send("User not found")
     }
 
     const meeting_member = await MeetingMember.findOne({
@@ -134,37 +134,37 @@ router.put("/", [auth, isadmin], async (req, res) => {
         employee_id: req.body.employee_id,
         meeting_id: req.body.meeting_id,
       },
-    });
+    })
 
-    const meeting = await Meeting.findByPk(meeting_member.meeting_id);
+    const meeting = await Meeting.findByPk(meeting_member.meeting_id)
 
     // for reference in meeting
-    const start = moment(meeting.from);
-    const end = moment(meeting.to);
-    const meetingDiff = end.diff(start, "minutes"); // Calculate the meeting diff in minutes
+    const start = moment(meeting.from)
+    const end = moment(meeting.to)
+    const meetingDiff = end.diff(start, "minutes") // Calculate the meeting diff in minutes
 
     // for reference in meeting_member
-    const startt = moment(meeting_member.from);
-    const endd = moment(meeting_member.to);
-    const meetingDiffMember = endd.diff(startt, "minutes"); // Calculate the meeting diff in minutes
+    const startt = moment(meeting_member.from)
+    const endd = moment(meeting_member.to)
+    const meetingDiffMember = endd.diff(startt, "minutes") // Calculate the meeting diff in minutes
 
-    console.log(`!!!!!!`, meeting_member.dataValues);
+    console.log(`!!!!!!`, meeting_member.dataValues)
 
     // to add in update
-    const employee_start = moment(req.body.from);
-    const employee_end = moment(req.body.to);
-    const employeeDiff = employee_end.diff(employee_start, "minutes"); // Calculate the employee's diff in minutes
+    const employee_start = moment(req.body.from)
+    const employee_end = moment(req.body.to)
+    const employeeDiff = employee_end.diff(employee_start, "minutes") // Calculate the employee's diff in minutes
 
-    const attendedMeetingPercentile = (100 / meetingDiff) * employeeDiff; // Calculate the percentile and round to two decimal places
+    const attendedMeetingPercentile = (100 / meetingDiff) * employeeDiff // Calculate the percentile and round to two decimal places
     const attendedMeetingPercentileMember =
-      (100 / meetingDiff) * meetingDiffMember; // Calculate the percentile and round to two decimal places
+      (100 / meetingDiff) * meetingDiffMember // Calculate the percentile and round to two decimal places
 
     // temp for adding in db
     // tempp for reference meeting_member
-    const temp = Math.round(attendedMeetingPercentile) / 100;
-    const tempp = Math.round(attendedMeetingPercentileMember) / 100;
+    const temp = Math.round(attendedMeetingPercentile) / 100
+    const tempp = Math.round(attendedMeetingPercentileMember) / 100
 
-    console.log(`this is fucking`, temp, tempp);
+    console.log(`this is fucking`, temp, tempp)
     /*
   // if (temp === 1) {
     //   return res.status(400).send("The employee has already attended the full meeting.");
@@ -174,10 +174,10 @@ router.put("/", [auth, isadmin], async (req, res) => {
       if (tempp === 1 || tempp > 1) {
         return res
           .status(400)
-          .send("The input has exceeded the meeting fraction.");
+          .send("The input has exceeded the meeting fraction.")
       }
     }
-    console.log(isNaN(tempp));
+    console.log(isNaN(tempp))
     const m_m = await MeetingMember.update(
       {
         to: req.body.to,
@@ -190,7 +190,7 @@ router.put("/", [auth, isadmin], async (req, res) => {
         },
         transaction,
       }
-    );
+    )
 
     await Employee.update(
       {
@@ -202,25 +202,25 @@ router.put("/", [auth, isadmin], async (req, res) => {
         },
         transaction,
       }
-    );
-    console.log(m_m, meeting_member);
-    await transaction.commit();
-    res.redirect("/employees/me");
+    )
+    console.log(m_m, meeting_member)
+    await transaction.commit()
+    res.redirect("/employees/me")
   } catch (ex) {
     if (transaction) {
-      await transaction.rollback();
+      await transaction.rollback()
     }
-    winston.error(ex);
-    res.status(500).send("Something failed.");
+    winston.error(ex)
+    res.status(500).send("Something failed.")
   }
-});
+})
 
 router.delete("/:id", [auth, isadmin], async (req, res) => {
   try {
-    let transaction;
+    let transaction
     transaction = await db.transaction({
       isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE,
-    });
+    })
 
     await Meeting.destroy(
       {
@@ -231,14 +231,14 @@ router.delete("/:id", [auth, isadmin], async (req, res) => {
       {
         transaction,
       }
-    );
-    await transaction.commit();
-    res.status(200).send("Deleted successfully");
+    )
+    await transaction.commit()
+    res.status(200).send("Deleted successfully")
   } catch (ex) {
-    if (transaction) await transaction.rollback();
-    winston.error(ex);
-    res.status(500).send("something failed");
+    if (transaction) await transaction.rollback()
+    winston.error(ex)
+    res.status(500).send("something failed")
   }
-});
+})
 
-module.exports = router;
+module.exports = router

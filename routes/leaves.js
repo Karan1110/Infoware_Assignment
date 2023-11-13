@@ -1,9 +1,9 @@
-const express = require("express");
-const router = express.Router();
-const auth = require("../middlewares/auth");
-const Employee = require("../models/employee");
-const isadmin = require("../middlewares/isadmin");
-const Sequelize = require("sequelize");
+const express = require("express")
+const router = express.Router()
+const auth = require("../middlewares/auth")
+const Employee = require("../models/employee")
+const isadmin = require("../middlewares/isAdmin")
+const Sequelize = require("sequelize")
 
 router.post("/leaves", [auth, isadmin], async (req, res) => {
   const employee = await Employee.update(
@@ -12,10 +12,10 @@ router.post("/leaves", [auth, isadmin], async (req, res) => {
       total_working_days: Sequelize.literal("total_working_days - 1"),
     },
     { where: { id: 1 } }
-  );
+  )
 
-  res.status(401).send(employee);
-});
+  res.status(401).send(employee)
+})
 
 router.post("/leaves", [auth, isadmin], async (req, res) => {
   const employee = await Employee.update(
@@ -23,9 +23,9 @@ router.post("/leaves", [auth, isadmin], async (req, res) => {
       total_leaves: Sequelize.literal("total_working_hours + 1"),
     },
     { where: { id: 1 } }
-  );
+  )
 
-  res.status(401).send(employee);
-});
+  res.status(401).send(employee)
+})
 
-module.exports = router;
+module.exports = router

@@ -1,18 +1,18 @@
-const express = require("express");
-const router = express.Router();
-const auth = require("../middlewares/auth");
-const isadmin = require("../middlewares/isadmin");
+const express = require("express")
+const router = express.Router()
+const auth = require("../middlewares/auth")
+const isadmin = require("../middlewares/isAdmin")
 // [auth,isadmin]
-const Performance = require("../models/performance.js");
+const Performance = require("../models/performance.js")
 
 router.post("/", async (req, res) => {
   const performance = await Performance.create({
     status: req.body.status,
     employee_id: req.body.employee_id,
-  });
+  })
 
-  res.status(200).send(performance);
-});
+  res.status(200).send(performance)
+})
 
 router.put("/:id", [auth, isadmin], async (req, res) => {
   const performance = await Performance.create(
@@ -25,8 +25,8 @@ router.put("/:id", [auth, isadmin], async (req, res) => {
       status: req.body.status,
       employee_id: req.body.employee_id,
     }
-  );
-  res.status(200).send(performance);
-});
+  )
+  res.status(200).send(performance)
+})
 
-module.exports = router;
+module.exports = router

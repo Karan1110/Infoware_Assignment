@@ -1,31 +1,31 @@
-const express = require("express");
-const router = express.Router();
-const winston = require("winston");
-const auth = require("../middlewares/auth");
-const moment = require("moment");
-const isadmin = require("../middlewares/isadmin");
-const Employee = require("../models/employee");
-const Benefit = require("../models/benefits");
-const Benefit_type = require("../models/benefit_type");
+const express = require("express")
+const router = express.Router()
+const winston = require("winston")
+const auth = require("../middlewares/auth")
+const moment = require("moment")
+const isadmin = require("../middlewares/isAdmin")
+const Employee = require("../models/employee")
+const Benefit = require("../models/benefits")
+const Benefit_type = require("../models/benefit_type")
 // [auth,isadmin]
 router.post("/", async (req, res) => {
-  const from = moment();
-  from.format("YYYY-MM-DDTHH:MM:SS.000Z");
-  const to = moment(req.body.to);
+  const from = moment()
+  from.format("YYYY-MM-DDTHH:MM:SS.000Z")
+  const to = moment(req.body.to)
 
-  const { benefit_type_id } = req.body;
-  let benefit_type;
-  let benefit;
+  const { benefit_type_id } = req.body
+  let benefit_type
+  let benefit
 
   if (!benefit_type_id) {
     benefit_type = await Benefit_type.create({
       name: "medical",
-    });
+    })
 
     winston.info(
       benefit_type,
       `this is beenfit type id ${benefit_type.dataValues.id}`
-    );
+    )
 
     benefit = await Benefit.create({
       name: req.body.name,
@@ -33,39 +33,39 @@ router.post("/", async (req, res) => {
       to: to.format("YYYY-MM-DDTHH:MM:SS.000Z"),
       benefit_type_id: benefit_type.dataValues.id,
       employee_id: req.body.employee_id,
-    });
+    })
   } else {
-    benefit_type = await Benefit_type.findByPk(req.body.benefit_type_id);
+    benefit_type = await Benefit_type.findByPk(req.body.benefit_type_id)
     benefit = await Benefit.create({
       name: req.body.name,
       from: from,
       to: from.format("YYYY-MM-DDTHH:MM:SS.000Z"),
       benefit_type_id: benefit_type.dataValues.id,
       employee_id: req.body.employee_id,
-    });
+    })
   }
 
-  res.status(200).send(benefit);
-});
+  res.status(200).send(benefit)
+})
 
 router.put("/:id", [auth, isadmin], async (req, res) => {
-  const from = moment();
-  from.format("YYYY-MM-DDTHH:MM:SS.000Z");
-  const to = moment(req.body.to);
+  const from = moment()
+  from.format("YYYY-MM-DDTHH:MM:SS.000Z")
+  const to = moment(req.body.to)
 
-  const { benefit_type_id } = req.body;
-  let benefit_type;
-  let benefit;
+  const { benefit_type_id } = req.body
+  let benefit_type
+  let benefit
 
   if (!benefit_type_id) {
     benefit_type = await Benefit_type.create({
       name: "medical",
-    });
+    })
 
     winston.info(
       benefit_type,
       `this is beenfit type id ${benefit_type.dataValues.id}`
-    );
+    )
 
     benefit = await Benefit.update(
       {
@@ -80,9 +80,9 @@ router.put("/:id", [auth, isadmin], async (req, res) => {
         benefit_type_id: benefit_type.dataValues.id,
         employee_id: req.body.employee_id,
       }
-    );
+    )
   } else {
-    benefit_type = await Benefit_type.findByPk(req.body.benefit_type_id);
+    benefit_type = await Benefit_type.findByPk(req.body.benefit_type_id)
     benefit = await Benefit.update(
       {
         where: {
@@ -96,20 +96,20 @@ router.put("/:id", [auth, isadmin], async (req, res) => {
         benefit_type_id: benefit_type.dataValues.id,
         employee_id: req.body.employee_id,
       }
-    );
+    )
   }
 
-  res.status(200).send(benefit);
-});
+  res.status(200).send(benefit)
+})
 
 router.delete("/:id", [auth, isadmin], async (req, res) => {
   await Benefit.destroy({
     where: {
       id: req.params.id,
     },
-  });
+  })
 
-  res.status(200).send("Deleted successfully");
-});
+  res.status(200).send("Deleted successfully")
+})
 
-module.exports = router;
+module.exports = router

@@ -1,17 +1,17 @@
-const express = require("express");
-const router = express.Router();
-const auth = require("../middlewares/auth");
-const isadmin = require("../middlewares/isadmin");
-const Notification = require("../models/notifications");
+const express = require("express")
+const router = express.Router()
+const auth = require("../middlewares/auth")
+const isadmin = require("../middlewares/isAdmin")
+const Notification = require("../models/notifications")
 // [auth,isadmin]
 router.post("/", async (req, res) => {
   const notification = await Notification.create({
     message: req.body.message,
     employee_id: req.body.employee_id,
-  });
+  })
 
-  res.status(200).send(notification);
-});
+  res.status(200).send(notification)
+})
 
 router.put("/:id", [auth, isadmin], async (req, res) => {
   const notification = await Notification.update(
@@ -24,19 +24,19 @@ router.put("/:id", [auth, isadmin], async (req, res) => {
       message: req.body.message,
       employee_id: req.body.employee_id,
     }
-  );
+  )
 
-  res.status(200).send(notification);
-});
+  res.status(200).send(notification)
+})
 
 router.delete("/:id", [auth, isadmin], async (req, res) => {
   const notification = await Notification.destroy({
     where: {
       id: req.params.id,
     },
-  });
+  })
 
-  res.status(200).send({ DELETED: notification });
-});
+  res.status(200).send({ DELETED: notification })
+})
 
-module.exports = router;
+module.exports = router
