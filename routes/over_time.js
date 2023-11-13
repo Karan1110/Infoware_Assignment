@@ -2,7 +2,7 @@ const express = require("express")
 const router = express.Router()
 const auth = require("../middlewares/auth")
 const moment = require("moment")
-const isadmin = require("../middlewares/isAdmin")
+const isadmin = require("../middlewares/isAdmin.js")
 const Sequelize = require("sequelize")
 const Performance = require("../models/performance.js")
 

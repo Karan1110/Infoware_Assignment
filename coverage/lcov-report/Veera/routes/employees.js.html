@@ -1019,7 +1019,7 @@
 const router = express.Router();
 const bcrypt = require("bcrypt");
 const auth = require("../middlewares/auth");
-const isAdmin = require("../middlewares/isAdmin");
+const isAdmin = require("../middlewares/isAdmin.js");
 const email_verified = require("../middlewares/isMailCode");
 // const config = require("config")
 const Skill = require("../models/skills");

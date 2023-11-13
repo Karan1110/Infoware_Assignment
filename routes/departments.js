@@ -1,6 +1,6 @@
 const express = require("express")
 const router = express.Router()
-const isadmin = require("../middlewares/isAdmin")
+const isadmin = require("../middlewares/isAdmin.js")
 const auth = require("../middlewares/auth")
 const Department = require("../models/department")
 // , [auth,isadmin]

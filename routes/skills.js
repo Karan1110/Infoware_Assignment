@@ -1,7 +1,7 @@
 const express = require("express")
 const router = express.Router()
 const auth = require("../middlewares/auth")
-const isadmin = require("../middlewares/isAdmin")
+const isadmin = require("../middlewares/isAdmin.js")
 const Employee = require("../models/employee")
 const Skill = require("../models/skills")
 const EmployeeSkill = require("../models/intermediate models/EmployeeSkill")

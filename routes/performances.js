@@ -1,7 +1,7 @@
 const express = require("express")
 const router = express.Router()
 const auth = require("../middlewares/auth")
-const isadmin = require("../middlewares/isAdmin")
+const isadmin = require("../middlewares/isAdmin.js")
 // [auth,isadmin]
 const Performance = require("../models/performance.js")
 

@@ -2,7 +2,7 @@ const express = require("express")
 const router = express.Router()
 const auth = require("../middlewares/auth")
 const Employee = require("../models/employee")
-const isadmin = require("../middlewares/isAdmin")
+const isadmin = require("../middlewares/isAdmin.js")
 const Sequelize = require("sequelize")
 
 router.post("/leaves", [auth, isadmin], async (req, res) => {

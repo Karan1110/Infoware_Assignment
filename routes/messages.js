@@ -3,7 +3,7 @@ const router = express.Router()
 const app = express()
 const auth = require("../middlewares/auth")
 const Message = require("../models/message")
-const isadmin = require("../middlewares/isAdmin")
+const isadmin = require("../middlewares/isAdmin.js")
 
 router.post("/", [auth, isadmin], async (req, res) => {
   const message = await Message.create({
