@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon index",
-    "build": "node index",
+    "start": "node index",
     "test": "jest --coverage --verbose --watch ./tests"
   },
   "author": "",
