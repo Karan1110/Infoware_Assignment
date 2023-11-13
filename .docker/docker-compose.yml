@@ -6,6 +6,7 @@ services:
       - "9876:9876"
     volumes:
       - .:/app
+      #database is optional as we are using AWS.
   database:
     image: postgres:15-alpine
     volumes:
