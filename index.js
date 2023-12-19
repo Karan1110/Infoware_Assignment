@@ -11,7 +11,7 @@ db.authenticate()
     winston.info("Database connected...")
     db.sync()
       .then(() => {
-        winston.info("Tables created....")
+        // winston.info("Tables created....")
       })
       .catch((ex) => {
         winston.info("Tables NOT created...", ex)
