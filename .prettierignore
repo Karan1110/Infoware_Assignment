@@ -1,5 +1,0 @@
-node_modules
-docker
-*.json
-*log
-.dockerfile
