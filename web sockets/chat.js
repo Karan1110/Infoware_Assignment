@@ -1,20 +1,65 @@
-const winston = require("winston")
 const Message = require("../models/message")
+const jwt = require("jsonwebtoken")
 const Employee = require("../models/employee")
+const Sequelize = require("sequelize")
+const ChatRoom = require("../models/chatRoom")
 
 module.exports = function (app) {
   require("express-ws")(app)
 
   // Store WebSocket connections for each chat room
   const chatRooms = {}
-
-  app.ws("/chat/:chatRoom/", async (ws, req) => {
+  const auth = (ws, req, next) => {
+    if (!req.query.xAuthToken) {
+      return ws.close(4000, "No token provided.")
+    }
     try {
-      // Log WebSocket connection establishment
-      winston.info("WebSocket connection established")
+      const token = req.query.xAuthToken
+      const decoded = jwt.verify(token, "karan112010")
+      req.user = decoded
+      next()
+    } catch (ex) {
+      ws.close(4000, `${ex}`)
+    }
+  }
 
+  app.ws("/chat/:chatRoom/", auth, async (ws, req) => {
+    try {
       const user_id = req.query.user_id
-      const chatRoom = req.params.chatRoom
+      let chatRoom = await ChatRoom.findByPk(req.params.chatRoom)
+      if (!chatRoom) {
+        // Create a new ChatRoom and associate the current employee and channel
+        chatRoom = await ChatRoom.create({
+          employee_id: [currentEmployeeId], // Add the current employee to the array
+          channels: [currentChannelName], // Add the current channel to the array
+          type: req.query.type,
+        })
+      }
+      const employee = await Employee.findByPk(req.user.id)
+
+      if (!chatRoom.employee_id.includes(employee.id)) {
+        // Add the employee ID to the array using Sequelize.literal
+        await ChatRoom.update(
+          {
+            employee_id: Sequelize.literal("array_append(employee_id, ?)"),
+          },
+          {
+            where: { id: chatRoom },
+            replacements: [employee.id], // Pass the value as a parameter
+          }
+        )
+      }
+      if (!chatRoom.channels.includes(req.query.channel)) {
+        await ChatRoom.update(
+          {
+            channels: Sequelize.literal("array_append(channels, ?)"),
+          },
+          {
+            where: { id: chatRoom },
+            replacements: [req.query.channel], // Pass the value as a parameter
+          }
+        )
+      }
 
       if (!user_id) {
         return ws.close(4000, "Missing user_id")
@@ -27,7 +72,7 @@ module.exports = function (app) {
 
       // Add the WebSocket connection to the chat room
       chatRooms[chatRoom].push(ws)
-
+      // if(chatRoom)
       // Event listener for message updates
       Message.addHook("afterUpdate", async (updatedMessage) => {
         const chatRoomId = updatedMessage.chatRoom_id
@@ -48,21 +93,40 @@ module.exports = function (app) {
       })
 
       // Update user's online status
-      await Employee.update(
-        {
-          isOnline: true,
-        },
-        {
-          where: {
-            id: req.query.user_id,
+      if (!employee.chats.includes(req.params.chatRoom)) {
+        await Employee.update(
+          {
+            isOnline: true,
+            chats: Sequelize.fn(
+              "array_append",
+              Sequelize.col("chats"),
+              req.query.user_id || req.user.id
+            ),
           },
-        }
-      )
+          {
+            where: {
+              id: req.query.user_id || req.user.id,
+            },
+          }
+        )
+      } else {
+        await Employee.update(
+          {
+            isOnline: true,
+          },
+          {
+            where: {
+              id: req.query.user_id || req.user.id,
+            },
+          }
+        )
+      }
 
       // Get all messages for the current chat room
       const messages = await Message.findAll({
         where: {
           chatRoom_id: parseInt(chatRoom),
+          channel: req.query.channel,
         },
       })
 
@@ -95,6 +159,7 @@ module.exports = function (app) {
           isRead: false, // Initially set as unread
           chatRoom_id: chatRoom,
           employee_id: req.query.user_id,
+          channel: req.query.channel,
         }
 
         // Mark the message as read if other clients are online

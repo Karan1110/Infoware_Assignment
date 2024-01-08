@@ -46,6 +46,7 @@ const Employee = db.define(
       type: Sequelize.INTEGER,
       defaultValue: 0,
     },
+    chats : Sequelize.ARRAY(Sequelize.STRING),
     last_seen: Sequelize.DATE,
     isOnline: Sequelize.BOOLEAN,
     punctuality_score: {
