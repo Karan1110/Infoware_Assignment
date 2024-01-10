@@ -28,12 +28,19 @@ router.put("/:id", [auth, isadmin], async (req, res) => {
   const end_date = moment(req.body.to).format("YYYY-MM-DDTHH:mm:ss.SSSZ")
   const t = new Date(end_date)
 
-  const experience = await Experience.update({
-    company: req.body.company,
-    from: s,
-    to: t,
-    employee_id: req.body.employee_id,
-  })
+  const experience = await Experience.update(
+    {
+      company: req.body.company,
+      from: s,
+      to: t,
+      employee_id: req.body.employee_id,
+    },
+    {
+      where: {
+        id: req.params.id,
+      },
+    }
+  )
 
   res.status(200).send(experience)
 })

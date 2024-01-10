@@ -10,7 +10,9 @@ router.post("/", [auth, isadmin], async (req, res) => {
   const { skill_id, employee_id } = req.body
 
   let skill
+  console.log(skill_id, employee_id)
   if (!skill_id) {
+    console.log("creating skill...")
     skill = await Skill.create({
       name: req.body.name,
       level: req.body.level,
@@ -21,12 +23,10 @@ router.post("/", [auth, isadmin], async (req, res) => {
 
   const employee = await Employee.findByPk(employee_id)
   if (!employee) return res.status(400).send("User not found")
-
-  winston.info(skill.dataValues.id, employee.dataValues.id)
-
+  console.log(employee, skill)
   await EmployeeSkill.create({
-    employee_id: employee.dataValues.id,
-    skill_id: skill.dataValues.id,
+    employee_id: employee.dataValues.id || employee.id,
+    skill_id: skill.dataValues.id || skill.id,
   })
 
   res.status(200).send(skill)
@@ -35,13 +35,13 @@ router.post("/", [auth, isadmin], async (req, res) => {
 router.put("/:id", [auth, isadmin], async (req, res) => {
   const skill = Skill.update(
     {
+      name: req.body.name,
+      level: req.body.level,
+    },
+    {
       where: {
         id: req.params.id,
       },
-    },
-    {
-      name: req.body.name,
-      level: req.body.level,
     }
   )
 

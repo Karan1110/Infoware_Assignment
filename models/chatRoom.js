@@ -1,12 +1,14 @@
 const Sequelize = require("sequelize")
 const db = require("../startup/db")
 
-const ChatRoom = db.define(
-  "ChatRoom",
+const Chat = db.define(
+  "Chat", // Specify the desired table name here
   {
     id: {
       type: Sequelize.INTEGER,
       primaryKey: true,
+      autoIncrement: true,
+      allowNull: false,
     },
     employee_id: {
       type: Sequelize.ARRAY(Sequelize.INTEGER),
@@ -19,10 +21,8 @@ const ChatRoom = db.define(
     type: Sequelize.ENUM("channel", "group"),
   },
   {
-    tableName: "chat_rooms", // Replace with your actual table name
     timestamps: true,
-    underscored: true, // Use underscores instead of camelCase for column names
   }
 )
 
-module.exports = ChatRoom
+module.exports = Chat

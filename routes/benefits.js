@@ -59,42 +59,37 @@ router.put("/:id", [auth, isadmin], async (req, res) => {
 
   if (!benefit_type_id) {
     benefit_type = await Benefit_type.create({
-      name: "medical",
+      name: req.body.benefit_type_name,
     })
 
-    winston.info(
-      benefit_type,
-      `this is beenfit type id ${benefit_type.dataValues.id}`
-    )
-
     benefit = await Benefit.update(
-      {
-        where: {
-          id: req.body.benefit_id,
-        },
-      },
       {
         name: req.body.name,
         from: from,
         to: to.format("YYYY-MM-DDTHH:MM:SS.000Z"),
         benefit_type_id: benefit_type.dataValues.id,
         employee_id: req.body.employee_id,
+      },
+      {
+        where: {
+          id: req.body.benefit_id,
+        },
       }
     )
   } else {
     benefit_type = await Benefit_type.findByPk(req.body.benefit_type_id)
     benefit = await Benefit.update(
       {
-        where: {
-          id: req.body.benefit_id,
-        },
-      },
-      {
         name: req.body.name,
         from: from,
         to: to.format("YYYY-MM-DDTHH:MM:SS.000Z"),
         benefit_type_id: benefit_type.dataValues.id,
         employee_id: req.body.employee_id,
+      },
+      {
+        where: {
+          id: req.body.benefit_id,
+        },
       }
     )
   }

@@ -15,6 +15,12 @@ const Performance = require("../models/performance.js")
 const Department = require("../models/department")
 const winston = require("winston")
 const { Sequelize, Op } = require("sequelize")
+const {
+  ToadScheduler,
+  SimpleIntervalJob,
+  AsyncTask,
+} = require("toad-scheduler")
+const EmployeeSkill = require("../models/intermediate models/EmployeeSkill.js")
 
 router.get("/average_salary", [auth, isadmin], async (req, res) => {
   const Users = await Employee.findAll({
@@ -24,158 +30,157 @@ router.get("/average_salary", [auth, isadmin], async (req, res) => {
   })
 
   // res.status(200).send(Users.dataValues.average_salary);
-  res.status(200).send(Users)
+  res.status(200).send(Users[0])
 })
 
 router.get("/statistics", [auth, isadmin], async (req, res) => {
-  const employeeStatistics = {}
-  //  employeeStatistics
-  // Performance statistics
-  employeeStatistics.Employee_Performance_Below_Average =
-    await Employee.findAll({
+  try {
+    const employeeStatistics = {}
+
+    // Performance statistics
+    employeeStatistics.Employee_Performance_Below_Average =
+      await Employee.findAll({
+        include: [
+          {
+            model: Performance,
+            as: "Performance",
+            where: {
+              points: {
+                [Op.lte]: 60,
+              },
+            },
+          },
+        ],
+      })
+
+    employeeStatistics.Employee_Performance_Average = await Employee.findAll({
       include: [
         {
           model: Performance,
           as: "Performance",
           where: {
             points: {
-              [Op.lte]: 60,
+              [Op.gt]: 60,
+              [Op.lte]: 100,
             },
           },
         },
       ],
     })
 
-  if (!Employee_Performance_Below_Average)
-    return res.status(400).send("fuck off ")
-
-  employeeStatistics.Employee_Performance_Average = await Employee.findAll({
-    include: [
-      {
-        model: Performance,
-        as: "Performance",
-        where: {
-          points: {
-            [Op.lte]: 60,
+    employeeStatistics.Employee_Performance_Above_Average =
+      await Employee.findAll({
+        include: [
+          {
+            model: Performance,
+            as: "Performance",
+            where: {
+              points: {
+                [Op.gt]: 100,
+              },
+            },
           },
-        },
-      },
-    ],
-  })
+        ],
+      })
 
-  employeeStatistics.Employee_Performance_Above_Average =
-    await Employee.findAll({
+    // Department statistics
+    employeeStatistics.Department = await Employee.findAll({
       include: [
         {
-          model: Performance,
-          as: "Performance",
+          model: Department,
+          as: "Department",
           where: {
-            points: {
-              [Op.lte]: 60,
-            },
+            name: req.body.department,
           },
         },
       ],
     })
 
-  // Department statistics
-  employeeStatistics.Department = await Employee.findAll({
-    include: [
-      {
-        model: Department,
-        as: "Department",
-        where: {
-          name: req.body.department,
+    // Education statistics
+    employeeStatistics.Education = await Employee.findAll({
+      include: [
+        {
+          model: Education,
+          as: "Education",
+          where: {
+            field: req.body.field,
+          },
         },
-      },
-    ],
-  })
-
-  employeeStatistics.Education = await Employee.findAll({
-    include: [
-      {
-        model: Education,
-        as: "Education",
-        where: {
-          field: "something",
-        },
-      },
-    ],
-  })
-
-  employeeStatistics.Manager = await Employee.findAll({
-    include: [
-      {
-        model: Employee,
-        as: "Manager",
-        where: {
-          name: "sus",
-        },
-      },
-    ],
-  })
-  employeeStatistics.MostEmployeeManager = await Employee.findAll({
-    attributes: [
-      "id,name",
-      [
-        Sequelize.literal(
-          '(SELECT COUNT("Employee"."id") FROM "Employees" AS "Employee")'
-        ),
-        "manager_count",
       ],
-    ],
-    include: [
-      {
-        model: Employee,
-        as: "Employee",
-      },
-    ],
-    limit: 5,
-    order: [[Sequelize.literal("manager_count"), "DESC"]],
-  })
+    })
 
-  employeeStatistics.Skill = await Skill.findAll({
-    attributes: [
-      "name",
-      [
-        Sequelize.literal(
-          '(SELECT COUNT("Employee"."id") FROM "Employees" AS "Employee")'
-        ),
-        "usage_count",
+    // Manager statistics
+    employeeStatistics.Manager = await Employee.findAll({
+      include: [
+        {
+          model: Employee,
+          as: "Manager",
+          where: {
+            name: req.body.manager,
+          },
+        },
       ],
-    ],
-    include: [
-      {
-        model: Employee,
-        as: "Employee",
-        // attributes: [],
-      },
-    ],
-    limit: 5,
-    order: [[Sequelize.literal("usage_count"), "DESC"]],
-  })
+    })
 
-  if (!mostUsedSkill) return res.status(400).send("fuck off...")
+    // Most Employee Manager statistics
+    employeeStatistics.MostEmployeeManager = await Employee.findAll({
+      attributes: [
+        "id",
+        "name",
+        [
+          Sequelize.literal(
+            '(SELECT COUNT("Employee"."id") FROM "Employees" AS "Employee")'
+          ),
+          "manager_count",
+        ],
+      ],
+      include: [
+        {
+          model: Employee,
+          as: "Manager",
+        },
+      ],
+      limit: 5,
+      order: [[Sequelize.literal("manager_count"), "DESC"]],
+    })
 
-  console.log(
-    `The most used skill is ${mostUsedSkill.name} with ${mostUsedSkill.usage_count} employees having that skill.`
-  )
+    // Skill statistics
+    employeeStatistics.Skill = await Skill.findAll({
+      attributes: [
+        "name",
+        [
+          Sequelize.literal(
+            '(SELECT COUNT("EmployeeSkill"."employee_id") FROM "EmployeeSkill" WHERE "EmployeeSkill"."skill_id" = "Skill"."id")'
+          ),
+          "usage_count",
+        ],
+      ],
+      limit: 5,
+      order: [[Sequelize.literal("usage_count"), "DESC"]],
+    })
 
-  employeeStatistics.Experience = await Employee.countExperience()
-  console.log(employeeStatistics)
+    // Experience statistics
+    employeeStatistics.Experience = await Employee.countExperience()
+    console.log(employeeStatistics)
 
-  res.status(200).send(employeeStatistics)
+    res.status(200).send(employeeStatistics)
+  } catch (error) {
+    console.error("Error in statistics endpoint:", error.message, error)
+    res.status(500).send("Internal Server Error")
+  }
 })
 
-router.get("/", [auth, isadmin], async (req, res) => {
+router.get("/property", [auth, isadmin], async (req, res) => {
   const pn = req.query.propertyName
   const pv = req.query.propertyValue
-
+  console.log(typeof pv)
+  if (!isNaN(Number(pv)))
+    return res.status(400).send("property value cannot be an integer")
   const Users = await Employee.findAll({
-    exclude: ["password"],
+    attributes: { exclude: ["password"] },
     where: {
-      [Op.like]: {
-        pn: pv,
+      [pn]: {
+        [Op.iLike]: `%${pv}%`, // Use Op.iLike for case-insensitive LIKE
       },
     },
   })
@@ -237,7 +242,7 @@ router.get("/me", [auth, isadmin], async (req, res) => {
 })
 
 router.get("/:id", [auth, isadmin], async (req, res) => {
-  const employee = Employee.findOne({
+  const employee = await Employee.findOne({
     where: {
       id: req.params.id,
     },
@@ -264,7 +269,7 @@ router.get("/:id", [auth, isadmin], async (req, res) => {
       },
       {
         model: Skill,
-        as: "Skills",
+        as: "Skill",
       },
       {
         model: Benefit,
@@ -284,14 +289,15 @@ router.get("/:id", [auth, isadmin], async (req, res) => {
       },
     ],
   })
+  if (!employee) return res.status(400).send("employyee not found")
   res.status(200).send(employee)
 })
 // performance department employee_id
 router.get("/", [auth, isadmin], async (req, res) => {
   const employee = await Employee.findAll({
     order: [["salary", "ASC"]], // Sort by salary in ascending order
-    offset: 10, // Skip the first 10 records
-    imit: 5,
+    // offset: 10, // Skip the first 10 records
+    limit: req.query.limit,
     include: [
       {
         model: Employee,
@@ -315,7 +321,7 @@ router.get("/", [auth, isadmin], async (req, res) => {
       },
       {
         model: Skill,
-        as: "Skills",
+        as: "Skill",
       },
       {
         model: Benefit,
@@ -369,55 +375,70 @@ router.post("/", async (req, res) => {
     })
 
     const token = employee.generateAuthToken()
+    const scheduler = new ToadScheduler()
+
+    const task = new AsyncTask(
+      "salary credit",
+      () => {
+        Notification.create({
+          message: "salary has been credited!",
+          employee_id: employee.dataValues.id,
+        })
+          .then(() => {
+            console.log("Notification created successfully")
+          })
+          .catch((error) => {
+            console.error("Error creating notification:", error.message)
+          })
+      },
+      (error) => {
+        console.error(error.message, error)
+      }
+    )
+    const job = new SimpleIntervalJob({ days: 30 }, task, {
+      id: employee.dataValues.id,
+    })
+
+    scheduler.addSimpleIntervalJob(job)
+
     res.status(201).send({ token: token, Employee: employee })
   } catch (ex) {
     console.log(ex, ex.message)
   }
 })
 
-router.put("/property", auth, isadmin, async (req, res) => {
+router.put("/property/:id", auth, isadmin, async (req, res) => {
   try {
-    const userExists = await Employee.findOne({
-      where: {
-        email: req.body.email,
-      },
-    })
-
     const user = await Employee.findByPk(req.user.id)
 
     if (!user) {
       return res.status(404).send("User Not Found.")
     }
 
-    if (userExists) {
-      return res.status(400).send("Email already in use")
-    }
+    // const isPasswordValid = await bcrypt.compare(
+    //   req.body.password,
+    //   user.password
+    // )
 
-    const isPasswordValid = await bcrypt.compare(
-      req.body.password,
-      user.password
-    )
-
-    if (!isPasswordValid) {
-      return res.status(400).send("Invalid credentials.")
-    }
+    // if (!isPasswordValid) {
+    //   return res.status(400).send("Invalid credentials.")
+    // }
 
     const { propertyName } = req.query
     const propertyValue = req.body.propertyValue
 
     const updatedUser = await Employee.update(
-      { propertyName: propertyValue },
+      { [propertyName]: propertyValue }, // Use square brackets for dynamic property name
       {
         where: {
           id: req.params.id,
         },
       }
     )
-
     // Generate an authentication token if needed
     const token = user.generateAuthToken()
 
-    res.status(200).send(updatedUser)
+    res.status(200).set("token", token).send(updatedUser)
   } catch (ex) {
     console.log(ex)
     res.status(500).send("Internal Server Error")
@@ -492,7 +513,7 @@ router.delete("/:id", auth, async (req, res) => {
       id: req.params.id,
     },
   })
-
+  scheduler.removeById(req.params.id)
   res.status(200).send({ Deleted: employee })
 })
 

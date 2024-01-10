@@ -4,50 +4,58 @@ const app = express()
 const auth = require("../middlewares/auth")
 const Message = require("../models/message")
 const isadmin = require("../middlewares/isAdmin.js")
-
+/*
 router.post("/", [auth, isadmin], async (req, res) => {
   const message = await Message.create({
     message: req.body.message,
     employee_id: req.body.employee_id,
   })
 
-  res.status(401).send(message)
+  // Broadcast the new message to all connected WebSocket clients
+  app.getWss().clients.forEach((client) => {
+    client.send(JSON.stringify(message))
+  })
+
+  res.status(200).send(message)
 })
+*/
 
-router.put("/:id", [auth, isadmin], async (req, res) => {
-  await Message.update(
-    {
-      message: req.body.message,
-      employee_id: req.body.employee_id,
-    },
-    {
-      where: {
-        id: req.params.id,
-      },
-    }
-  )
-
+router.put("/:id", [auth], async (req, res) => {
   const message = await Message.findOne({
     where: {
       id: req.params.id,
     },
   })
 
-  app.ws(`chat/${message.dataValues.chatRoom_id}`, (req, ws) => {
-    ws.send(JSON.stringify(message))
-  })
+  if (message.employee_id == req.user.id || req.user.isadmin == true) {
+    await Message.update(
+      {
+        message: req.body.message,
+      },
+      {
+        where: {
+          id: req.params.id,
+        },
+      }
+    )
+    return res.status(200).send(message)
+  }
 
-  res.status(401).send(message)
+  res
+    .status(403)
+    .send("not allowed to update other's message unless you are a admin")
 })
 
 router.delete("/", [auth, isadmin], async (req, res) => {
-  const message = await Message.destroy({
+  const message = await Message.findByPk(req.body.message_id)
+  if (!message) return res.status(400).send("message not found")
+  await Message.destroy({
     where: {
-      id: req.body.message,
+      id: req.body.message_id,
     },
   })
 
-  res.status(401).send(message)
+  res.status(200).send(message)
 })
 
 module.exports = router

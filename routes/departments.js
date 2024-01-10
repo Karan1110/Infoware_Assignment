@@ -3,13 +3,23 @@ const router = express.Router()
 const isadmin = require("../middlewares/isAdmin.js")
 const auth = require("../middlewares/auth")
 const Department = require("../models/department")
+const Position = require("../models/position.js")
 // , [auth,isadmin]
 router.post("/", async (req, res) => {
   const department = await Department.create({
     name: req.body.name,
-    position_id: req.body.position_id,
   })
 
+  let position
+  if (!req.body.position_id) {
+    position = await Position.create({
+      name: req.body.position_name,
+      position_id: department.dataValues.id || department.id,
+    })
+  } else {
+    position = await Position.findByPk(req.body.position_id)
+  }
+  console.log(position)
   res.status(200).send(department)
 })
 

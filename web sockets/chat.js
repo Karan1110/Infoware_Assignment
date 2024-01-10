@@ -27,36 +27,44 @@ module.exports = function (app) {
     try {
       const user_id = req.query.user_id
       let chatRoom = await ChatRoom.findByPk(req.params.chatRoom)
+      console.log(chatRoom)
+      const employee = await Employee.findByPk(req.user.id)
+      console.log("this is employee", employee)
       if (!chatRoom) {
         // Create a new ChatRoom and associate the current employee and channel
         chatRoom = await ChatRoom.create({
-          employee_id: [currentEmployeeId], // Add the current employee to the array
-          channels: [currentChannelName], // Add the current channel to the array
-          type: req.query.type,
+          employee_id: [85],
+          channels: ["general"],
+          type: "channel",
         })
       }
-      const employee = await Employee.findByPk(req.user.id)
+      console.log(chatRoom)
 
-      if (!chatRoom.employee_id.includes(employee.id)) {
+      if (!chatRoom.dataValues.employee_id.includes(employee.id)) {
         // Add the employee ID to the array using Sequelize.literal
         await ChatRoom.update(
           {
-            employee_id: Sequelize.literal("array_append(employee_id, ?)"),
+            employee_id: Sequelize.literal(
+              `array_append(employee_id, '${employee.id}')`
+            ),
           },
           {
-            where: { id: chatRoom },
-            replacements: [employee.id], // Pass the value as a parameter
+            where: { id: chatRoom.id },
           }
         )
       }
-      if (!chatRoom.channels.includes(req.query.channel)) {
+
+      if (
+        !chatRoom.dataValues.channels.includes(req.query.channel || "general")
+      ) {
         await ChatRoom.update(
           {
-            channels: Sequelize.literal("array_append(channels, ?)"),
+            channels: Sequelize.literal(
+              `array_append(channels, '${req.query.channel || "general"}')`
+            ),
           },
           {
-            where: { id: chatRoom },
-            replacements: [req.query.channel], // Pass the value as a parameter
+            where: { id: chatRoom.id },
           }
         )
       }
@@ -72,28 +80,9 @@ module.exports = function (app) {
 
       // Add the WebSocket connection to the chat room
       chatRooms[chatRoom].push(ws)
-      // if(chatRoom)
-      // Event listener for message updates
-      Message.addHook("afterUpdate", async (updatedMessage) => {
-        const chatRoomId = updatedMessage.chatRoom_id
-
-        // Check if the updated message belongs to the desired chatRoom
-        if (chatRoomId === parseInt(chatRoom)) {
-          // Send the updated message to all WebSocket connections in the chat room
-          chatRooms[chatRoom].forEach((connection) => {
-            connection.send(
-              JSON.stringify({
-                message: updatedMessage.message,
-                employee_id: updatedMessage.employee_id,
-                isRead: updatedMessage.isRead,
-              })
-            )
-          })
-        }
-      })
 
       // Update user's online status
-      if (!employee.chats.includes(req.params.chatRoom)) {
+      if (!employee.dataValues.chats.includes(req.params.chatRoom)) {
         await Employee.update(
           {
             isOnline: true,
@@ -125,8 +114,8 @@ module.exports = function (app) {
       // Get all messages for the current chat room
       const messages = await Message.findAll({
         where: {
-          chatRoom_id: parseInt(chatRoom),
-          channel: req.query.channel,
+          chatRoom_id: parseInt(chatRoom.id),
+          channel: req.query.channel || "general",
         },
       })
 
@@ -135,7 +124,7 @@ module.exports = function (app) {
         { isRead: true },
         {
           where: {
-            chatRoom_id: parseInt(chatRoom),
+            chatRoom_id: parseInt(chatRoom.id),
           },
         }
       )
@@ -144,9 +133,11 @@ module.exports = function (app) {
       for (const msg of messages) {
         ws.send(
           JSON.stringify({
+            id: msg.id,
             message: msg.message,
             employee_id: msg.employee_id,
             isRead: true, // Mark as read
+            channel: msg.channel,
           })
         )
       }
@@ -157,9 +148,9 @@ module.exports = function (app) {
         let m = {
           message: msg,
           isRead: false, // Initially set as unread
-          chatRoom_id: chatRoom,
-          employee_id: req.query.user_id,
-          channel: req.query.channel,
+          chatRoom_id: chatRoom.id,
+          employee_id: req.user.id,
+          channel: req.query.channel || "general",
         }
 
         // Mark the message as read if other clients are online
@@ -168,24 +159,24 @@ module.exports = function (app) {
         )
 
         if (otherClients.length > 0) {
-          // If other clients are online, mark the message as read
           m.isRead = true
-          await Message.create(m)
         }
 
+        const current_msg = await Message.create(m)
         // Send the new message to all WebSocket connections in the chat room
         chatRooms[chatRoom].forEach((connection) => {
           connection.send(
             JSON.stringify({
+              id: current_msg.id,
               message: msg,
               employee_id: req.query.user_id,
               isRead: m.isRead,
+              channel: m.channel,
             })
           )
         })
         console.log(otherClients)
       })
-
       // Handle WebSocket connection closure
       ws.on("close", async () => {
         // Update user's online status and last seen timestamp
@@ -209,6 +200,7 @@ module.exports = function (app) {
     } catch (ex) {
       // Handle exceptions and close the WebSocket with an error message
       console.error(ex)
+      console.log("this is ")
       ws.close(4000, ex.message)
     }
   })

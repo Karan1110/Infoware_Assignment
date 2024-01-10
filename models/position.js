@@ -1,11 +1,12 @@
-const Sequelize = require("sequelize");
-const db = require("../startup/db");
-const Department = require("./department");
+const Sequelize = require("sequelize")
+const db = require("../startup/db")
+const Department = require("./department")
 
 const Position = db.define(
   "Position",
   {
     name: Sequelize.STRING,
+    department_id: Sequelize.INTEGER,
   },
   {
     indexes: [
@@ -14,21 +15,13 @@ const Position = db.define(
       },
     ],
   }
-);
+)
 
-const winston = require("winston");
-Position.hasMany(Department, {
+Position.belongsTo(Department, {
   as: "DepartmentPosition",
   foreignKey: "department_id",
   onDelete: "CASCADE",
   onUpdate: "CASCADE",
-});
+})
 
-Department.belongsTo(Position, {
-  as: "DepartmentPosition",
-  foreignKey: "department_id",
-  onDelete: "CASCADE",
-  onUpdate: "CASCADE",
-});
-
-module.exports = Position;
+module.exports = Position

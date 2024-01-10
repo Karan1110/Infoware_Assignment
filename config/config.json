@@ -1,0 +1,14 @@
+{
+  "development": {
+    "url": "postgres://jqsmcexd:fbz0ucMzDtTmlS1Tt4J32UwENR9eoVlL@mahmud.db.elephantsql.com/jqsmcexd",
+    "dialect": "postgres"
+  },
+  "test": {
+    "url": "postgres://jqsmcexd:fbz0ucMzDtTmlS1Tt4J32UwENR9eoVlL@mahmud.db.elephantsql.com/jqsmcexd",
+    "dialect": "postgres"
+  },
+  "production": {
+    "url": "postgres://jqsmcexd:fbz0ucMzDtTmlS1Tt4J32UwENR9eoVlL@mahmud.db.elephantsql.com/jqsmcexd",
+    "dialect": "postgres"
+  }
+}

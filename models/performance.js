@@ -1,29 +1,25 @@
-const Sequelize = require("sequelize");
-const db = require("../startup/db");
-const Employee = require("./employee");
+const Sequelize = require("sequelize")
+const db = require("../startup/db")
+const Employee = require("./employee")
 
 const Performance = db.define(
-  "Performance",
+  "Performances",
   {
-    id: {
-      type: Sequelize.INTEGER,
-      primaryKey: true,
-    },
     status: Sequelize.STRING,
     points: {
       type: Sequelize.INTEGER,
-      defaultValue : 0
+      defaultValue: 0,
     },
     classification: {
       type: Sequelize.VIRTUAL,
-      get  (){
-        const points = this.getDataValue('points')
-        if (points > 60) {
-          return "Below Average";
-        } else if (points > 100) {
-          return "Average";
+      get() {
+        const points = this.getDataValue("points")
+        if (points > 100) {
+          return "Above Average"
+        } else if (points > 60) {
+          return "Average"
         } else {
-          return "Above Average";
+          return "Below Average"
         }
       },
     },
@@ -31,18 +27,19 @@ const Performance = db.define(
   {
     indexes: [
       {
-        unique: false,
         fields: ["status", "points"],
       },
     ],
   }
-);
+)
+
+console.log(Employee == db.models.Employee)
 
 Employee.belongsTo(Performance, {
   as: "Performance",
   foreignKey: "performance_id",
   onDelete: "CASCADE",
   onUpdate: "CASCADE",
-});
+})
 
-module.exports = Performance;
+module.exports = Performance

@@ -87,16 +87,15 @@ router.put("/:id", [auth, isadmin], async (req, res) => {
 
     const meeting = await Meeting.update(
       {
-        where: {
-          id: req.body.mm_id,
-        },
-      },
-
-      {
         name: req.body.name,
         link: req.body.link,
         from: req.body.from,
         to: req.body.to,
+      },
+      {
+        where: {
+          id: req.body.mm_id,
+        },
       },
       {
         transaction,

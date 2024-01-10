@@ -16,13 +16,13 @@ router.post("/", async (req, res) => {
 router.put("/:id", [auth, isadmin], async (req, res) => {
   const notification = await Notification.update(
     {
+      message: req.body.message,
+      employee_id: req.body.employee_id,
+    },
+    {
       where: {
         id: req.params.id,
       },
-    },
-    {
-      message: req.body.message,
-      employee_id: req.body.employee_id,
     }
   )
 
