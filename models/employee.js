@@ -3,6 +3,7 @@ const db = require("../startup/db")
 const jwt = require("jsonwebtoken")
 const Experience = require("./experience")
 const Notification = require("./notifications")
+const Performance = require("./performance")
 
 const Employee = db.define(
   "Employee",
@@ -19,7 +20,9 @@ const Employee = db.define(
     manager_id: Sequelize.INTEGER,
     education_id: Sequelize.INTEGER,
     department_id: Sequelize.INTEGER,
-    performance_id: Sequelize.INTEGER,
+    performance_id: {
+      type: Sequelize.INTEGER,
+    },
     total_working_hours: {
       type: Sequelize.INTEGER,
       defaultValue: 8,
@@ -66,15 +69,15 @@ const Employee = db.define(
     },
   },
   {
-    // timestamps: true,
-    indexes: [
-      {
-        unique: false,
-        fields: ["id", "name", "age"],
-      },
-    ],
+    timestamps: true,
   }
 )
+Employee.belongsTo(Performance, {
+  as: "Performance",
+  foreignKey: "performance_id",
+  onDelete: "CASCADE",
+  onUpdate: "CASCADE",
+})
 
 Employee.hasMany(Experience, {
   as: "Experience",

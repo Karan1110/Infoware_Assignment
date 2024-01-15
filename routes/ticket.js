@@ -5,6 +5,80 @@ const isadmin = require("../middlewares/isAdmin.js")
 const Employee = require("../models/employee")
 const Ticket = require("../models/ticket")
 const moment = require("moment")
+const { Op } = require("sequelize")
+
+router.get("/latest", async (req, res) => {
+  try {
+    const tickets = await Ticket.findAll({
+      order: [["createdAt", "DESC"]],
+    })
+    res.json(tickets)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: "Internal Server Error" })
+  }
+})
+
+router.get("/name", async (req, res) => {
+  try {
+    const tickets = await Ticket.findAll({
+      order: [["name", "ASC"]],
+    })
+    res.json(tickets)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: "Internal Server Error" })
+  }
+})
+
+router.get("/incomplete", async (req, res) => {
+  try {
+    const incompleteTickets = await Ticket.findAll({
+      where: { completed: false },
+    })
+    res.json(incompleteTickets)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: "Internal Server Error" })
+  }
+})
+
+router.get("/completed", async (req, res) => {
+  try {
+    const completedTickets = await Ticket.findAll({
+      where: { completed: true },
+    })
+    res.json(completedTickets)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: "Internal Server Error" })
+  }
+})
+
+router.get("/search", async (req, res) => {
+  try {
+    const { ticket_name } = req.body
+
+    if (!ticket_name) {
+      return res
+        .status(400)
+        .json({ error: "Ticket name is required in the request body." })
+    }
+
+    const matchingTickets = await Ticket.findAll({
+      where: {
+        name: {
+          [Op.like]: `%${ticket_name}%`, // Using Sequelize's Op.like for a partial match
+        },
+      },
+    })
+
+    res.json(matchingTickets)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: "Internal Server Error" })
+  }
+})
 
 router.post("/", [auth, isadmin], async (req, res) => {
   const employee = await Employee.findByPk(req.body.employee_id)

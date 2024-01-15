@@ -1,4 +1,3 @@
-const session = require("express-session")
 const express = require("express")
 const helmet = require("helmet")
 const cors = require("cors")
@@ -18,6 +17,7 @@ const over_times = require("../routes/over_time")
 const error = require("../middlewares/error")
 const mails = require("../routes/mail")
 const messages = require("../routes/messages")
+const reviews = require("../routes/reviews")
 
 module.exports = function (app) {
   app.use(express.urlencoded({ extended: true }))
@@ -39,6 +39,7 @@ module.exports = function (app) {
   app.use("/meetings", meetings)
   app.use("/messages", messages)
   app.use("/educations", educations)
+  app.use("/reviews", reviews)
   app.use("/login", login)
   app.use(error)
 }

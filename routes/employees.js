@@ -15,12 +15,9 @@ const Performance = require("../models/performance.js")
 const Department = require("../models/department")
 const winston = require("winston")
 const { Sequelize, Op } = require("sequelize")
-const {
-  ToadScheduler,
-  SimpleIntervalJob,
-  AsyncTask,
-} = require("toad-scheduler")
+const { ToadScheduler, LongIntervalJob, AsyncTask } = require("toad-scheduler")
 const EmployeeSkill = require("../models/intermediate models/EmployeeSkill.js")
+const Review = require("../models/review.js")
 
 router.get("/average_salary", [auth, isadmin], async (req, res) => {
   const Users = await Employee.findAll({
@@ -94,6 +91,31 @@ router.get("/statistics", [auth, isadmin], async (req, res) => {
           },
         },
       ],
+    })
+
+    employeeStatistics.departmentStatistics = await Employee.findAll({
+      attributes: [
+        "department_id",
+        [
+          Sequelize.fn("AVG", Sequelize.col("Reviews.rating")),
+          "average_rating",
+        ],
+      ],
+      include: [
+        {
+          model: Review,
+          as: "Reviews",
+          attributes: [], // Include only the necessary attributes from the Reviews table
+        },
+        {
+          model: Department,
+          as: "Department",
+          attributes: ["name"], // Include only the necessary attributes from the Department table
+        },
+      ],
+      group: ["department_id", "Department.id"], // Group by the department_id and Department.id
+      raw: true,
+      nested: true,
     })
 
     // Education statistics
@@ -353,6 +375,16 @@ router.post("/", async (req, res) => {
       },
     })
     if (userExists) return res.status(400).send("user exists already...")
+    const performance = await Performance.findByPk(req.body.performance_id)
+    const department = await Department.findByPk(req.body.department_id)
+    const education = await Education.findByPk(req.body.education_id)
+    // const manager = await Employee.findByPk(req.body.manager_id)
+
+    if (!performance) return res.status(400).send("performance not found...")
+    if (!department) return res.status(400).send("department not found...")
+    if (!education) return res.status(400).send("education not found...")
+    // if (!manager) return res.status(400).send("manager not found...")
+
     const salt = await bcrypt.genSalt(10)
     const p = await bcrypt.hash(req.body.password, salt)
     const employee = await Employee.create({
@@ -395,11 +427,11 @@ router.post("/", async (req, res) => {
         console.error(error.message, error)
       }
     )
-    const job = new SimpleIntervalJob({ days: 30 }, task, {
+    const job = new LongIntervalJob({ days: 30 }, task, {
       id: employee.dataValues.id,
     })
 
-    scheduler.addSimpleIntervalJob(job)
+    scheduler.addLongIntervalJob(job)
 
     res.status(201).send({ token: token, Employee: employee })
   } catch (ex) {

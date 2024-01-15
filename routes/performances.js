@@ -22,9 +22,14 @@ function generateRandomNumericId(length) {
 const randomNumericId = generateRandomNumericId(8)
 console.log(randomNumericId)
 
+router.get("/:id", async (req, res) => {
+  const performance = await Performance.findByPk(req.params.id)
+  if (!performance) return res.status(400).send("not found..")
+  res.send(performance)
+})
 router.post("/", async (req, res) => {
   const employee = await Employee.findByPk(req.body.employee_id)
-  if (employee.performance_id != null || undefined) {
+  if ((employee && employee?.performance_id != null) || undefined) {
     return res
       .status(400)
       .send("Employee's performance record already exists...")

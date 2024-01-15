@@ -1,9 +1,7 @@
 const Sequelize = require("sequelize")
 const db = require("../startup/db")
-const Employee = require("./employee")
-
 const Performance = db.define(
-  "Performances",
+  "Performance",
   {
     status: Sequelize.STRING,
     points: {
@@ -25,6 +23,8 @@ const Performance = db.define(
     },
   },
   {
+    tablename: "Performances",
+    modelName: "Performance",
     indexes: [
       {
         fields: ["status", "points"],
@@ -33,13 +33,7 @@ const Performance = db.define(
   }
 )
 
-console.log(Employee == db.models.Employee)
-
-Employee.belongsTo(Performance, {
-  as: "Performance",
-  foreignKey: "performance_id",
-  onDelete: "CASCADE",
-  onUpdate: "CASCADE",
-})
+console.log(Performance == db.models.Performance)
+console.log(db.models.Performance)
 
 module.exports = Performance
