@@ -412,21 +412,47 @@ router.post("/", async (req, res) => {
     const task = new AsyncTask(
       "salary credit",
       () => {
+        // Create Notification
         Notification.create({
-          message: "salary has been credited!",
-          employee_id: employee.dataValues.id,
+          message: "Salary has been credited!",
+          employee_id: employee.dataValues.id || employee.id,
         })
           .then(() => {
             console.log("Notification created successfully")
+
+            // Update Employee's values to default
+            return Employee.update(
+              {
+                total_working_hours: 8,
+                total_working_days: 25,
+                salary_per_hour: 99,
+              },
+              {
+                where: {
+                  id: employee.dataValues.id || employee.id,
+                },
+              }
+            )
+          })
+          .then((updatedEmployee) => {
+            if (updatedEmployee[0]) {
+              console.log("Employee values updated successfully")
+            } else {
+              console.error("Employee not found or not updated")
+            }
           })
           .catch((error) => {
-            console.error("Error creating notification:", error.message)
+            console.error(
+              "Error creating notification or updating employee values:",
+              error.message
+            )
           })
       },
       (error) => {
         console.error(error.message, error)
       }
     )
+
     const job = new LongIntervalJob({ days: 30 }, task, {
       id: employee.dataValues.id,
     })
