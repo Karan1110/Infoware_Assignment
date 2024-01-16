@@ -16,4 +16,15 @@ router.post("/leaves/:id", [auth, isadmin], async (req, res) => {
   res.status(200).send(employee)
 })
 
+router.post("/leaves/add/:id", [auth, isadmin], async (req, res) => {
+  const employee = await Employee.update(
+    {
+      total_working_days: Sequelize.literal("total_working_days + 1"),
+    },
+    { where: { id: req.params.id } }
+  )
+
+  res.status(200).send(employee)
+})
+
 module.exports = router

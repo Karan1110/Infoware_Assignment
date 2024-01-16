@@ -1,4 +1,4 @@
-module.exports = async (Employee, user_id, chatRooms, chatRoom) => {
+module.exports = async (Employee, user_id, chatRooms, chatRoom, ws) => {
   // Update user's online status and last seen timestamp
   await Employee.update(
     {

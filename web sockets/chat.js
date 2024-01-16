@@ -22,6 +22,7 @@ module.exports = function (app) {
       const employee = await Employee.findByPk(req.user.id)
       if (!chatRoom) {
         chatRoom = await ChatRoom.create({
+          id: req.params.chatRoom,
           employee_id: [req.query.user_id],
           channels: [req.query.channel],
           type: req.query.type,
@@ -43,12 +44,12 @@ module.exports = function (app) {
       }
 
       // Check if the chat room exists, create a new one if it doesn't
-      if (!chatRooms[chatRoom]) {
-        chatRooms[chatRoom] = []
+      if (!chatRooms[req.params.chatRoom]) {
+        chatRooms[req.params.chatRoom] = []
       }
 
       // Add the WebSocket connection to the chat room
-      chatRooms[chatRoom].push(ws)
+      chatRooms[req.params.chatRoom].push(ws)
 
       // Update user's online status
       if (!employee.dataValues.chats.includes(req.params.chatRoom)) {
@@ -118,14 +119,14 @@ module.exports = function (app) {
           msg,
           req.query.channel,
           Message,
-          chatRoom,
+          req.params.chatRoom,
           req,
           ws
         )
       })
       // Handle WebSocket connection closure
       ws.on("close", async () => {
-        onClose(Employee, req.user.id, chatRooms, chatRoom)
+        onClose(Employee, req.user.id, chatRooms, chatRoom, ws)
       })
     } catch (ex) {
       console.error(ex)

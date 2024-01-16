@@ -147,8 +147,6 @@ router.put("/", [auth, isadmin], async (req, res) => {
     const endd = moment(meeting_member.to)
     const meetingDiffMember = endd.diff(startt, "minutes") // Calculate the meeting diff in minutes
 
-    console.log(`!!!!!!`, meeting_member.dataValues)
-
     // to add in update
     const employee_start = moment(req.body.from)
     const employee_end = moment(req.body.to)
@@ -202,7 +200,7 @@ router.put("/", [auth, isadmin], async (req, res) => {
         transaction,
       }
     )
-    console.log(m_m, meeting_member)
+
     await transaction.commit()
     res.redirect("/employees/me")
   } catch (ex) {
