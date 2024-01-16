@@ -14,7 +14,7 @@ module.exports = function (app) {
   // Store WebSocket connections for each chat room
   const chatRooms = {}
 
-  app.ws("/chat/:chatRoom/", auth, async (ws, req) => {
+  app.ws("/chat/:chatRoom/:channel", auth, async (ws, req) => {
     try {
       const user_id = req.query.user_id
       let chatRoom = await ChatRoom.findByPk(req.params.chatRoom)
@@ -23,7 +23,7 @@ module.exports = function (app) {
         chatRoom = await ChatRoom.create({
           id: req.params.chatRoom,
           employee_id: [req.query.user_id],
-          channels: [req.query.channel],
+          channels: [req.params.channel],
           type: req.query.type,
           name: req.query.name,
         })
@@ -42,9 +42,9 @@ module.exports = function (app) {
       }
 
       if (
-        !chatRoom.dataValues.channels.includes(req.query.channel || "general")
+        !chatRoom.dataValues.channels.includes(req.params.channel || "general")
       ) {
-        addToChannels(ChatRoom, req.query.channel, chatRoom.id)
+        addToChannels(ChatRoom, req.params.channel, chatRoom.id)
       }
 
       if (!user_id) {
@@ -52,12 +52,13 @@ module.exports = function (app) {
       }
 
       // Check if the chat room exists, create a new one if it doesn't
-      if (!chatRooms[req.params.chatRoom]) {
-        chatRooms[req.params.chatRoom] = []
+      const chatRoomKey = `${req.params.chatRoom}_${req.params.channel}`
+      if (!chatRooms[chatRoomKey]) {
+        chatRooms[chatRoomKey] = []
       }
 
       // Add the WebSocket connection to the chat room
-      chatRooms[req.params.chatRoom].push(ws)
+      chatRooms[chatRoomKey].push(ws)
 
       // Update user's online status
       if (!employee.dataValues.chats.includes(req.params.chatRoom)) {
@@ -103,7 +104,7 @@ module.exports = function (app) {
         where: {
           chatRoom_id:
             chatRoom.id || chatRoom.dataValues.id || req.params.chatRoom,
-          channel: req.query.channel || "general",
+          channel: req.params.channel || "general",
         },
       })
 
@@ -127,7 +128,7 @@ module.exports = function (app) {
         sendMessage(
           chatRooms,
           msg,
-          req.query.channel,
+          req.params.channel,
           Message,
           req.params.chatRoom,
           req,
@@ -149,7 +150,8 @@ module.exports = function (app) {
         )
 
         // Remove the WebSocket connection from the chat room
-        chatRooms[req.params.chatRoom] = chatRooms[req.params.chatRoom].filter(
+        const chatRoomKey = `${req.params.chatRoom}_${req.params.channel}`
+        chatRooms[chatRoomKey] = chatRooms[chatRoomKey].filter(
           (connection) => connection !== ws
         )
       })

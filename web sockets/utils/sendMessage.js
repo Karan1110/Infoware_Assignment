@@ -17,7 +17,8 @@ module.exports = async (
   }
 
   // Mark the message as read if other clients are online
-  const otherClients = chatRooms[chatRoom].filter(
+  const chatRoomKey = `${req.params.chatRoom}_${req.params.channel}`
+  const otherClients = chatRooms[chatRoomKey].filter(
     (connection) => connection !== ws
   )
 
@@ -27,7 +28,7 @@ module.exports = async (
 
   const current_msg = await Message.create(m)
   // Send the new message to all WebSocket connections in the chat room
-  chatRooms[chatRoom].forEach((connection) => {
+  chatRooms[chatRoomKey].forEach((connection) => {
     connection.send(
       JSON.stringify({
         id: current_msg.id,
