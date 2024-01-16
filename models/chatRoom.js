@@ -10,6 +10,10 @@ const Chat = db.define(
       autoIncrement: true,
       allowNull: false,
     },
+    name: {
+      type: Sequelize.STRING,
+      allowNull: false,
+    },
     employee_id: {
       type: Sequelize.ARRAY(Sequelize.INTEGER),
       defaultValue: [],

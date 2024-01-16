@@ -7,7 +7,6 @@ const createChat = require("./utils/createChat")
 const addToChats = require("./utils/addToChats")
 const addToChannels = require("./utils/addToChannels")
 const sendMessage = require("./utils/sendMessage")
-const onClose = require("./utils/onClose")
 
 module.exports = function (app) {
   require("express-ws")(app)
@@ -26,11 +25,20 @@ module.exports = function (app) {
           employee_id: [req.query.user_id],
           channels: [req.query.channel],
           type: req.query.type,
+          name: req.query.name,
         })
       }
-
-      if (!chatRoom.dataValues.employee_id.includes(employee.id)) {
-        addToChats(ChatRoom, employee.id, chatRoom.id)
+      // console.log(chatRoom.dataValues)
+      if (
+        !chatRoom.dataValues.employee_id.includes(
+          employee.dataValues.id || employee.id || req.query.user_id
+        )
+      ) {
+        addToChats(
+          ChatRoom,
+          employee.id || employee.dataValues.id,
+          chatRoom.id || chatRoom.dataValues.id
+        )
       }
 
       if (
@@ -59,7 +67,7 @@ module.exports = function (app) {
             chats: Sequelize.fn(
               "array_append",
               Sequelize.col("chats"),
-              req.query.user_id || req.user.id
+              chatRoom.dataValues.id.toString() || chatRoom.id.toString()
             ),
           },
           {
@@ -81,15 +89,6 @@ module.exports = function (app) {
         )
       }
 
-      // Get all messages for the current chat room
-      const messages = await Message.findAll({
-        where: {
-          chatRoom_id: parseInt(chatRoom.id),
-          channel: req.query.channel || "general",
-        },
-      })
-
-      // Mark all messages as read
       await Message.update(
         { isRead: true },
         {
@@ -98,6 +97,17 @@ module.exports = function (app) {
           },
         }
       )
+
+      // Get all messages for the current chat room
+      const messages = await Message.findAll({
+        where: {
+          chatRoom_id:
+            chatRoom.id || chatRoom.dataValues.id || req.params.chatRoom,
+          channel: req.query.channel || "general",
+        },
+      })
+
+      // Mark all messages as read
 
       // Send all messages to the WebSocket connection and mark them as read
       for (const msg of messages) {
@@ -126,10 +136,26 @@ module.exports = function (app) {
       })
       // Handle WebSocket connection closure
       ws.on("close", async () => {
-        onClose(Employee, req.user.id, chatRooms, chatRoom, ws)
+        await Employee.update(
+          {
+            isOnline: false,
+            last_seen: new Date(),
+          },
+          {
+            where: {
+              id: req.query.user_id || employee.dataValues.id || employee.id,
+            },
+          }
+        )
+
+        // Remove the WebSocket connection from the chat room
+        chatRooms[req.params.chatRoom] = chatRooms[req.params.chatRoom].filter(
+          (connection) => connection !== ws
+        )
       })
     } catch (ex) {
-      console.error(ex)
+      console.log("ERROR!!!")
+      console.log(ex)
       ws.close(4000, ex.message)
     }
   })

@@ -18,6 +18,7 @@ const error = require("../middlewares/error")
 const mails = require("../routes/mail")
 const messages = require("../routes/messages")
 const reviews = require("../routes/reviews")
+const chats = require("../routes/chats")
 
 module.exports = function (app) {
   app.use(express.urlencoded({ extended: true }))
@@ -41,5 +42,6 @@ module.exports = function (app) {
   app.use("/educations", educations)
   app.use("/reviews", reviews)
   app.use("/login", login)
+  app.use("/chats", chats)
   app.use(error)
 }
