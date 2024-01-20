@@ -3,7 +3,6 @@ const Employee = require("../models/employee")
 const Sequelize = require("sequelize")
 const ChatRoom = require("../models/chatRoom")
 const auth = require("./utils/auth")
-const createChat = require("./utils/createChat")
 const addToChats = require("./utils/addToChats")
 const addToChannels = require("./utils/addToChannels")
 const sendMessage = require("./utils/sendMessage")
@@ -16,6 +15,7 @@ module.exports = function (app) {
 
   app.ws("/chat/:chatRoom/:channel", auth, async (ws, req) => {
     try {
+      console.log("user connected...")
       const user_id = req.query.user_id
       let chatRoom = await ChatRoom.findByPk(req.params.chatRoom)
       const employee = await Employee.findByPk(req.user.id)
@@ -94,7 +94,16 @@ module.exports = function (app) {
         { isRead: true },
         {
           where: {
-            chatRoom_id: parseInt(chatRoom.id),
+            isRead: false,
+            chatRoom_id: chatRoom.id || chatRoom.dataValues.id,
+            employee_id: {
+              [Sequelize.Op.notIn]: [
+                req.user.id,
+                req.query.user_id,
+                employee.id,
+                employee.dataValues.id,
+              ],
+            },
           },
         }
       )
@@ -106,6 +115,8 @@ module.exports = function (app) {
             chatRoom.id || chatRoom.dataValues.id || req.params.chatRoom,
           channel: req.params.channel || "general",
         },
+        limit: 20,
+        order: [["createdAt", "ASC"]],
       })
 
       // Mark all messages as read

@@ -6,7 +6,7 @@ const Employee = require("../models/employee")
 const Experience = require("../models/experience")
 const moment = require("moment")
 
-router.post("/", [auth, isadmin], async (req, res) => {
+router.post("/", [auth], async (req, res) => {
   const start_date = moment(req.body.from).format("YYYY-MM-DDTHH:mm:ss.SSSZ")
   const s = new Date(start_date)
   const end_date = moment(req.body.to).format("YYYY-MM-DDTHH:mm:ss.SSSZ")

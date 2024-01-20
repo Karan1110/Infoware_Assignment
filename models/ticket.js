@@ -1,34 +1,24 @@
-const winston = require("winston")
 const Sequelize = require("sequelize")
 const db = require("../startup/db")
 const Employee = require("./employee")
-const Notification = require("../models/notifications")
-const moment = require("moment")
 
 const Ticket = db.define(
   "Ticket",
   {
-    name: Sequelize.STRING,
+    name: Sequelize.TEXT,
     steps: Sequelize.ARRAY(Sequelize.STRING),
     deadline: Sequelize.DATE,
-    completed: {
-      type: Sequelize.BOOLEAN,
-      defaultValue: false,
+    status: {
+      type: Sequelize.ENUM("in-progress", "closed", "open"),
+      defaultValue: "open",
     },
+    body: Sequelize.STRING,
+    employee_id: Sequelize.INTEGER,
   },
   {
     timestamps: true,
   }
 )
-// Ticket.
-
-Ticket.afterCreate(async (ticket) => {
-  try {
-    console.log("lolll")
-  } catch (ex) {
-    winston.info(ex)
-  }
-})
 
 Employee.hasMany(Ticket, {
   as: "Ticket",

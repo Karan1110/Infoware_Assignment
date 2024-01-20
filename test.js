@@ -1,18 +1,14 @@
-const { ToadScheduler, SimpleIntervalJob, Task } = require("toad-scheduler")
+const path = require("path")
+const Bree = require("bree")
 
-const scheduler = new ToadScheduler()
-
-const task = new Task(
-  "simple task",
-  () => {
-    console.log("hello world")
-  },
-  (err) => {
-    /* handle error here */
-  }
-)
-const job = new SimpleIntervalJob({ seconds: 5 }, task)
-
-scheduler.addSimpleIntervalJob(job)
-
-// when stopping your app
+const bree = new Bree({
+  jobs: [
+    {
+      name: "worker-1",
+      interval: "every second",
+    },
+  ],
+}) // start all jobs (this is the equivalent of reloading a crontab):
+;(async () => {
+  await bree.start()
+})()

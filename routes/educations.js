@@ -42,4 +42,18 @@ router.put("/:id", [auth], async (req, res) => {
   }
 })
 
+router.delete("/:id", auth, async (req, res) => {
+  try {
+    await Education.destroy({
+      where: {
+        id: req.params.id,
+      },
+    })
+    res.send("deleted...")
+  } catch (ex) {
+    console.log(ex)
+    res.send(ex.message)
+  }
+})
+
 module.exports = router

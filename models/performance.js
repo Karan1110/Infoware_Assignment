@@ -1,39 +1,24 @@
 const Sequelize = require("sequelize")
 const db = require("../startup/db")
-const Performance = db.define(
-  "Performance",
-  {
-    status: Sequelize.STRING,
-    points: {
-      type: Sequelize.INTEGER,
-      defaultValue: 0,
-    },
-    classification: {
-      type: Sequelize.VIRTUAL,
-      get() {
-        const points = this.getDataValue("points")
-        if (points > 100) {
-          return "Above Average"
-        } else if (points > 60) {
-          return "Average"
-        } else {
-          return "Below Average"
-        }
-      },
+
+const Performance = db.define("Performance", {
+  points: {
+    type: Sequelize.INTEGER,
+    defaultValue: 0,
+  },
+  status: {
+    type: Sequelize.VIRTUAL,
+    get() {
+      const points = this.getDataValue("points")
+      if (points > 100) {
+        return "above average"
+      } else if (points > 50) {
+        return "average"
+      } else if (points > 25) {
+        return "below average"
+      }
     },
   },
-  {
-    tablename: "Performances",
-    modelName: "Performance",
-    indexes: [
-      {
-        fields: ["status", "points"],
-      },
-    ],
-  }
-)
-
-console.log(Performance == db.models.Performance)
-console.log(db.models.Performance)
+})
 
 module.exports = Performance

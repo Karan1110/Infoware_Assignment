@@ -5,25 +5,35 @@ const isadmin = require("../middlewares/isAdmin.js")
 const Employee = require("../models/employee")
 const Skill = require("../models/skills")
 const EmployeeSkill = require("../models/intermediate models/EmployeeSkill")
+const Sequelize = require("sequelize")
 
-router.post("/", [auth, isadmin], async (req, res) => {
+router.get("/", auth, async (req, res) => {
+  const skills = await Skills.findAll({
+    where: {
+      name: {
+        [Sequelize.Op.like]: `%${req.query.skill}%`, // Using Sequelize's Op.like for a partial match
+      },
+    },
+  })
+  res.json(skills)
+})
+// auth,
+router.post("/",  async (req, res) => {
+  const skill = await Skill.create({
+    name: req.body.name,
+    level: req.body.level,
+  })
+  res.json(skill)
+})
+
+router.post("/add", [auth, isadmin], async (req, res) => {
   const { skill_id, employee_id } = req.body
-
-  let skill
-  console.log(skill_id, employee_id)
-  if (!skill_id) {
-    console.log("creating skill...")
-    skill = await Skill.create({
-      name: req.body.name,
-      level: req.body.level,
-    })
-  } else {
-    skill = await Skill.findByPk(skill_id)
-  }
 
   const employee = await Employee.findByPk(employee_id)
   if (!employee) return res.status(400).send("User not found")
-  console.log(employee, skill)
+
+  const skill = await Skill.findByPk(skill_id)
+
   await EmployeeSkill.create({
     employee_id: employee.dataValues.id || employee.id,
     skill_id: skill.dataValues.id || skill.id,

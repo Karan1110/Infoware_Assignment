@@ -7,34 +7,46 @@ const Ticket = require("../models/ticket")
 const moment = require("moment")
 const { Op } = require("sequelize")
 
-router.get("/latest", async (req, res) => {
+// count
+router.get("/", async (req, res) => {
   try {
-    const tickets = await Ticket.findAll({
-      order: [["createdAt", "DESC"]],
+    const tickets = []
+    const open = await Ticket.count({
+      where: {
+        status: "open",
+      },
     })
-    res.json(tickets)
+    const closed = await Ticket.count({
+      where: {
+        status: "closed",
+      },
+    })
+    const inProgress = await Ticket.count({
+      where: {
+        status: "in-progress",
+      },
+    })
+    tickets.push(open)
+    tickets.push(closed)
+    tickets.push(inProgress)
+
+    res.send(tickets)
   } catch (error) {
     console.error(error)
     res.status(500).json({ error: "Internal Server Error" })
   }
 })
 
-router.get("/name", async (req, res) => {
-  try {
-    const tickets = await Ticket.findAll({
-      order: [["name", "ASC"]],
-    })
-    res.json(tickets)
-  } catch (error) {
-    console.error(error)
-    res.status(500).json({ error: "Internal Server Error" })
-  }
-})
-
-router.get("/incomplete", async (req, res) => {
+router.get("/closed", async (req, res) => {
   try {
     const incompleteTickets = await Ticket.findAll({
-      where: { completed: false },
+      where: { status: "closed" },
+      order: [
+        [
+          `${req.query.sortingProperty}`,
+          `${req.query.sortingProperty == "createdAt" ? "DESC" : "ASC"}`,
+        ],
+      ],
     })
     res.json(incompleteTickets)
   } catch (error) {
@@ -42,13 +54,38 @@ router.get("/incomplete", async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" })
   }
 })
-
-router.get("/completed", async (req, res) => {
+// filter open tickets
+router.get("/open", async (req, res) => {
   try {
-    const completedTickets = await Ticket.findAll({
-      where: { completed: true },
+    const openTickets = await Ticket.findAll({
+      where: { status: "open" },
+      order: [
+        [
+          `${req.query.sortingProperty}`,
+          `${req.query.sortingProperty == "createdAt" ? "DESC" : "ASC"}`,
+        ],
+      ],
     })
-    res.json(completedTickets)
+    res.json(openTickets)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: "Internal Server Error" })
+  }
+})
+// filter in-progress tickets
+router.get("/in-progress", async (req, res) => {
+  try {
+    const tickets = await Ticket.findAll({
+      where: { status: "in-progress" },
+
+      order: [
+        [
+          `${req.query.sortingProperty}`,
+          `${req.query.sortingProperty == "createdAt" ? "DESC" : "ASC"}`,
+        ],
+      ],
+    })
+    res.json(tickets)
   } catch (error) {
     console.error(error)
     res.status(500).json({ error: "Internal Server Error" })
@@ -80,51 +117,52 @@ router.get("/search", async (req, res) => {
   }
 })
 
-router.post("/", [auth, isadmin], async (req, res) => {
+router.get("/:id", async (req, res) => {
+  try {
+    const ticket = await Ticket.findByPk(req.params.id, {
+      include: {
+        model: Employee,
+        as: "Employee", // Change " Employee" to "employee"
+      },
+    })
+
+    res.json(ticket)
+  } catch (ex) {
+    console.error(error)
+    res.status(500).json({ error: "Internal Server Error" })
+  }
+})
+
+router.post("/", [auth], async (req, res) => {
+  console.log(req.user.id, req.body.employee_id)
   const employee = await Employee.findByPk(req.body.employee_id)
+  console.log(employee)
+  if (!employee) return res.status(400).send("User not found")
 
-  if (!employee) return res.status(400).send("user not found")
+  const start_date = moment(req.body.deadline)
+  const now = moment()
 
-  // if (employee.manager_id !== req.user.id)
-  //   return res.status(400).send("Not authorized")
-
-  const start_date = moment(req.body.deadline).format(
-    "YYYY-MM-DDTHH:mm:ss.SSSZ"
-  )
-
-  const s = new Date(start_date)
+  // Check if the deadline is more than two days later
+  if (start_date.diff(now, "days") <= 1) {
+    return res.status(400).send("Deadline should be at least two days later")
+  }
 
   const ticket = await Ticket.create({
     name: req.body.name,
     steps: req.body.steps,
     employee_id: req.body.employee_id,
-    deadline: s,
+    deadline: start_date.toDate(),
+    status: req.body.status,
+    body: req.body.body,
   })
 
-  const d = new Date(
-    ticket.dataValues.deadline.getUTCFullYear(),
-    ticket.dataValues.deadline.getUTCMonth(),
-    ticket.dataValues.deadline.getUTCDate(),
-    ticket.dataValues.deadline.getUTCHours(),
-    ticket.dataValues.deadline.getUTCMinutes(),
-    ticket.dataValues.deadline.getUTCSeconds()
-  )
+  const time_out_ii = moment(req.body.deadline).subtract(1, "days")
 
-  const time_out = s.getTime() - Date.now()
-
-  setTimeout(async () => {
-    console.log("Event firing...")
-    await ticket.destroy()
-  }, time_out)
-
-  const time_out_ii = s
-  time_out_ii.setDate(s.getDate() - 1)
-  console.log(time_out_ii)
-  const real_timeout = time_out_ii.getTime() - Date.now()
+  const real_timeout = time_out_ii.diff(moment(), "milliseconds")
 
   setTimeout(async () => {
     await Notification.create({
-      message: `Ticket pending! complete now! ${ticket.name}`,
+      message: `Ticket pending! Complete now! ${ticket.name}`,
       employee_id: ticket.employee_id,
     })
   }, real_timeout)
@@ -132,11 +170,16 @@ router.post("/", [auth, isadmin], async (req, res) => {
   res.status(200).send(ticket)
 })
 
-router.put("/:id", [auth, isadmin], async (req, res) => {
-  const ticket = await Ticket.update(
+router.put("/assign/:id", [auth], async (req, res) => {
+  const ticket = await Ticket.findByPk(req.params.id)
+  if (!ticket) return res.status(404).json({ message: "ticket not found..." })
+
+  const employee = await Employee.findByPk(req.body.employee_id)
+  if (!employee)
+    return res.status(404).json({ message: "employee not found..." })
+
+  await Ticket.update(
     {
-      name: req.body.name,
-      steps: req.body.steps,
       employee_id: req.body.employee_id,
     },
     {
@@ -146,6 +189,41 @@ router.put("/:id", [auth, isadmin], async (req, res) => {
     }
   )
 
+  res.status(200).json({ message: "done!" })
+})
+
+router.put("/:id", [auth, isadmin], async (req, res) => {
+  const ticket = await Ticket.findByPk(req.params.id)
+  if (!ticket) return res.status(404).json({ message: "ticket not found..." })
+
+  await Ticket.update(
+    {
+      name: req.body.name,
+      steps: req.body.steps,
+      deadline: s,
+      status: req.body.status,
+      body: req.body.body,
+    },
+    {
+      where: {
+        id: req.params.id,
+      },
+    }
+  )
+  const employee = await Employee.findByPk(ticket.employee_id)
+  if (!employee)
+    return res.status(404).json({ message: "employee not found..." })
+
+  const performance = await Performance.findOne({
+    where: {
+      id: employee.performance_id,
+    },
+  })
+
+  if (performance) {
+    // Assuming you want to increment by 1, you can change the value as needed
+    await performance.increment({ points: 5 })
+  }
   res.status(200).send(ticket)
 })
 

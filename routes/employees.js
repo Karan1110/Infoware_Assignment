@@ -8,7 +8,7 @@ const Employee = require("../models/employee")
 const Education = require("../models/education")
 const Experience = require("../models/experience")
 const Ticket = require("../models/ticket")
-const Benefit = require("../models/benefits")
+const moment = require("moment")
 const Meeting = require("../models/meeting")
 const Notification = require("../models/notifications")
 const Performance = require("../models/performance.js")
@@ -16,8 +16,16 @@ const Department = require("../models/department")
 const winston = require("winston")
 const { Sequelize, Op } = require("sequelize")
 const { ToadScheduler, LongIntervalJob, AsyncTask } = require("toad-scheduler")
-const EmployeeSkill = require("../models/intermediate models/EmployeeSkill.js")
 const Review = require("../models/review.js")
+const path = require("path")
+
+// optional
+const ms = require("ms")
+const Graceful = require("@ladjs/graceful")
+const Cabin = require("cabin")
+
+// required
+const Bree = require("bree")
 
 router.get("/average_salary", [auth, isadmin], async (req, res) => {
   const Users = await Employee.findAll({
@@ -29,7 +37,16 @@ router.get("/average_salary", [auth, isadmin], async (req, res) => {
   // res.status(200).send(Users.dataValues.average_salary);
   res.status(200).send(Users[0])
 })
-
+router.get("/search", auth, async () => {
+  const employees = await Employee.findAll({
+    where: {
+      name: {
+        [Sequelize.Op.like]: `%${req.query.employee}%`, // Using Sequelize's Op.like for a partial match
+      },
+    },
+  })
+  res.json(employees)
+})
 router.get("/statistics", [auth, isadmin], async (req, res) => {
   try {
     const employeeStatistics = {}
@@ -43,7 +60,7 @@ router.get("/statistics", [auth, isadmin], async (req, res) => {
             as: "Performance",
             where: {
               points: {
-                [Op.lte]: 60,
+                [Op.lte]: 25,
               },
             },
           },
@@ -57,8 +74,8 @@ router.get("/statistics", [auth, isadmin], async (req, res) => {
           as: "Performance",
           where: {
             points: {
-              [Op.gt]: 60,
-              [Op.lte]: 100,
+              [Op.gt]: 25,
+              [Op.lte]: 50,
             },
           },
         },
@@ -73,7 +90,7 @@ router.get("/statistics", [auth, isadmin], async (req, res) => {
             as: "Performance",
             where: {
               points: {
-                [Op.gt]: 100,
+                [Op.gt]: 75,
               },
             },
           },
@@ -114,8 +131,6 @@ router.get("/statistics", [auth, isadmin], async (req, res) => {
         },
       ],
       group: ["department_id", "Department.id"], // Group by the department_id and Department.id
-      raw: true,
-      nested: true,
     })
 
     // Education statistics
@@ -144,28 +159,6 @@ router.get("/statistics", [auth, isadmin], async (req, res) => {
       ],
     })
 
-    // Most Employee Manager statistics
-    employeeStatistics.MostEmployeeManager = await Employee.findAll({
-      attributes: [
-        "id",
-        "name",
-        [
-          Sequelize.literal(
-            '(SELECT COUNT("Employee"."id") FROM "Employees" AS "Employee")'
-          ),
-          "manager_count",
-        ],
-      ],
-      include: [
-        {
-          model: Employee,
-          as: "Manager",
-        },
-      ],
-      limit: 5,
-      order: [[Sequelize.literal("manager_count"), "DESC"]],
-    })
-
     // Skill statistics
     employeeStatistics.Skill = await Skill.findAll({
       attributes: [
@@ -181,8 +174,6 @@ router.get("/statistics", [auth, isadmin], async (req, res) => {
       order: [[Sequelize.literal("usage_count"), "DESC"]],
     })
 
-    // Experience statistics
-    employeeStatistics.Experience = await Employee.countExperience()
     console.log(employeeStatistics)
 
     res.status(200).send(employeeStatistics)
@@ -226,6 +217,10 @@ router.get("/me", [auth, isadmin], async (req, res) => {
         as: "Education",
       },
       {
+        model: Review,
+        as: "Reviews",
+      },
+      {
         model: Experience,
         as: "Experience",
       },
@@ -241,10 +236,7 @@ router.get("/me", [auth, isadmin], async (req, res) => {
         model: Skill,
         as: "Skill",
       },
-      {
-        model: Benefit,
-        as: "Benefit",
-      },
+
       {
         model: Meeting,
         as: "Meeting",
@@ -263,7 +255,7 @@ router.get("/me", [auth, isadmin], async (req, res) => {
   res.status(200).send(me)
 })
 
-router.get("/:id", [auth, isadmin], async (req, res) => {
+router.get("/:id", [auth], async (req, res) => {
   const employee = await Employee.findOne({
     where: {
       id: req.params.id,
@@ -278,6 +270,10 @@ router.get("/:id", [auth, isadmin], async (req, res) => {
         as: "Education",
       },
       {
+        model: Review,
+        as: "Reviews",
+      },
+      {
         model: Experience,
         as: "Experience",
       },
@@ -293,10 +289,7 @@ router.get("/:id", [auth, isadmin], async (req, res) => {
         model: Skill,
         as: "Skill",
       },
-      {
-        model: Benefit,
-        as: "Benefit",
-      },
+
       {
         model: Meeting,
         as: "Meeting",
@@ -311,15 +304,32 @@ router.get("/:id", [auth, isadmin], async (req, res) => {
       },
     ],
   })
-  if (!employee) return res.status(400).send("employyee not found")
+  if (!employee) return res.status(404).send("employyee not found")
+  // Calculate total experience using Moment.js
+  if (employee.Experience && employee.Experience.length !== 0) {
+    const totalExperienceInSeconds = employee.Experience.reduce(
+      (total, exp) => {
+        const from = moment(exp.from)
+        const to = moment(exp.to)
+        return total + to.diff(from, "seconds")
+      },
+      0
+    )
+
+    // Convert total experience to a human-readable format
+    const formattedTotalExperience = moment
+      .duration(totalExperienceInSeconds, "seconds")
+      .humanize()
+
+    // Add totalExperience property to the employee object
+    employee.totalExperience = formattedTotalExperience
+  }
   res.status(200).send(employee)
 })
 // performance department employee_id
 router.get("/", [auth, isadmin], async (req, res) => {
   const employee = await Employee.findAll({
-    order: [["salary", "ASC"]], // Sort by salary in ascending order
-    // offset: 10, // Skip the first 10 records
-    limit: req.query.limit,
+    order: [["salary", "ASC"]],
     include: [
       {
         model: Employee,
@@ -334,6 +344,10 @@ router.get("/", [auth, isadmin], async (req, res) => {
         as: "Experience",
       },
       {
+        model: Review,
+        as: "Reviews",
+      },
+      {
         model: Notification,
         as: "Notification",
       },
@@ -345,10 +359,7 @@ router.get("/", [auth, isadmin], async (req, res) => {
         model: Skill,
         as: "Skill",
       },
-      {
-        model: Benefit,
-        as: "Benefit",
-      },
+
       {
         model: Meeting,
         as: "Meeting",
@@ -369,20 +380,24 @@ router.get("/", [auth, isadmin], async (req, res) => {
 
 router.post("/", async (req, res) => {
   try {
-    const userExists = await Employee.findOne({
+    const userExists = await Employee.findAll({
       where: {
         email: req.body.email,
       },
     })
-    if (userExists) return res.status(400).send("user exists already...")
-    const performance = await Performance.findByPk(req.body.performance_id)
-    const department = await Department.findByPk(req.body.department_id)
-    const education = await Education.findByPk(req.body.education_id)
+    if (userExists && userExists.length > 0) {
+      console.log(userExists)
+      return res.status(400).send("User already exists...")
+    }
+
+    // const performance = await Performance.findByPk(req.body.performance_id)
+    // const department = await Department.findByPk(req.body.department_id)
+    // const education = await Education.findByPk(req.body.education_id)
     // const manager = await Employee.findByPk(req.body.manager_id)
 
-    if (!performance) return res.status(400).send("performance not found...")
-    if (!department) return res.status(400).send("department not found...")
-    if (!education) return res.status(400).send("education not found...")
+    // if (!performance) return res.status(400).send("performance not found...")
+    // if (!department) return res.status(400).send("department not found...")
+    // if (!education) return res.status(400).send("education not found...")
     // if (!manager) return res.status(400).send("manager not found...")
 
     const salt = await bcrypt.genSalt(10)

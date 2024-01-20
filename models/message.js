@@ -1,9 +1,6 @@
 const Sequelize = require("sequelize")
 const db = require("../startup/db")
 const Employee = require("./employee")
-const ChatRoom = require("./chatRoom")
-const { log } = require("winston/lib/winston/common")
-// ChatRoom
 
 const Message = db.define(
   "Message",
@@ -11,12 +8,13 @@ const Message = db.define(
     message: Sequelize.STRING,
     isRead: {
       type: Sequelize.BOOLEAN,
-      defaultValue: false, // Use `defaultValue` instead of `default`
+      defaultValue: false,
     },
     chatRoom_id: Sequelize.INTEGER,
     channel: Sequelize.STRING,
   },
   {
+    timestamps: true,
     indexes: [
       {
         fields: ["message"],
@@ -35,18 +33,20 @@ const Message = db.define(
 )
 
 Employee.hasMany(Message, {
-  as: "Message",
+  as: "SentMessages", // Change the alias to "SentMessages"
   foreignKey: "employee_id",
   onDelete: "CASCADE",
   onUpdate: "CASCADE",
 })
 
 Message.belongsTo(Employee, {
-  as: "Message",
+  as: "Sender", // Change the alias to "Sender"
   foreignKey: "employee_id",
   onDelete: "CASCADE",
   onUpdate: "CASCADE",
 })
+
+module.exports = Message
 
 // Message.hasOne(ChatRoom, {
 //   as: "chatRoom",
@@ -54,4 +54,3 @@ Message.belongsTo(Employee, {
 //   onDelete: "CASCADE",
 //   onUpdate: "CASCADE",
 // })
-module.exports = Message

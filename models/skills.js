@@ -8,7 +8,7 @@ const Skill = db.define(
   {
     name: {
       type: Sequelize.STRING,
-      // unique: true, // Remove this line to remove the unique constraint
+      unique: true,
     },
     level: Sequelize.STRING,
   },

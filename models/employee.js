@@ -56,14 +56,16 @@ const Employee = db.define(
       type: Sequelize.VIRTUAL,
       get() {
         const temp =
-          (100 / this.getDataValue("total_meetings")) *
-          this.getDataValue("attended_meetings")
+          (this.getDataValue("attended_meetings") /
+            this.getDataValue("total_meetings")) *
+          100
+
         if (Math.round(temp) > 75) {
-          return "Probably will attend meetings"
+          return `Probably will attend meetings - ${temp}%`
         } else if (Math.round(temp) < 75) {
-          return "May or may not attend"
+          return `May or may not attend - ${temp}%`
         } else if (Math.round(temp) < 25) {
-          return "Probably will not attend"
+          return `Probably will not attend - ${temp}%`
         }
       },
     },
@@ -121,22 +123,6 @@ Employee.prototype.generateAuthToken = function () {
     "karan112010"
   )
   return token
-}
-
-Employee.countExperience = async function () {
-  const experience = await Experience.findAll({
-    attributes: [[Sequelize.literal('("to" - "from")'), "duration"]],
-    order: [[Sequelize.literal("duration"), "DESC"]],
-    limit: 10,
-    include: [
-      {
-        model: Employee,
-        as: "Employee",
-      },
-    ],
-  })
-
-  return experience
 }
 
 module.exports = Employee
