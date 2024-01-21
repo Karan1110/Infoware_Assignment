@@ -1,2 +1,0 @@
-test all routes
-Specific details about features like analytics, meeting scores, and skill-based employee search are lacking.
