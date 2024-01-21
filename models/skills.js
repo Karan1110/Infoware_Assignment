@@ -1,6 +1,6 @@
 const Sequelize = require("sequelize")
 const db = require("../startup/db")
-const EmployeeSkill = require("./intermediate models/EmployeeSkill")
+const EmployeeSkill = require("./EmployeeSkill")
 const Employee = require("./employee")
 
 const Skill = db.define(

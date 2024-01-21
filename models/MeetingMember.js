@@ -1,7 +1,7 @@
-const db = require("../../startup/db")
+const db = require("../startup/db")
 const Sequelize = require("sequelize")
-const Employee = require("../employee")
-const Meeting = require("../meeting")
+const Employee = require("./employee")
+const Meeting = require("./meeting")
 const moment = require("moment")
 const winston = require("winston")
 

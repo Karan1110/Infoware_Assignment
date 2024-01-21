@@ -2,7 +2,7 @@ const Sequelize = require("sequelize")
 const db = require("../startup/db")
 const Employee = require("./employee")
 const Department = require("./department")
-const MeetingMember = require("./intermediate models/MeetingMember")
+const MeetingMember = require("./MeetingMember")
 
 const Meeting = db.define(
   "Meeting",

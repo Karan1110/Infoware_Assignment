@@ -17,8 +17,6 @@ const Employee = db.define(
     age: Sequelize.INTEGER,
     salary: Sequelize.INTEGER,
     isAdmin: Sequelize.BOOLEAN,
-    manager_id: Sequelize.INTEGER,
-    education_id: Sequelize.INTEGER,
     department_id: Sequelize.INTEGER,
     performance_id: {
       type: Sequelize.INTEGER,
@@ -84,28 +82,12 @@ Experience.belongsTo(Employee, {
   onUpdate: "CASCADE",
 })
 
-Employee.belongsTo(Employee, {
-  as: "Manager",
-  foreignKey: "manager_id",
-  selfGranted: true,
-  onDelete: "CASCADE",
-  onUpdate: "CASCADE",
-})
-
 Employee.hasMany(Notification, {
   as: "Notification",
   foreignKey: "employee_id",
   onDelete: "CASCADE",
   onUpdate: "CASCADE",
 })
-
-// Employee.hasMany(Employee, {
-//   as: "Employees",
-//   foreignKey: "manager_id",
-//   selfGranted: true,
-//   onDelete: "CASCADE",
-//   onUpdate: "CASCADE",
-// })
 
 Employee.prototype.generateAuthToken = function () {
   const token = jwt.sign(

@@ -4,7 +4,7 @@ const auth = require("../middlewares/auth")
 const isadmin = require("../middlewares/isAdmin.js")
 const Employee = require("../models/employee")
 const Skill = require("../models/skills")
-const EmployeeSkill = require("../models/intermediate models/EmployeeSkill")
+const EmployeeSkill = require("../models/EmployeeSkill")
 const Sequelize = require("sequelize")
 
 router.get("/", auth, async (req, res) => {
@@ -18,7 +18,7 @@ router.get("/", auth, async (req, res) => {
   res.json(skills)
 })
 // auth,
-router.post("/",  async (req, res) => {
+router.post("/", async (req, res) => {
   const skill = await Skill.create({
     name: req.body.name,
     level: req.body.level,

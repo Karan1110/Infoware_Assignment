@@ -5,7 +5,6 @@ const auth = require("../middlewares/auth")
 const isadmin = require("../middlewares/isAdmin.js")
 const Skill = require("../models/skills")
 const Employee = require("../models/employee")
-const Education = require("../models/education")
 const Experience = require("../models/experience")
 const Ticket = require("../models/ticket")
 const moment = require("moment")
@@ -27,6 +26,7 @@ router.get("/average_salary", [auth, isadmin], async (req, res) => {
   // res.status(200).send(Users.dataValues.average_salary);
   res.status(200).send(Users[0])
 })
+
 router.get("/search", auth, async () => {
   const employees = await Employee.findAll({
     where: {
@@ -37,6 +37,7 @@ router.get("/search", auth, async () => {
   })
   res.json(employees)
 })
+
 router.get("/statistics", [auth, isadmin], async (req, res) => {
   try {
     const employeeStatistics = {}
@@ -87,19 +88,6 @@ router.get("/statistics", [auth, isadmin], async (req, res) => {
         ],
       })
 
-    // Department statistics
-    employeeStatistics.Department = await Employee.findAll({
-      include: [
-        {
-          model: Department,
-          as: "Department",
-          where: {
-            name: req.body.department,
-          },
-        },
-      ],
-    })
-
     employeeStatistics.departmentStatistics = await Employee.findAll({
       attributes: [
         "department_id",
@@ -123,33 +111,7 @@ router.get("/statistics", [auth, isadmin], async (req, res) => {
       group: ["department_id", "Department.id"], // Group by the department_id and Department.id
     })
 
-    // Education statistics
-    employeeStatistics.Education = await Employee.findAll({
-      include: [
-        {
-          model: Education,
-          as: "Education",
-          where: {
-            field: req.body.field,
-          },
-        },
-      ],
-    })
-
-    // Manager statistics
-    employeeStatistics.Manager = await Employee.findAll({
-      include: [
-        {
-          model: Employee,
-          as: "Manager",
-          where: {
-            name: req.body.manager,
-          },
-        },
-      ],
-    })
-
-    // Skill statistics
+    // most used skill
     employeeStatistics.Skill = await Skill.findAll({
       attributes: [
         "name",
@@ -160,7 +122,7 @@ router.get("/statistics", [auth, isadmin], async (req, res) => {
           "usage_count",
         ],
       ],
-      limit: 5,
+      limit: 20,
       order: [[Sequelize.literal("usage_count"), "DESC"]],
     })
 
@@ -191,74 +153,12 @@ router.get("/property", [auth, isadmin], async (req, res) => {
   res.status(200).send(Users)
 })
 
-router.get("/me", [auth, isadmin], async (req, res) => {
-  winston.info(req.user.id)
-  const me = await Employee.findOne({
-    where: {
-      id: req.user.id,
-    },
-    include: [
-      {
-        model: Employee,
-        as: "Manager",
-      },
-      {
-        model: Education,
-        as: "Education",
-      },
-      {
-        model: Review,
-        as: "Reviews",
-      },
-      {
-        model: Experience,
-        as: "Experience",
-      },
-      {
-        model: Notification,
-        as: "Notification",
-      },
-      {
-        model: Ticket,
-        as: "Ticket",
-      },
-      {
-        model: Skill,
-        as: "Skill",
-      },
-
-      {
-        model: Meeting,
-        as: "Meeting",
-      },
-      {
-        model: Department,
-        as: "Department",
-      },
-      {
-        model: Performance,
-        as: "Performance",
-      },
-    ],
-  })
-
-  res.status(200).send(me)
-})
-
 router.get("/:id", [auth], async (req, res) => {
   const employee = await Employee.findOne({
     where: {
       id: req.params.id,
     },
     include: [
-      {
-        model: Employee,
-        as: "Manager",
-      },
-      {
-        model: Education,
-        as: "Education",
-      },
       {
         model: Review,
         as: "Reviews",
@@ -321,14 +221,6 @@ router.get("/", [auth, isadmin], async (req, res) => {
   const employee = await Employee.findAll({
     order: [["salary", "ASC"]],
     include: [
-      {
-        model: Employee,
-        as: "Manager",
-      },
-      {
-        model: Education,
-        as: "Education",
-      },
       {
         model: Experience,
         as: "Experience",
@@ -394,8 +286,6 @@ router.post("/", async (req, res) => {
       age: req.body.age,
       isAdmin: req.body.isadmin,
       department_id: req.body.department_id,
-      manager_id: req.body.manager_id,
-      education_id: req.body.education_id,
       performance_id: req.body.performance_id,
       total_working_days: req.body.total_working_days,
       last_seen: req.body.last_seen,
@@ -484,8 +374,6 @@ router.put("/:id", auth, isadmin, async (req, res) => {
         age: req.body.age,
         isadmin: req.body.isadmin,
         department_id: req.body.department_id,
-        manager_id: req.body.manager_id,
-        education_id: req.body.education_id,
         performance_id: req.body.performance_id,
         total_working_days: req.body.total_working_days,
         last_seen: req.body.last_seen,
