@@ -14,6 +14,7 @@ const Ticket = db.define(
     },
     body: Sequelize.TEXT,
     employee_id: Sequelize.INTEGER,
+    videoUrl: Sequelize.TEXT,
   },
   {
     timestamps: true,

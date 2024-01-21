@@ -10,6 +10,7 @@ const Meeting = db.define(
     name: Sequelize.STRING,
     duration: Sequelize.STRING,
     link: Sequelize.STRING,
+    description: Sequelize.TEXT,
     department_id: Sequelize.INTEGER,
   },
   {

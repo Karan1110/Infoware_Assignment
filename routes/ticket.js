@@ -7,6 +7,21 @@ const Performance = require("../models/performance.js")
 const Ticket = require("../models/ticket")
 const moment = require("moment")
 const { Op } = require("sequelize")
+const admin = require("firebase-admin")
+const path = require("path")
+const multer = require("multer")
+const serviceAccount = require(path.join(
+  __dirname,
+  "../karanstore-2c850-firebase-adminsdk-5ry9v-ff376d22e0.json"
+))
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  storageBucket: "karanstore-2c850.appspot.com",
+})
+
+const bucket = admin.storage().bucket()
+const storage = multer.memoryStorage()
+const upload = multer({ storage: storage })
 
 // count
 router.get("/", async (req, res) => {
@@ -134,7 +149,7 @@ router.get("/:id", async (req, res) => {
   }
 })
 
-router.post("/", [auth], async (req, res) => {
+router.post("/", [auth, upload.single("video")], async (req, res) => {
   console.log(req.user.id, req.body.employee_id)
   const employee = await Employee.findByPk(req.body.employee_id)
   console.log(employee)
@@ -150,23 +165,46 @@ router.post("/", [auth], async (req, res) => {
 
   const ticket = await Ticket.create({
     name: req.body.name,
-    steps: req.body.steps,
+    steps: JSON.parse(req.body.steps),
     employee_id: req.body.employee_id,
     deadline: start_date.toDate(),
     status: req.body.status,
     body: req.body.body,
   })
 
-  const time_out_ii = moment(req.body.deadline).subtract(1, "days")
+  const videoBuffer = req.file.buffer
+  const videoFileName = `video_${ticket.id}.mp4`
+  const videoFilePath = `temp/${videoFileName}` // Temporary local file path
 
-  const real_timeout = time_out_ii.diff(moment(), "milliseconds")
+  // Save the video to a temporary file
+  await bucket.file(videoFilePath).save(videoBuffer)
 
-  setTimeout(async () => {
-    await Notification.create({
-      message: `Ticket pending! Complete now! ${ticket.name}`,
-      employee_id: ticket.employee_id,
-    })
-  }, real_timeout)
+  // Transcode video to 720p
+  await new Promise((resolve, reject) => {
+    ffmpeg()
+      .input(bucket.file(videoFilePath).createReadStream())
+      .outputFormat("mp4")
+      .size("1280x720")
+      .on("end", () => resolve())
+      .on("error", (err) => reject(err))
+      .saveToFile(videoFilePath)
+  })
+
+  // Upload transcoded video to Firebase Storage
+  const transcodedVideoPath = `trace/${videoFileName}`
+  await bucket.upload(videoFilePath, {
+    destination: transcodedVideoPath,
+  })
+
+  // Update ticket with signed URL
+  const signedUrl = await bucket.file(transcodedVideoPath).getSignedUrl({
+    action: "read",
+    expires: "03-09-2491", // Replace with a far future date
+  })
+
+  await ticket.update({
+    videoUrl: signedUrl[0],
+  })
 
   res.status(200).send(ticket)
 })

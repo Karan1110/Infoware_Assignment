@@ -21,14 +21,14 @@ router.get("/", auth, async (req, res) => {
   res.json(meetings)
 })
 
-router.post("/", [auth, isadmin], async (req, res) => {
+router.post("/", [auth], async (req, res) => {
   let meeting
   try {
-    const { meeting_id, employee_id } = req.body
+    const { meeting_id } = req.body
 
-    const employee = await Employee.findByPk(employee_id)
+    const employee = await Employee.findByPk(req.user.id)
     if (!employee) {
-      return res.status(400).send("User not found")
+      return res.status(400).send("user not found")
     }
 
     if (!meeting_id) {
@@ -41,6 +41,7 @@ router.post("/", [auth, isadmin], async (req, res) => {
       meeting = await Meeting.create({
         name: req.body.name,
         link: req.body.link,
+        description: req.body.description,
         duration: `${durationInHours} hours`,
         department_id: req.body.department_id,
       })
@@ -52,7 +53,7 @@ router.post("/", [auth, isadmin], async (req, res) => {
 
     const m_m = await MeetingMember.findOne({
       where: {
-        employee_id: employee_id || req.user.id,
+        employee_id: req.user.id,
         meeting_id: meeting.dataValues.id || meeting.id,
       },
     })
@@ -61,7 +62,7 @@ router.post("/", [auth, isadmin], async (req, res) => {
       return res.status(400).json({ message: "already joined the meeting..." })
 
     await MeetingMember.create({
-      employee_id: employee_id || req.user.id,
+      employee_id: req.user.id,
       meeting_id: meeting.dataValues.id || meeting.id,
     })
 
@@ -71,7 +72,7 @@ router.post("/", [auth, isadmin], async (req, res) => {
       },
       {
         where: {
-          id: employee_id,
+          id: req.user.id,
         },
       }
     )
@@ -84,7 +85,7 @@ router.post("/", [auth, isadmin], async (req, res) => {
 })
 
 router.put("/", auth, async (req, res) => {
-  const employee = await Employee.findByPk(req.body.employee_id)
+  const employee = await Employee.findByPk(req.user.id)
   if (!employee) {
     return res.status(404).json({ message: "Employee not found..." })
   }
@@ -97,23 +98,10 @@ router.put("/", auth, async (req, res) => {
         message: "Attended meetings can't be more than total meetings",
       })
     }
-  } else {
-    if (
-      employee.dataValues.attended_meetings ===
-      employee.dataValues.total_meetings
-    ) {
-      return res.status(400).json({
-        message: "Attended meetings can't be more than total meetings",
-      })
-    }
   }
 
   const currentTime = moment()
-
-  // Define the target time (replace with your specific time)
-  const targetTime = moment(meeting.to || meeting.dataValues.to)
-
-  // Check if the current time is past the target time
+  const targetTime = moment(meeting.from)
   const isPast = currentTime.isAfter(targetTime)
 
   if (!isPast) {
@@ -125,11 +113,11 @@ router.put("/", auth, async (req, res) => {
 
   await Employee.update(
     {
-      total_meetings: Sequelize.literal(`attended_meetings + 1`),
+      attended_meetings: Sequelize.literal(`attended_meetings + 1`),
     },
     {
       where: {
-        id: req.body.employee_id,
+        id: req.user.id,
       },
     }
   )
@@ -138,15 +126,16 @@ router.put("/", auth, async (req, res) => {
 
 router.put("/:id", [auth, isadmin], async (req, res) => {
   try {
-    const employee = await Employee.findByPk(req.body.employee_id)
-    if (!employee) {
-      return res.status(400).send("User not found")
-    }
+    const startDate = moment(req.body.from)
+    const endDate = moment(req.body.to)
+    const durationInHours = endDate.diff(startDate, "hours")
 
     const meeting = await Meeting.update(
       {
         name: req.body.name,
         link: req.body.link,
+        description: req.body.description,
+        duration: durationInHours,
       },
       {
         where: {
