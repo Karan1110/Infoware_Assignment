@@ -8,10 +8,15 @@ const MeetingMember = require("../models/MeetingMember")
 const Meeting = require("../models/meeting")
 const winston = require("winston")
 const moment = require("moment")
+const Department = require("../models/department.js")
 
 router.get("/", auth, async (req, res) => {
   const meetings = await Meeting.findAll({
     order: [["createdAt", "DESC"]],
+    include: {
+      model: Department,
+      as: "MeetingDepartment",
+    },
   })
   res.json(meetings)
 })

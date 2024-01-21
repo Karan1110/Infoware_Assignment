@@ -49,4 +49,4 @@ router.post("/leaves/:id", [auth, isadmin], async (req, res) => {
   }
 })
 
-module.exports = route
+module.exports = router
