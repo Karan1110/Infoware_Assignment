@@ -15,17 +15,7 @@ const Performance = require("../models/performance.js")
 const Department = require("../models/department")
 const winston = require("winston")
 const { Sequelize, Op } = require("sequelize")
-const { ToadScheduler, LongIntervalJob, AsyncTask } = require("toad-scheduler")
 const Review = require("../models/review.js")
-const path = require("path")
-
-// optional
-const ms = require("ms")
-const Graceful = require("@ladjs/graceful")
-const Cabin = require("cabin")
-
-// required
-const Bree = require("bree")
 
 router.get("/average_salary", [auth, isadmin], async (req, res) => {
   const Users = await Employee.findAll({
@@ -390,15 +380,9 @@ router.post("/", async (req, res) => {
       return res.status(400).send("User already exists...")
     }
 
-    // const performance = await Performance.findByPk(req.body.performance_id)
-    // const department = await Department.findByPk(req.body.department_id)
-    // const education = await Education.findByPk(req.body.education_id)
-    // const manager = await Employee.findByPk(req.body.manager_id)
+    const department = await Department.findByPk(req.body.department_id)
 
-    // if (!performance) return res.status(400).send("performance not found...")
-    // if (!department) return res.status(400).send("department not found...")
-    // if (!education) return res.status(400).send("education not found...")
-    // if (!manager) return res.status(400).send("manager not found...")
+    if (!department) return res.status(400).send("department not found...")
 
     const salt = await bcrypt.genSalt(10)
     const p = await bcrypt.hash(req.body.password, salt)
@@ -414,65 +398,12 @@ router.post("/", async (req, res) => {
       education_id: req.body.education_id,
       performance_id: req.body.performance_id,
       total_working_days: req.body.total_working_days,
-      total_working_hours: req.body.total_working_hours,
-      salary_per_hour: req.body.salary_per_hour,
       last_seen: req.body.last_seen,
       attended_meetings: req.body.attended_meetings,
       total_meetings: req.body.total_meetings,
     })
 
     const token = employee.generateAuthToken()
-    const scheduler = new ToadScheduler()
-
-    const task = new AsyncTask(
-      "salary credit",
-      () => {
-        // Create Notification
-        Notification.create({
-          message: "Salary has been credited!",
-          employee_id: employee.dataValues.id || employee.id,
-        })
-          .then(() => {
-            console.log("Notification created successfully")
-
-            // Update Employee's values to default
-            return Employee.update(
-              {
-                total_working_hours: 8,
-                total_working_days: 25,
-                salary_per_hour: 99,
-              },
-              {
-                where: {
-                  id: employee.dataValues.id || employee.id,
-                },
-              }
-            )
-          })
-          .then((updatedEmployee) => {
-            if (updatedEmployee[0]) {
-              console.log("Employee values updated successfully")
-            } else {
-              console.error("Employee not found or not updated")
-            }
-          })
-          .catch((error) => {
-            console.error(
-              "Error creating notification or updating employee values:",
-              error.message
-            )
-          })
-      },
-      (error) => {
-        console.error(error.message, error)
-      }
-    )
-
-    const job = new LongIntervalJob({ days: 30 }, task, {
-      id: employee.dataValues.id,
-    })
-
-    scheduler.addLongIntervalJob(job)
 
     res.status(201).send({ token: token, Employee: employee })
   } catch (ex) {
@@ -557,8 +488,6 @@ router.put("/:id", auth, isadmin, async (req, res) => {
         education_id: req.body.education_id,
         performance_id: req.body.performance_id,
         total_working_days: req.body.total_working_days,
-        total_working_hours: req.body.total_working_hours,
-        salary_per_hour: req.body.salary_per_hour,
         last_seen: req.body.last_seen,
         attended_meetings: req.body.attended_meetings,
         total_meetings: req.body.total_meetings,
@@ -586,7 +515,7 @@ router.delete("/:id", auth, async (req, res) => {
       id: req.params.id,
     },
   })
-  scheduler.removeById(req.params.id)
+
   res.status(200).send({ Deleted: employee })
 })
 

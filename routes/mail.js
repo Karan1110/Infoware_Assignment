@@ -1,3 +1,5 @@
+"use strict"
+
 const LimMailer = require("lim-mailer")
 const randomNumberRange = require("random-number-range")
 

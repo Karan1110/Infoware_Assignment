@@ -5,14 +5,14 @@ const Employee = require("./employee")
 const Ticket = db.define(
   "Ticket",
   {
-    name: Sequelize.TEXT,
+    name: Sequelize.STRING,
     steps: Sequelize.ARRAY(Sequelize.STRING),
     deadline: Sequelize.DATE,
     status: {
       type: Sequelize.ENUM("in-progress", "closed", "open"),
       defaultValue: "open",
     },
-    body: Sequelize.STRING,
+    body: Sequelize.TEXT,
     employee_id: Sequelize.INTEGER,
   },
   {

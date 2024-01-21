@@ -23,19 +23,9 @@ const Employee = db.define(
     performance_id: {
       type: Sequelize.INTEGER,
     },
-    total_working_hours: {
-      type: Sequelize.INTEGER,
-      defaultValue: 8,
-      // allowNull : false
-    },
     total_working_days: {
       type: Sequelize.INTEGER,
       defaultValue: 25,
-      // allowNull : false
-    },
-    salary_per_hour: {
-      type: Sequelize.INTEGER,
-      defaultValue: 99,
       // allowNull : false
     },
     total_meetings: {

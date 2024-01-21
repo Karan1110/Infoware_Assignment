@@ -3,6 +3,7 @@ const router = express.Router()
 const auth = require("../middlewares/auth")
 const isadmin = require("../middlewares/isAdmin.js")
 const Employee = require("../models/employee")
+const Performance = require("../models/performance.js")
 const Ticket = require("../models/ticket")
 const moment = require("moment")
 const { Op } = require("sequelize")
@@ -196,11 +197,13 @@ router.put("/:id", [auth, isadmin], async (req, res) => {
   const ticket = await Ticket.findByPk(req.params.id)
   if (!ticket) return res.status(404).json({ message: "ticket not found..." })
 
+  const deadline = moment(req.body.deadline)
+
   await Ticket.update(
     {
       name: req.body.name,
       steps: req.body.steps,
-      deadline: s,
+      deadline: deadline.toDate(),
       status: req.body.status,
       body: req.body.body,
     },
