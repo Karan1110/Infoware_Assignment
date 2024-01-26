@@ -1,64 +1,71 @@
 const express = require("express")
 const router = express.Router()
 const bcrypt = require("bcrypt")
-const auth = require("../middlewares/auth")
+const auth = require("../middlewares/auth.js")
 const isadmin = require("../middlewares/isAdmin.js")
-const Skill = require("../models/skills")
-const Employee = require("../models/employee")
-const Experience = require("../models/experience")
-const Ticket = require("../models/ticket")
+const Skill = require("../models/skills.js")
+const User = require("../models/user.js")
+const Experience = require("../models/experience.js")
+const Ticket = require("../models/ticket.js")
 const moment = require("moment")
-const Meeting = require("../models/meeting")
-const Notification = require("../models/notifications")
+const Meeting = require("../models/meeting.js")
+const Notification = require("../models/notification.js")
 const Performance = require("../models/performance.js")
-const Department = require("../models/department")
-const winston = require("winston")
+const Department = require("../models/department.js")
 const { Sequelize, Op } = require("sequelize")
 const Review = require("../models/review.js")
 
+router.get("/", auth, async (req, res) => {
+  try {
+    const users = await User.findAll()
+    res.json(users)
+  } catch (ex) {
+    console.log("ERROR : ")
+    console.log(ex)
+    res.send("Someting failed.")
+  }
+})
 router.get("/average_salary", [auth, isadmin], async (req, res) => {
-  const Users = await Employee.findAll({
+  const Users = await User.findAll({
     attributes: [
       [Sequelize.fn("AVG", Sequelize.col("salary")), "average_salary"],
     ],
   })
 
-  // res.status(200).send(Users.dataValues.average_salary);
   res.status(200).send(Users[0])
 })
 
 router.get("/search", auth, async () => {
-  const employees = await Employee.findAll({
+  const users = await User.findAll({
     where: {
       name: {
-        [Sequelize.Op.like]: `%${req.query.employee}%`, // Using Sequelize's Op.like for a partial match
+        [Sequelize.Op.iLike]: `%${req.query.user}%`, // Using Sequelize's Op.like for a partial match
       },
     },
   })
-  res.json(employees)
+  res.json(users)
 })
 
 router.get("/statistics", [auth, isadmin], async (req, res) => {
   try {
-    const employeeStatistics = {}
+    const statistics = {}
 
     // Performance statistics
-    employeeStatistics.Employee_Performance_Below_Average =
-      await Employee.findAll({
-        include: [
-          {
-            model: Performance,
-            as: "Performance",
-            where: {
-              points: {
-                [Op.lte]: 25,
-              },
+    statistics.below_average_performances = await User.findAll({
+      include: [
+        {
+          model: Performance,
+          as: "Performance",
+          where: {
+            points: {
+              [Op.lte]: 25,
             },
           },
-        ],
-      })
+        },
+      ],
+    })
 
-    employeeStatistics.Employee_Performance_Average = await Employee.findAll({
+    statistics.average_performances = await User.findAll({
       include: [
         {
           model: Performance,
@@ -66,29 +73,28 @@ router.get("/statistics", [auth, isadmin], async (req, res) => {
           where: {
             points: {
               [Op.gt]: 25,
-              [Op.lte]: 50,
+              [Op.lte]: 75,
             },
           },
         },
       ],
     })
 
-    employeeStatistics.Employee_Performance_Above_Average =
-      await Employee.findAll({
-        include: [
-          {
-            model: Performance,
-            as: "Performance",
-            where: {
-              points: {
-                [Op.gt]: 75,
-              },
+    statistics.above_average_performances = await User.findAll({
+      include: [
+        {
+          model: Performance,
+          as: "Performance",
+          where: {
+            points: {
+              [Op.gt]: 75,
             },
           },
-        ],
-      })
+        },
+      ],
+    })
 
-    employeeStatistics.departmentStatistics = await Employee.findAll({
+    statistics.average_department_rating = await User.findAll({
       attributes: [
         "department_id",
         [
@@ -112,12 +118,12 @@ router.get("/statistics", [auth, isadmin], async (req, res) => {
     })
 
     // most used skill
-    employeeStatistics.Skill = await Skill.findAll({
+    statistics.most_used_skills = await Skill.findAll({
       attributes: [
         "name",
         [
           Sequelize.literal(
-            '(SELECT COUNT("EmployeeSkill"."employee_id") FROM "EmployeeSkill" WHERE "EmployeeSkill"."skill_id" = "Skill"."id")'
+            '(SELECT COUNT("UserSkill"."user_id") FROM "UserSkill" WHERE "UserSkill"."skill_id" = "Skill"."id")'
           ),
           "usage_count",
         ],
@@ -126,22 +132,28 @@ router.get("/statistics", [auth, isadmin], async (req, res) => {
       order: [[Sequelize.literal("usage_count"), "DESC"]],
     })
 
-    console.log(employeeStatistics)
+    //Average time taken to complete a ticket
+    statistics.average_time_taken_to_complete_a_ticket = await Ticket.findAll({
+      attributes: [
+        [Sequelize.fn("AVG", Sequelize.literal("createdAt - updatedAt"))],
+        "avg_time_taken_to_complete",
+      ],
+    })
 
-    res.status(200).send(employeeStatistics)
+    res.status(200).send(statistics)
   } catch (error) {
     console.error("Error in statistics endpoint:", error.message, error)
     res.status(500).send("Internal Server Error")
   }
 })
 
-router.get("/property", [auth, isadmin], async (req, res) => {
+router.get("/property", [auth], async (req, res) => {
   const pn = req.query.propertyName
   const pv = req.query.propertyValue
   console.log(typeof pv)
   if (!isNaN(Number(pv)))
     return res.status(400).send("property value cannot be an integer")
-  const Users = await Employee.findAll({
+  const Users = await User.findAll({
     attributes: { exclude: ["password"] },
     where: {
       [pn]: {
@@ -154,7 +166,7 @@ router.get("/property", [auth, isadmin], async (req, res) => {
 })
 
 router.get("/:id", [auth], async (req, res) => {
-  const employee = await Employee.findOne({
+  const user = await User.findOne({
     where: {
       id: req.params.id,
     },
@@ -194,75 +206,29 @@ router.get("/:id", [auth], async (req, res) => {
       },
     ],
   })
-  if (!employee) return res.status(404).send("employyee not found")
+  if (!user) return res.status(404).send("employyee not found")
   // Calculate total experience using Moment.js
-  if (employee.Experience && employee.Experience.length !== 0) {
-    const totalExperienceInSeconds = employee.Experience.reduce(
-      (total, exp) => {
-        const from = moment(exp.from)
-        const to = moment(exp.to)
-        return total + to.diff(from, "seconds")
-      },
-      0
-    )
+  if (user.Experience && user.Experience.length !== 0) {
+    const totalExperienceInSeconds = user.Experience.reduce((total, exp) => {
+      const from = moment(exp.from)
+      const to = moment(exp.to)
+      return total + to.diff(from, "seconds")
+    }, 0)
 
     // Convert total experience to a human-readable format
     const formattedTotalExperience = moment
       .duration(totalExperienceInSeconds, "seconds")
       .humanize()
 
-    // Add totalExperience property to the employee object
-    employee.totalExperience = formattedTotalExperience
+    // Add totalExperience property to the user object
+    user.totalExperience = formattedTotalExperience
   }
-  res.status(200).send(employee)
-})
-// performance department employee_id
-router.get("/", [auth, isadmin], async (req, res) => {
-  const employee = await Employee.findAll({
-    order: [["salary", "ASC"]],
-    include: [
-      {
-        model: Experience,
-        as: "Experience",
-      },
-      {
-        model: Review,
-        as: "Reviews",
-      },
-      {
-        model: Notification,
-        as: "Notification",
-      },
-      {
-        model: Ticket,
-        as: "Ticket",
-      },
-      {
-        model: Skill,
-        as: "Skill",
-      },
-
-      {
-        model: Meeting,
-        as: "Meeting",
-      },
-      {
-        model: Department,
-        as: "Department",
-      },
-      {
-        model: Performance,
-        as: "Performance",
-      },
-    ],
-  })
-
-  res.status(200).send(employee)
+  res.status(200).send(user)
 })
 
 router.post("/", async (req, res) => {
   try {
-    const userExists = await Employee.findAll({
+    const userExists = await User.findAll({
       where: {
         email: req.body.email,
       },
@@ -278,7 +244,7 @@ router.post("/", async (req, res) => {
 
     const salt = await bcrypt.genSalt(10)
     const p = await bcrypt.hash(req.body.password, salt)
-    const employee = await Employee.create({
+    const user = await User.create({
       name: req.body.name,
       email: req.body.email,
       password: p,
@@ -293,61 +259,23 @@ router.post("/", async (req, res) => {
       total_meetings: req.body.total_meetings,
     })
 
-    const token = employee.generateAuthToken()
+    const token = user.generateAuthToken()
 
-    res.status(201).send({ token: token, Employee: employee })
+    res.status(201).send({ token: token, User: user })
   } catch (ex) {
     console.log(ex, ex.message)
   }
 })
 
-router.put("/property/:id", auth, isadmin, async (req, res) => {
+router.put("/:id", auth, async (req, res) => {
   try {
-    const user = await Employee.findByPk(req.user.id)
-
-    if (!user) {
-      return res.status(404).send("User Not Found.")
-    }
-
-    // const isPasswordValid = await bcrypt.compare(
-    //   req.body.password,
-    //   user.password
-    // )
-
-    // if (!isPasswordValid) {
-    //   return res.status(400).send("Invalid credentials.")
-    // }
-
-    const { propertyName } = req.query
-    const propertyValue = req.body.propertyValue
-
-    const updatedUser = await Employee.update(
-      { [propertyName]: propertyValue }, // Use square brackets for dynamic property name
-      {
-        where: {
-          id: req.params.id,
-        },
-      }
-    )
-    // Generate an authentication token if needed
-    const token = user.generateAuthToken()
-
-    res.status(200).set("token", token).send(updatedUser)
-  } catch (ex) {
-    console.log(ex)
-    res.status(500).send("Internal Server Error")
-  }
-})
-
-router.put("/:id", auth, isadmin, async (req, res) => {
-  try {
-    const userExists = await Employee.findOne({
+    const userExists = await User.findOne({
       where: {
         email: req.body.email,
       },
     })
 
-    const authenticatedUser = await Employee.findByPk(req.user.id)
+    const authenticatedUser = await User.findByPk(req.user.id)
 
     if (!authenticatedUser) {
       return res.status(404).send("User Not Found.")
@@ -366,7 +294,7 @@ router.put("/:id", auth, isadmin, async (req, res) => {
       return res.status(400).send("Invalid credentials.")
     }
 
-    const updatedUser = await Employee.update(
+    const updatedUser = await User.update(
       {
         name: req.body.name,
         email: req.body.email,
@@ -390,7 +318,7 @@ router.put("/:id", auth, isadmin, async (req, res) => {
     // Consider generating a new authentication token if needed
     const token = authenticatedUser.generateAuthToken()
     console.log(updatedUser, authenticatedUser)
-    res.status(200).send({ Employee: updatedUser, token: token })
+    res.status(200).send({ User: updatedUser, token: token })
   } catch (ex) {
     console.log(ex)
     res.status(500).send("Internal Server Error")
@@ -398,13 +326,13 @@ router.put("/:id", auth, isadmin, async (req, res) => {
 })
 
 router.delete("/:id", auth, async (req, res) => {
-  const employee = await Employee.destroy({
+  const user = await User.destroy({
     where: {
       id: req.params.id,
     },
   })
 
-  res.status(200).send({ Deleted: employee })
+  res.status(200).send({ Deleted: user })
 })
 
 module.exports = router

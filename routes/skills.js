@@ -2,9 +2,9 @@ const express = require("express")
 const router = express.Router()
 const auth = require("../middlewares/auth")
 const isadmin = require("../middlewares/isAdmin.js")
-const Employee = require("../models/employee")
+const User = require("../models/user")
 const Skill = require("../models/skills")
-const EmployeeSkill = require("../models/EmployeeSkill")
+const UserSkill = require("../models/UserSkill")
 const Sequelize = require("sequelize")
 
 router.get("/", auth, async (req, res) => {
@@ -27,15 +27,15 @@ router.post("/", async (req, res) => {
 })
 
 router.post("/add", [auth, isadmin], async (req, res) => {
-  const { skill_id, employee_id } = req.body
+  const { skill_id, user_id } = req.body
 
-  const employee = await Employee.findByPk(employee_id)
-  if (!employee) return res.status(400).send("User not found")
+  const user = await User.findByPk(user_id)
+  if (!user) return res.status(400).send("User not found")
 
   const skill = await Skill.findByPk(skill_id)
 
-  await EmployeeSkill.create({
-    employee_id: employee.dataValues.id || employee.id,
+  await UserSkill.create({
+    user_id: user.dataValues.id || user.id,
     skill_id: skill.dataValues.id || skill.id,
   })
 

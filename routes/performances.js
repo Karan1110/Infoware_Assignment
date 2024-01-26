@@ -1,26 +1,8 @@
 const express = require("express")
 const router = express.Router()
 const auth = require("../middlewares/auth")
-const isadmin = require("../middlewares/isAdmin.js")
-// [auth,isadmin]
 const Performance = require("../models/performance.js")
-const Employee = require("../models/employee.js")
-
-// function generateRandomNumericId(length) {
-//   const numbers = "0123456789"
-//   let randomId = ""
-
-//   for (let i = 0; i < length; i++) {
-//     const randomIndex = Math.floor(Math.random() * numbers.length)
-//     randomId += numbers.charAt(randomIndex)
-//   }
-
-//   return randomId
-// }
-
-// // Example: Generate a random numeric ID with a length of 8 digits
-// const randomNumericId = generateRandomNumericId(8)
-// console.log(randomNumericId)
+const User = require("../models/user.js")
 
 router.get("/:id", async (req, res) => {
   const performance = await Performance.findByPk(req.params.id)
@@ -28,26 +10,44 @@ router.get("/:id", async (req, res) => {
   res.send(performance)
 })
 
+router.get("/leaderboard", async (req, res) => {
+  try {
+    const performances = await Performance.find({
+      sort: [["points", "DESC"]],
+      include: [
+        {
+          model: User,
+          as: "User",
+        },
+      ],
+    })
+    res.json(performances)
+  } catch (ex) {
+    res.send(ex.message)
+    console.log("ERROR : ")
+    console.log(ex)
+  }
+})
+
 router.post("/", async (req, res) => {
   if (req.body.points > 5) {
     return res.status(400).send("points cant be more than 5 when starting")
   }
-  const employee = await Employee.findByPk(req.body.employee_id)
-  if (!employee || employee?.performance_id != null) {
-    return res
-      .status(400)
-      .send("Employee's performance record already exists...")
+  const user = await User.findByPk(req.body.user_id)
+  if (!user || user?.performance_id != null) {
+    return res.status(400).send("User's performance record already exists...")
   }
 
   const performance = await Performance.create({
     status: req.body.status,
     points: req.body.points,
+    user_id: req.body.user_id,
   })
 
   res.status(200).send(performance)
 })
 
-router.put("/:id", [auth, isadmin], async (req, res) => {
+router.put("/:id", auth, async (req, res) => {
   const performance = await Performance.update(
     {
       status: req.body.status,
@@ -55,7 +55,7 @@ router.put("/:id", [auth, isadmin], async (req, res) => {
     },
     {
       where: {
-        id: req.body.employee_id,
+        id: req.body.user_id,
       },
     }
   )

@@ -8,7 +8,7 @@ const isadmin = require("../middlewares/isAdmin.js")
 router.post("/", [auth, isadmin], async (req, res) => {
   const message = await Message.create({
     message: req.body.message,
-    employee_id: req.body.employee_id,
+    user_id: req.body.user_id,
   })
 
   // Broadcast the new message to all connected WebSocket clients
@@ -27,7 +27,7 @@ router.put("/:id", [auth], async (req, res) => {
     },
   })
 
-  if (message.employee_id == req.user.id || req.user.isadmin == true) {
+  if (message.user_id == req.user.id || req.user.isadmin == true) {
     await Message.update(
       {
         message: req.body.message,

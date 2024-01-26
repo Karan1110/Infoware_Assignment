@@ -1,17 +1,16 @@
 const express = require("express")
 const router = express.Router()
-const auth = require("../middlewares/auth")
+const auth = require("../middlewares/auth.js")
 const isadmin = require("../middlewares/isAdmin.js")
-const User = require("../models/user")
+const User = require("../models/user.js")
 const Performance = require("../models/performance.js")
 const Notification = require("../models/notification.js")
-const Ticket = require("../models/ticket")
+const Ticket = require("../models/ticket.js")
 const moment = require("moment")
 const { Op } = require("sequelize")
 const admin = require("firebase-admin")
 const path = require("path")
 const multer = require("multer")
-
 const serviceAccount = require(path.join(
   __dirname,
   "../karanstore-2c850-firebase-adminsdk-5ry9v-ff376d22e0.json"
@@ -53,6 +52,16 @@ router.get("/", async (req, res) => {
   } catch (error) {
     console.error(error)
     res.status(500).json({ error: "Internal Server Error" })
+  }
+})
+
+router.get("/latest", async (req, res) => {
+  try {
+    const tickets = await Ticket.find({ sort: [["createdAt", "DESC"]] })
+    res.json(tickets)
+  } catch (ex) {
+    console.error(ex.message, ex)
+    res.send("Something failed.")
   }
 })
 

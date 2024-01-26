@@ -1,14 +1,10 @@
 const db = require("../startup/db")
 const Sequelize = require("sequelize")
-const Employee = require("./employee")
-const Meeting = require("./meeting")
-const moment = require("moment")
-const winston = require("winston")
 
 const MeetingMember = db.define(
   " MeetingMember",
   {
-    employee_id: {
+    user_id: {
       type: Sequelize.INTEGER,
       allowNull: false,
     },
@@ -19,8 +15,6 @@ const MeetingMember = db.define(
   },
   {
     tableName: "MeetingMember",
-
-    timestamps: false,
   }
 )
 

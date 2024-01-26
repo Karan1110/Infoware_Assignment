@@ -1,4 +1,4 @@
-const Chat = require("../models/chatRoom")
+const Chat = require("../models/chat")
 const Message = require("../models/message")
 const router = require("express").Router()
 

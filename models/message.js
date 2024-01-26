@@ -1,6 +1,6 @@
 const Sequelize = require("sequelize")
 const db = require("../startup/db")
-const Employee = require("./employee")
+const User = require("./user")
 
 const Message = db.define(
   "Message",
@@ -32,16 +32,16 @@ const Message = db.define(
   }
 )
 
-Employee.hasMany(Message, {
+User.hasMany(Message, {
   as: "SentMessages", // Change the alias to "SentMessages"
-  foreignKey: "employee_id",
+  foreignKey: "user_id",
   onDelete: "CASCADE",
   onUpdate: "CASCADE",
 })
 
-Message.belongsTo(Employee, {
+Message.belongsTo(User, {
   as: "Sender", // Change the alias to "Sender"
-  foreignKey: "employee_id",
+  foreignKey: "user_id",
   onDelete: "CASCADE",
   onUpdate: "CASCADE",
 })

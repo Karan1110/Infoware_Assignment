@@ -2,7 +2,7 @@
 
 const Sequelize = require("sequelize")
 const db = require("../startup/db")
-const Employee = require("./employee") // Import the Employee model
+const User = require("./user") // Import the User model
 
 const Review = db.define(
   "Review",
@@ -17,16 +17,16 @@ const Review = db.define(
 )
 
 // Establishing the association
-Review.belongsTo(Employee, {
-  as: "Employee", // Alias for the association
-  foreignKey: "employee_id",
+Review.belongsTo(User, {
+  as: "User", // Alias for the association
+  foreignKey: "user_id",
   onDelete: "CASCADE",
   onUpdate: "CASCADE",
 })
 
-Employee.hasMany(Review, {
+User.hasMany(Review, {
   as: "Reviews",
-  foreignKey: "employee_id",
+  foreignKey: "user_id",
   onDelete: "CASCADE",
   onUpdate: "CASCADE",
 })

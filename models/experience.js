@@ -1,14 +1,14 @@
-const Sequelize = require("sequelize");
-const db = require("../startup/db");
+const Sequelize = require("sequelize")
+const db = require("../startup/db")
 
 const Experience = db.define("Experience", {
-  employee_id: {
+  user_id: {
     type: Sequelize.INTEGER,
     foreignKey: true,
   },
   company: Sequelize.STRING,
   from: Sequelize.DATE,
   to: Sequelize.DATE,
-});
+})
 
-module.exports = Experience;
+module.exports = Experience

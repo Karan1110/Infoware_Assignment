@@ -6,13 +6,7 @@ const Department = require("../models/department")
 const Sequelize = require("sequelize")
 // auth,
 router.get("/", async (req, res) => {
-  const departments = await Department.findAll({
-    where: {
-      name: {
-        [Sequelize.Op.like]: `%${req.query.department}%`, // Using Sequelize's Op.like for a partial match
-      },
-    },
-  })
+  const departments = await Department.findAll()
   res.json(departments)
 })
 

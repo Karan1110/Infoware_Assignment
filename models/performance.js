@@ -19,6 +19,7 @@ const Performance = db.define("Performance", {
       }
     },
   },
+  user_id: Sequelize.INTEGER,
 })
 
 module.exports = Performance

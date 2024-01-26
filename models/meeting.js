@@ -1,6 +1,6 @@
 const Sequelize = require("sequelize")
 const db = require("../startup/db")
-const Employee = require("./employee")
+const User = require("./user")
 const Department = require("./department")
 const MeetingMember = require("./MeetingMember")
 
@@ -25,27 +25,27 @@ Meeting.belongsTo(Department, {
   onUpdate: "CASCADE",
 })
 
-Meeting.belongsToMany(Employee, {
+Meeting.belongsToMany(User, {
   as: "Participants",
   through: MeetingMember,
   foreignKey: "meeting_id",
-  otherKey: "employee_id",
+  otherKey: "user_id",
   onDelete: "CASCADE",
   onUpdate: "CASCADE",
 })
 
-Employee.belongsToMany(Meeting, {
+User.belongsToMany(Meeting, {
   as: "Meeting",
   through: MeetingMember,
-  foreignKey: "employee_id",
+  foreignKey: "user_id",
   otherKey: "meeting_id",
   onDelete: "CASCADE",
   onUpdate: "CASCADE",
 })
 
-MeetingMember.belongsTo(Employee, {
-  foreignKey: "employee_id",
-  as: "MeetingMemberEmployee",
+MeetingMember.belongsTo(User, {
+  foreignKey: "user_id",
+  as: "MeetingMemberUser",
 })
 
 MeetingMember.belongsTo(Meeting, {

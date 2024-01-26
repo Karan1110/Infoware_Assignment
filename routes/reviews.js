@@ -1,21 +1,21 @@
 const express = require("express")
 const router = express.Router()
 const Review = require("../models/review")
-const Employee = require("../models/employee")
+const User = require("../models/user")
 
-router.get("/employee/:id", async (req, res) => {
+router.get("/user/:id", async (req, res) => {
   try {
     const id = req.params.id
 
-    // Check if the employee with the given ID exists
-    const employee = await Employee.findByPk(id)
-    if (!employee) {
-      return res.status(404).json({ error: "Employee not found" })
+    // Check if the user with the given ID exists
+    const user = await User.findByPk(id)
+    if (!user) {
+      return res.status(404).json({ error: "User not found" })
     }
 
-    // Find all reviews for the employee
+    // Find all reviews for the user
     const reviews = await Review.findAll({
-      where: { employee_id: id },
+      where: { user_id: id },
       attributes: ["rating"],
     })
 
@@ -39,12 +39,12 @@ router.get("/employee/:id", async (req, res) => {
 // Add a new review
 router.post("/add", async (req, res) => {
   try {
-    const { employeeId, title, content, rating } = req.body
+    const { userId, title, content, rating } = req.body
 
-    // Check if the employee with the given ID exists
-    const employee = await Employee.findByPk(employeeId)
-    if (!employee) {
-      return res.status(404).json({ error: "Employee not found" })
+    // Check if the user with the given ID exists
+    const user = await User.findByPk(userId)
+    if (!user) {
+      return res.status(404).json({ error: "User not found" })
     }
 
     // Additional validation for rating
@@ -57,7 +57,7 @@ router.post("/add", async (req, res) => {
     }
     // Create a new review
     const newReview = await Review.create({
-      employee_id: employeeId,
+      user_id: userId,
       title,
       content,
       rating,

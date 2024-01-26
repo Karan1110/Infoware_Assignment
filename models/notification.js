@@ -1,6 +1,6 @@
-const Sequelize = require("sequelize");
-const db = require("../startup/db");
-// const Employee = require("./employee");
+const Sequelize = require("sequelize")
+const db = require("../startup/db")
+// const User = require("./user");
 
 const Notification = db.define(
   "Notification",
@@ -14,6 +14,6 @@ const Notification = db.define(
       },
     ],
   }
-);
+)
 
-module.exports = Notification;
+module.exports = Notification

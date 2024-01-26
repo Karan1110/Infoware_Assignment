@@ -1,7 +1,7 @@
 const Sequelize = require("sequelize")
 const db = require("../startup/db")
-const EmployeeSkill = require("./EmployeeSkill")
-const Employee = require("./employee")
+const UserSkill = require("./UserSkill")
+const User = require("./user")
 
 const Skill = db.define(
   "Skill",
@@ -22,19 +22,19 @@ const Skill = db.define(
   }
 )
 
-Skill.hasMany(EmployeeSkill, { foreignKey: "skill_id" })
-Employee.hasMany(EmployeeSkill, { foreignKey: "employee_id" })
+Skill.hasMany(UserSkill, { foreignKey: "skill_id" })
+User.hasMany(UserSkill, { foreignKey: "user_id" })
 
-Employee.belongsToMany(Skill, {
-  through: EmployeeSkill,
-  foreignKey: "employee_id",
+User.belongsToMany(Skill, {
+  through: UserSkill,
+  foreignKey: "user_id",
   as: "Skill",
 })
 
-Skill.belongsToMany(Employee, {
-  through: EmployeeSkill,
+Skill.belongsToMany(User, {
+  through: UserSkill,
   foreignKey: "skill_id",
-  as: "Employee",
+  as: "User",
 })
 
 module.exports = Skill

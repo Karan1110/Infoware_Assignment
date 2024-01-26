@@ -12,7 +12,7 @@ module.exports = async (
     message: msg,
     isRead: false, // Initially set as unread
     chatRoom_id: chatRoom,
-    employee_id: req.user.id,
+    user_id: req.user.id,
     channel: channel || "general",
   }
 
@@ -33,7 +33,7 @@ module.exports = async (
       JSON.stringify({
         id: current_msg.id,
         message: msg,
-        employee_id: req.query.user_id || req.user.id,
+        user_id: req.query.user_id || req.user.id,
         isRead: m.isRead,
         channel: m.channel,
         chatRoom_id: m.chatRoom_id,

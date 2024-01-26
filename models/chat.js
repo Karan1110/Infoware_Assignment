@@ -14,7 +14,7 @@ const Chat = db.define(
       type: Sequelize.STRING,
       allowNull: false,
     },
-    employee_id: {
+    user_id: {
       type: Sequelize.ARRAY(Sequelize.INTEGER),
       defaultValue: [],
     },

@@ -1,33 +1,32 @@
 const express = require("express")
 const router = express.Router()
-const auth = require("../middlewares/auth")
-const Employee = require("../models/employee")
-const isadmin = require("../middlewares/isAdmin.js")
+const auth = require("../middlewares/auth.js")
+const User = require("../models/user.js")
 const Sequelize = require("sequelize")
-const Notification = require("../models/notifications.js")
+const Notification = require("../models/notification.js")
 const Performance = require("../models/performance.js")
 
-router.post("/leaves/:id", [auth, isadmin], async (req, res) => {
+router.post("/leaves/:id", [auth], async (req, res) => {
   try {
-    const employee = await Employee.findByPk(req.user.id)
-    if (!employee) return res.status(404).json({ message: "user not found..." })
+    const user = await User.findByPk(req.user.id)
+    if (!user) return res.status(404).json({ message: "user not found..." })
 
-    const subordinates = await Employee.findAll({
-      where: { department_id: employee.department_id },
+    const subordinates = await User.findAll({
+      where: { department_id: user.department_id },
     })
 
     if (subordinates && subordinates.length > 0) {
       // Create a notification for each subordinate
       for (const subordinate of subordinates) {
         await Notification.create({
-          message: `${employee.name} has taken a leave today`,
-          employee_id: subordinate.id,
+          message: `${user.name} has taken a leave today`,
+          user_id: subordinate.id,
         })
       }
     }
 
     const performance = await Performance.findOne({
-      where: { employee_id: req.user.id },
+      where: { user_id: req.user.id },
     })
 
     if (performance) {
@@ -35,7 +34,7 @@ router.post("/leaves/:id", [auth, isadmin], async (req, res) => {
       await performance.decrement("points", { by: 5 })
     }
 
-    await Employee.update(
+    await User.update(
       {
         total_working_days: Sequelize.literal("total_working_days - 1"),
       },

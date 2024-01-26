@@ -2,7 +2,7 @@ const express = require("express")
 const router = express.Router()
 const auth = require("../middlewares/auth")
 const isadmin = require("../middlewares/isAdmin.js")
-const Employee = require("../models/employee")
+const User = require("../models/user")
 const Sequelize = require("sequelize")
 const MeetingMember = require("../models/MeetingMember")
 const Meeting = require("../models/meeting")
@@ -26,8 +26,8 @@ router.post("/", [auth], async (req, res) => {
   try {
     const { meeting_id } = req.body
 
-    const employee = await Employee.findByPk(req.user.id)
-    if (!employee) {
+    const user = await User.findByPk(req.user.id)
+    if (!user) {
       return res.status(400).send("user not found")
     }
 
@@ -53,7 +53,7 @@ router.post("/", [auth], async (req, res) => {
 
     const m_m = await MeetingMember.findOne({
       where: {
-        employee_id: req.user.id,
+        user_id: req.user.id,
         meeting_id: meeting.dataValues.id || meeting.id,
       },
     })
@@ -62,11 +62,11 @@ router.post("/", [auth], async (req, res) => {
       return res.status(400).json({ message: "already joined the meeting..." })
 
     await MeetingMember.create({
-      employee_id: req.user.id,
+      user_id: req.user.id,
       meeting_id: meeting.dataValues.id || meeting.id,
     })
 
-    await Employee.update(
+    await User.update(
       {
         total_meetings: Sequelize.literal(`total_meetings + 1`),
       },
@@ -85,15 +85,15 @@ router.post("/", [auth], async (req, res) => {
 })
 
 router.put("/", auth, async (req, res) => {
-  const employee = await Employee.findByPk(req.user.id)
-  if (!employee) {
-    return res.status(404).json({ message: "Employee not found..." })
+  const user = await User.findByPk(req.user.id)
+  if (!user) {
+    return res.status(404).json({ message: "User not found..." })
   }
   const meeting = await Meeting.findByPk(req.body.meeting_id)
   if (!meeting) return res.status(404).json({ message: "Meeting not found..." })
 
-  if (employee.attended_meetings) {
-    if (employee.attended_meetings === employee.total_meetings) {
+  if (user.attended_meetings) {
+    if (user.attended_meetings === user.total_meetings) {
       return res.status(400).json({
         message: "Attended meetings can't be more than total meetings",
       })
@@ -111,7 +111,7 @@ router.put("/", auth, async (req, res) => {
     })
   }
 
-  await Employee.update(
+  await User.update(
     {
       attended_meetings: Sequelize.literal(`attended_meetings + 1`),
     },

@@ -1,19 +1,18 @@
 const Sequelize = require("sequelize")
 const db = require("../startup/db")
-const Employee = require("./employee")
+const User = require("./user")
 
 const Ticket = db.define(
   "Ticket",
   {
     name: Sequelize.STRING,
-    steps: Sequelize.ARRAY(Sequelize.STRING),
     deadline: Sequelize.DATE,
     status: {
       type: Sequelize.ENUM("in-progress", "closed", "open"),
       defaultValue: "open",
     },
     body: Sequelize.TEXT,
-    employee_id: Sequelize.INTEGER,
+    user_id: Sequelize.INTEGER,
     videoUrl: Sequelize.TEXT,
   },
   {
@@ -21,16 +20,16 @@ const Ticket = db.define(
   }
 )
 
-Employee.hasMany(Ticket, {
+User.hasMany(Ticket, {
   as: "Ticket",
-  foreignKey: "employee_id",
+  foreignKey: "user_id",
   onDelete: "CASCADE",
   onUpdate: "CASCADE",
 })
 
-Ticket.belongsTo(Employee, {
-  as: "Employee",
-  foreignKey: "employee_id",
+Ticket.belongsTo(User, {
+  as: "User",
+  foreignKey: "user_id",
   onDelete: "CASCADE",
   onUpdate: "CASCADE",
 })

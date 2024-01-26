@@ -1,7 +1,7 @@
 const Message = require("../models/message")
-const Employee = require("../models/employee")
+const User = require("../models/user")
 const Sequelize = require("sequelize")
-const ChatRoom = require("../models/chatRoom")
+const ChatRoom = require("../models/chat")
 const auth = require("./utils/auth")
 const addToChats = require("./utils/addToChats")
 const addToChannels = require("./utils/addToChannels")
@@ -18,11 +18,11 @@ module.exports = function (app) {
       console.log("user connected...")
       const user_id = req.query.user_id
       let chatRoom = await ChatRoom.findByPk(req.params.chatRoom)
-      const employee = await Employee.findByPk(req.user.id)
+      const user = await User.findByPk(req.user.id)
       if (!chatRoom) {
         chatRoom = await ChatRoom.create({
           id: req.params.chatRoom,
-          employee_id: [req.query.user_id],
+          user_id: [req.query.user_id],
           channels: [req.params.channel],
           type: req.query.type,
           name: req.query.name,
@@ -30,13 +30,13 @@ module.exports = function (app) {
       }
       // console.log(chatRoom.dataValues)
       if (
-        !chatRoom.dataValues.employee_id.includes(
-          employee.dataValues.id || employee.id || req.query.user_id
+        !chatRoom.dataValues.user_id.includes(
+          user.dataValues.id || user.id || req.query.user_id
         )
       ) {
         addToChats(
           ChatRoom,
-          employee.id || employee.dataValues.id,
+          user.id || user.dataValues.id,
           chatRoom.id || chatRoom.dataValues.id
         )
       }
@@ -61,8 +61,8 @@ module.exports = function (app) {
       chatRooms[chatRoomKey].push(ws)
 
       // Update user's online status
-      if (!employee.dataValues.chats.includes(req.params.chatRoom)) {
-        await Employee.update(
+      if (!user.dataValues.chats.includes(req.params.chatRoom)) {
+        await User.update(
           {
             isOnline: true,
             chats: Sequelize.fn(
@@ -78,7 +78,7 @@ module.exports = function (app) {
           }
         )
       } else {
-        await Employee.update(
+        await User.update(
           {
             isOnline: true,
           },
@@ -96,12 +96,12 @@ module.exports = function (app) {
           where: {
             isRead: false,
             chatRoom_id: chatRoom.id || chatRoom.dataValues.id,
-            employee_id: {
+            user_id: {
               [Sequelize.Op.notIn]: [
                 req.user.id,
                 req.query.user_id,
-                employee.id,
-                employee.dataValues.id,
+                user.id,
+                user.dataValues.id,
               ],
             },
           },
@@ -127,7 +127,7 @@ module.exports = function (app) {
           JSON.stringify({
             id: msg.id,
             message: msg.message,
-            employee_id: msg.employee_id,
+            user_id: msg.user_id,
             isRead: true, // Mark as read
             channel: msg.channel,
           })
@@ -148,14 +148,14 @@ module.exports = function (app) {
       })
       // Handle WebSocket connection closure
       ws.on("close", async () => {
-        await Employee.update(
+        await User.update(
           {
             isOnline: false,
             last_seen: new Date(),
           },
           {
             where: {
-              id: req.query.user_id || employee.dataValues.id || employee.id,
+              id: req.query.user_id || user.dataValues.id || user.id,
             },
           }
         )

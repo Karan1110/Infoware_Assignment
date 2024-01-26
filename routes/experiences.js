@@ -2,7 +2,7 @@ const express = require("express")
 const router = express.Router()
 const auth = require("../middlewares/auth")
 const isadmin = require("../middlewares/isAdmin.js")
-const Employee = require("../models/employee")
+const User = require("../models/user")
 const Experience = require("../models/experience")
 const moment = require("moment")
 
@@ -16,7 +16,7 @@ router.post("/", [auth], async (req, res) => {
     company: req.body.company,
     from: s,
     to: t,
-    employee_id: req.body.employee_id,
+    user_id: req.body.user_id,
   })
 
   res.status(200).send(experience)
@@ -33,7 +33,7 @@ router.put("/:id", [auth, isadmin], async (req, res) => {
       company: req.body.company,
       from: s,
       to: t,
-      employee_id: req.body.employee_id,
+      user_id: req.body.user_id,
     },
     {
       where: {

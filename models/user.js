@@ -2,11 +2,11 @@ const Sequelize = require("sequelize")
 const db = require("../startup/db")
 const jwt = require("jsonwebtoken")
 const Experience = require("./experience")
-const Notification = require("./notifications")
+const Notification = require("./notification")
 const Performance = require("./performance")
 
-const Employee = db.define(
-  "Employee",
+const User = db.define(
+  "User",
   {
     name: Sequelize.STRING,
     email: {
@@ -62,34 +62,36 @@ const Employee = db.define(
     timestamps: true,
   }
 )
-Employee.belongsTo(Performance, {
+
+User.belongsTo(Performance, {
   as: "Performance",
   foreignKey: "performance_id",
   onDelete: "CASCADE",
   onUpdate: "CASCADE",
 })
 
-Employee.hasMany(Experience, {
+Performance.hasOne(User, {
+  as: "User",
+  foreignKey: "user_id",
+  onDelete: "CASCADE",
+  onUpdate: "CASCADE",
+})
+
+User.hasMany(Experience, {
   as: "Experience",
-  foreignKey: "employee_id",
-  onDelete: "CASCADE",
-  onUpdate: "CASCADE",
-})
-Experience.belongsTo(Employee, {
-  as: "Employee",
-  foreignKey: "employee_id",
+  foreignKey: "user_id",
   onDelete: "CASCADE",
   onUpdate: "CASCADE",
 })
 
-Employee.hasMany(Notification, {
+User.hasMany(Notification, {
   as: "Notification",
-  foreignKey: "employee_id",
+  foreignKey: "user_id",
   onDelete: "CASCADE",
   onUpdate: "CASCADE",
 })
 
-Employee.prototype.generateAuthToken = function () {
+User.prototype.generateAuthToken = function () {
   const token = jwt.sign(
     { id: this.getDataValue("id"), isadmin: this.getDataValue("isadmin") },
     "karan112010"
@@ -97,4 +99,4 @@ Employee.prototype.generateAuthToken = function () {
   return token
 }
 
-module.exports = Employee
+module.exports = User
