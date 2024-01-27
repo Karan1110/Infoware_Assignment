@@ -25,6 +25,7 @@ router.get("/", auth, async (req, res) => {
     res.send("Someting failed.")
   }
 })
+
 router.get("/average_salary", [auth, isadmin], async (req, res) => {
   const Users = await User.findAll({
     attributes: [

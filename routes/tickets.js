@@ -9,8 +9,11 @@ const Ticket = require("../models/ticket.js")
 const moment = require("moment")
 const { Op } = require("sequelize")
 const admin = require("firebase-admin")
+const Comment = require("../models/comment.js")
+const Saved = require("../models/saved.js")
 const path = require("path")
 const multer = require("multer")
+
 const serviceAccount = require(path.join(
   __dirname,
   "../karanstore-2c850-firebase-adminsdk-5ry9v-ff376d22e0.json"
@@ -57,7 +60,10 @@ router.get("/", async (req, res) => {
 
 router.get("/latest", async (req, res) => {
   try {
-    const tickets = await Ticket.find({ sort: [["createdAt", "DESC"]] })
+    const tickets = await Ticket.findAll({
+      order: [["createdAt", "DESC"]],
+    })
+
     res.json(tickets)
   } catch (ex) {
     console.error(ex.message, ex)
@@ -148,10 +154,20 @@ router.get("/search", async (req, res) => {
 router.get("/:id", async (req, res) => {
   try {
     const ticket = await Ticket.findByPk(req.params.id, {
-      include: {
-        model: User,
-        as: "User", // Change " User" to "user"
-      },
+      include: [
+        {
+          model: User,
+          as: "User",
+          include: {
+            as: "Saved",
+            model: Saved,
+          },
+        },
+        {
+          as: "Comments",
+          model: Comment,
+        },
+      ],
     })
 
     res.json(ticket)
@@ -211,6 +227,70 @@ router.post("/", [auth, upload.single("video")], async (req, res) => {
   })
 
   res.status(200).send(ticket)
+})
+
+router.post("/save/:id", auth, async (req, res) => {
+  try {
+    const user = await User.findOne({
+      where: {
+        id: req.user.id,
+      },
+      include: [
+        {
+          as: "Saved",
+          model: Saved,
+        },
+      ],
+    })
+
+    if (user.Saved.some((saved) => saved.id === req.params.id)) {
+      return res.status(400).send("Already saved...")
+    }
+
+    await Saved.create({
+      ticket_id: req.params.id,
+      user_id: req.user.id,
+    })
+
+    res.send("saved!")
+  } catch (ex) {
+    console.log("ERROR : ", ex.message)
+    console.log(ex)
+    res.send("something failed...")
+  }
+})
+
+router.post("/save/remove/:id", auth, async (req, res) => {
+  try {
+    const user = await User.findOne({
+      where: {
+        id: req.user.id,
+      },
+      include: [
+        {
+          as: "Saved",
+          model: Saved,
+        },
+      ],
+    })
+
+    if (user.Saved.some((saved) => saved.id !== req.body.ticket_id)) {
+      return res.status(400).send("not saved...")
+    }
+
+    await Saved.destroy({
+      where: {
+        ticket_id: req.params.id,
+        user_id: req.user.id,
+      },
+    })
+
+    res.send("removed!")
+  } catch (ex) {
+    console.log("ERROR : ", ex.message)
+    console.log(ex)
+    res.send("something failed...")
+  }
 })
 
 router.put("/assign/:id", [auth], async (req, res) => {
