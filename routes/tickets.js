@@ -205,7 +205,7 @@ router.post("/", [auth, upload.single("video")], async (req, res) => {
   })
 
   await Notification.create({
-    message: "a new ticket for you!",
+    message: `a new ticket for you! - ${ticket.dataValues.name}`,
     user_id: req.body.user_id,
   })
 

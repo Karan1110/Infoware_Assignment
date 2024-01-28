@@ -36,12 +36,21 @@ router.get("/average_salary", [auth, isadmin], async (req, res) => {
   res.status(200).send(Users[0])
 })
 
-router.get("/search", auth, async () => {
+router.get("/search", auth, async (req, res) => {
   const users = await User.findAll({
     where: {
-      name: {
-        [Sequelize.Op.iLike]: `%${req.query.user}%`, // Using Sequelize's Op.like for a partial match
-      },
+      [Op.or]: [
+        {
+          name: {
+            [Op.iLike]: `%${req.query.user}%`,
+          },
+        },
+        {
+          email: {
+            [Op.iLike]: `%${req.query.user}%`,
+          },
+        },
+      ],
     },
   })
   res.json(users)
@@ -146,24 +155,6 @@ router.get("/statistics", [auth, isadmin], async (req, res) => {
     console.error("Error in statistics endpoint:", error.message, error)
     res.status(500).send("Internal Server Error")
   }
-})
-
-router.get("/property", [auth], async (req, res) => {
-  const pn = req.query.propertyName
-  const pv = req.query.propertyValue
-  console.log(typeof pv)
-  if (!isNaN(Number(pv)))
-    return res.status(400).send("property value cannot be an integer")
-  const Users = await User.findAll({
-    attributes: { exclude: ["password"] },
-    where: {
-      [pn]: {
-        [Op.iLike]: `%${pv}%`, // Use Op.iLike for case-insensitive LIKE
-      },
-    },
-  })
-
-  res.status(200).send(Users)
 })
 
 router.get("/:id", [auth], async (req, res) => {
