@@ -11,7 +11,7 @@ const Ticket = db.define(
       type: Sequelize.ENUM("in-progress", "closed", "open"),
       defaultValue: "open",
     },
-    body: Sequelize.TEXT,
+    description: Sequelize.TEXT,
     user_id: Sequelize.INTEGER,
     videoUrl: Sequelize.TEXT,
   },
@@ -24,14 +24,20 @@ User.hasMany(Ticket, {
   as: "Ticket",
   foreignKey: "user_id",
   onDelete: "CASCADE",
-  onUpdate: "CASCADE",
 })
 
 Ticket.belongsTo(User, {
   as: "User",
   foreignKey: "user_id",
   onDelete: "CASCADE",
-  onUpdate: "CASCADE",
 })
+
+Ticket.hasOne(Department, {
+  as: "department",
+  foreignKey: "department_id",
+  onDelete: "CASCADE",
+})
+
+Department.hasMany(Ticket)
 
 module.exports = Ticket

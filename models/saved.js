@@ -8,15 +8,21 @@ const Saved = db.define("Saved", {
   ticket_id: Sequelize.INTEGER,
 })
 
-Saved.hasOne(Ticket, {
-  as: "ticket",
+Ticket.hasMany(Saved, {
+  as: "TheSavedTickets",
+  onDelete: "CASCADE",
+  onUpdate: "CASCADE",
+})
+
+Saved.belongsTo(Ticket, {
+  as: "savedTicket",
   foreignKey: "ticket_id",
   onDelete: "CASCADE",
   onUpdate: "CASCADE",
 })
 
 User.hasMany(Saved, {
-  as: "Saved",
+  as: "mySavedTickets",
   foreignKey: "user_id",
   onDelete: "CASCADE",
   onUpdate: "CASCADE",

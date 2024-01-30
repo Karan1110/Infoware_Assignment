@@ -1,7 +1,6 @@
 const Sequelize = require("sequelize")
 const db = require("../startup/db")
 const jwt = require("jsonwebtoken")
-const Experience = require("./experience")
 const Notification = require("./notification")
 const Performance = require("./performance")
 
@@ -14,17 +13,9 @@ const User = db.define(
       unique: true,
     },
     password: Sequelize.STRING,
-    age: Sequelize.INTEGER,
-    salary: Sequelize.INTEGER,
-    isAdmin: Sequelize.BOOLEAN,
     department_id: Sequelize.INTEGER,
     performance_id: {
       type: Sequelize.INTEGER,
-    },
-    total_working_days: {
-      type: Sequelize.INTEGER,
-      defaultValue: 25,
-      // allowNull : false
     },
     total_meetings: {
       type: Sequelize.INTEGER,
@@ -36,6 +27,14 @@ const User = db.define(
     },
     chats: {
       type: Sequelize.ARRAY(Sequelize.STRING),
+      defaultValue: [],
+    },
+    blockedUsers: {
+      type: Sequelize.ARRAY(Sequelize.INTEGER),
+      defaultValue: [],
+    },
+    followedUsers: {
+      type: Sequelize.ARRAY(Sequelize.INTEGER),
       defaultValue: [],
     },
     last_seen: Sequelize.DATE,
@@ -72,13 +71,6 @@ User.belongsTo(Performance, {
 
 Performance.hasOne(User, {
   as: "User",
-  foreignKey: "user_id",
-  onDelete: "CASCADE",
-  onUpdate: "CASCADE",
-})
-
-User.hasMany(Experience, {
-  as: "Experience",
   foreignKey: "user_id",
   onDelete: "CASCADE",
   onUpdate: "CASCADE",

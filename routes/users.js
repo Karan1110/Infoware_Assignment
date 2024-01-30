@@ -3,17 +3,15 @@ const router = express.Router()
 const bcrypt = require("bcrypt")
 const auth = require("../middlewares/auth.js")
 const isadmin = require("../middlewares/isAdmin.js")
-const Skill = require("../models/skills.js")
 const User = require("../models/user.js")
-const Experience = require("../models/experience.js")
 const Ticket = require("../models/ticket.js")
-const moment = require("moment")
 const Meeting = require("../models/meeting.js")
 const Notification = require("../models/notification.js")
 const Performance = require("../models/performance.js")
 const Department = require("../models/department.js")
 const { Sequelize, Op } = require("sequelize")
 const Review = require("../models/review.js")
+const Saved = require("../models/saved.js")
 
 router.get("/", auth, async (req, res) => {
   try {
@@ -24,16 +22,6 @@ router.get("/", auth, async (req, res) => {
     console.log(ex)
     res.send("Someting failed.")
   }
-})
-
-router.get("/average_salary", [auth, isadmin], async (req, res) => {
-  const Users = await User.findAll({
-    attributes: [
-      [Sequelize.fn("AVG", Sequelize.col("salary")), "average_salary"],
-    ],
-  })
-
-  res.status(200).send(Users[0])
 })
 
 router.get("/search", auth, async (req, res) => {
@@ -53,6 +41,20 @@ router.get("/search", auth, async (req, res) => {
       ],
     },
   })
+  res.json(users)
+})
+router.get("/colleagues", auth, async (req, res) => {
+  const me = await User.findByPk(req.user.id)
+
+  const users = await User.findAll({
+    where: {
+      department_id: me.department_id || me.dataValues.department_id,
+      [Op.not]: {
+        id: [req.user.id],
+      },
+    },
+  })
+
   res.json(users)
 })
 
@@ -127,21 +129,6 @@ router.get("/statistics", [auth, isadmin], async (req, res) => {
       group: ["department_id", "Department.id"], // Group by the department_id and Department.id
     })
 
-    // most used skill
-    statistics.most_used_skills = await Skill.findAll({
-      attributes: [
-        "name",
-        [
-          Sequelize.literal(
-            '(SELECT COUNT("UserSkill"."user_id") FROM "UserSkill" WHERE "UserSkill"."skill_id" = "Skill"."id")'
-          ),
-          "usage_count",
-        ],
-      ],
-      limit: 20,
-      order: [[Sequelize.literal("usage_count"), "DESC"]],
-    })
-
     //Average time taken to complete a ticket
     statistics.average_time_taken_to_complete_a_ticket = await Ticket.findAll({
       attributes: [
@@ -158,6 +145,16 @@ router.get("/statistics", [auth, isadmin], async (req, res) => {
 })
 
 router.get("/:id", [auth], async (req, res) => {
+  const saved = await Saved.findByPk(1, {
+    include: [
+      {
+        as: "savedTicket",
+        model: Ticket,
+      },
+    ],
+  })
+  console.log(saved)
+
   const user = await User.findOne({
     where: {
       id: req.params.id,
@@ -168,8 +165,14 @@ router.get("/:id", [auth], async (req, res) => {
         as: "Reviews",
       },
       {
-        model: Experience,
-        as: "Experience",
+        as: "mySavedTickets",
+        model: Saved,
+        include: [
+          {
+            as: "savedTicket",
+            model: Ticket,
+          },
+        ],
       },
       {
         model: Notification,
@@ -178,10 +181,6 @@ router.get("/:id", [auth], async (req, res) => {
       {
         model: Ticket,
         as: "Ticket",
-      },
-      {
-        model: Skill,
-        as: "Skill",
       },
 
       {
@@ -199,22 +198,7 @@ router.get("/:id", [auth], async (req, res) => {
     ],
   })
   if (!user) return res.status(404).send("employyee not found")
-  // Calculate total experience using Moment.js
-  if (user.Experience && user.Experience.length !== 0) {
-    const totalExperienceInSeconds = user.Experience.reduce((total, exp) => {
-      const from = moment(exp.from)
-      const to = moment(exp.to)
-      return total + to.diff(from, "seconds")
-    }, 0)
 
-    // Convert total experience to a human-readable format
-    const formattedTotalExperience = moment
-      .duration(totalExperienceInSeconds, "seconds")
-      .humanize()
-
-    // Add totalExperience property to the user object
-    user.totalExperience = formattedTotalExperience
-  }
   res.status(200).send(user)
 })
 
@@ -240,12 +224,9 @@ router.post("/", async (req, res) => {
       name: req.body.name,
       email: req.body.email,
       password: p,
-      salary: req.body.salary,
-      age: req.body.age,
       isAdmin: req.body.isadmin,
       department_id: req.body.department_id,
       performance_id: req.body.performance_id,
-      total_working_days: req.body.total_working_days,
       last_seen: req.body.last_seen,
       attended_meetings: req.body.attended_meetings,
       total_meetings: req.body.total_meetings,
@@ -290,12 +271,9 @@ router.put("/:id", auth, async (req, res) => {
       {
         name: req.body.name,
         email: req.body.email,
-        salary: req.body.salary,
-        age: req.body.age,
         isadmin: req.body.isadmin,
         department_id: req.body.department_id,
         performance_id: req.body.performance_id,
-        total_working_days: req.body.total_working_days,
         last_seen: req.body.last_seen,
         attended_meetings: req.body.attended_meetings,
         total_meetings: req.body.total_meetings,

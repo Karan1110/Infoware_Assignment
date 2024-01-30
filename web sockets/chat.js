@@ -97,12 +97,7 @@ module.exports = function (app) {
             isRead: false,
             chatRoom_id: chatRoom.id || chatRoom.dataValues.id,
             user_id: {
-              [Sequelize.Op.notIn]: [
-                req.user.id,
-                req.query.user_id,
-                user.id,
-                user.dataValues.id,
-              ],
+              [Sequelize.Op.notIn]: [req.user.id, req.query.user_id],
             },
           },
         }

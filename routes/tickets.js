@@ -13,6 +13,7 @@ const Comment = require("../models/comment.js")
 const Saved = require("../models/saved.js")
 const path = require("path")
 const multer = require("multer")
+const blockedUsers = require("../middlewares/blockedUsers.js")
 
 const serviceAccount = require(path.join(
   __dirname,
@@ -58,9 +59,37 @@ router.get("/", async (req, res) => {
   }
 })
 
-router.get("/latest", async (req, res) => {
+router.get("/all", [auth, blockedUsers], async (req, res) => {
   try {
     const tickets = await Ticket.findAll({
+      where: {
+        [Op.notIn]: {
+          user_id: [req.blockedUsers],
+        },
+      },
+      order: [
+        [
+          `${req.query.sortingProperty}`,
+          `${req.query.sortingProperty == "createdAt" ? "DESC" : "ASC"}`,
+        ],
+      ],
+    })
+
+    res.json(tickets)
+  } catch (ex) {
+    console.error(ex.message, ex)
+    res.send("Something failed.")
+  }
+})
+
+router.get("/latest", [auth, blockedUsers], async (req, res) => {
+  try {
+    const tickets = await Ticket.findAll({
+      where: {
+        [Op.notIn]: {
+          user_id: [req.blockedUsers],
+        },
+      },
       order: [["createdAt", "DESC"]],
     })
 
@@ -71,10 +100,15 @@ router.get("/latest", async (req, res) => {
   }
 })
 
-router.get("/closed", async (req, res) => {
+router.get("/closed", [auth, blockedUsers], async (req, res) => {
   try {
     const incompleteTickets = await Ticket.findAll({
-      where: { status: "closed" },
+      where: {
+        status: "closed",
+        [Op.notIn]: {
+          user_id: [req.blockedUsers],
+        },
+      },
       order: [
         [
           `${req.query.sortingProperty}`,
@@ -89,10 +123,15 @@ router.get("/closed", async (req, res) => {
   }
 })
 // filter open tickets
-router.get("/open", async (req, res) => {
+router.get("/open", [auth, blockedUsers], async (req, res) => {
   try {
     const openTickets = await Ticket.findAll({
-      where: { status: "open" },
+      where: {
+        status: "open",
+        [Op.notIn]: {
+          user_id: [req.blockedUsers],
+        },
+      },
       order: [
         [
           `${req.query.sortingProperty}`,
@@ -107,11 +146,15 @@ router.get("/open", async (req, res) => {
   }
 })
 // filter in-progress tickets
-router.get("/in-progress", async (req, res) => {
+router.get("/in-progress", [auth, blockedUsers], async (req, res) => {
   try {
     const tickets = await Ticket.findAll({
-      where: { status: "in-progress" },
-
+      where: {
+        status: "in-progress",
+        [Op.notIn]: {
+          user_id: [req.blockedUsers],
+        },
+      },
       order: [
         [
           `${req.query.sortingProperty}`,
@@ -126,11 +169,31 @@ router.get("/in-progress", async (req, res) => {
   }
 })
 
+router.get("/pending", auth, async (req, res) => {
+  try {
+    const tickets = await Ticket.findAll({
+      where: {
+        [Op.or]: {
+          status: "open",
+          status: "in-progress",
+        },
+        user_id: req.user.id,
+      },
+      order: [["createdAt", "DESC"]],
+    })
+
+    res.json(tickets)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: "Internal Server Error" })
+  }
+})
+
 router.get("/search", async (req, res) => {
   try {
-    const { ticket_name } = req.body
+    const { ticket } = req.query
 
-    if (!ticket_name) {
+    if (!ticket) {
       return res
         .status(400)
         .json({ error: "Ticket name is required in the request body." })
@@ -138,9 +201,18 @@ router.get("/search", async (req, res) => {
 
     const matchingTickets = await Ticket.findAll({
       where: {
-        name: {
-          [Op.like]: `%${ticket_name}%`, // Using Sequelize's Op.like for a partial match
-        },
+        [Op.or]: [
+          {
+            name: {
+              [Op.iLike]: `%${ticket}%`,
+            },
+          },
+          {
+            description: {
+              [Op.iLike]: `%${ticket}%`,
+            },
+          },
+        ],
       },
     })
 
@@ -177,6 +249,21 @@ router.get("/:id", async (req, res) => {
   }
 })
 
+router.get("/feed", auth, async (req, res) => {
+  const temp = [...req.blockedUsers, req.user.id]
+
+  const posts = await Post.findAll({
+    where: {
+      [Op.notIn]: {
+        user_id: temp,
+      },
+    },
+  })
+
+  posts.sort(() => Math.random() - 0.5)
+  res.status(200).json(posts)
+})
+
 router.post("/", [auth, upload.single("video")], async (req, res) => {
   const user = await User.findByPk(req.body.user_id)
   if (!user) return res.status(400).send("User not found")
@@ -201,7 +288,7 @@ router.post("/", [auth, upload.single("video")], async (req, res) => {
     user_id: req.body.user_id,
     deadline: start_date.toDate(),
     status: req.body.status,
-    body: req.body.body,
+    description: req.body.description,
   })
 
   await Notification.create({
@@ -325,7 +412,7 @@ router.put("/:id", [auth, isadmin], async (req, res) => {
       name: req.body.name,
       deadline: deadline.toDate(),
       status: req.body.status,
-      body: req.body.body,
+      description: req.body.description,
     },
     {
       where: {
