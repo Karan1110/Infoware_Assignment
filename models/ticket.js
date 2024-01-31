@@ -1,6 +1,7 @@
 const Sequelize = require("sequelize")
 const db = require("../startup/db")
 const User = require("./user")
+const Department = require("./department")
 
 const Ticket = db.define(
   "Ticket",
@@ -14,6 +15,7 @@ const Ticket = db.define(
     description: Sequelize.TEXT,
     user_id: Sequelize.INTEGER,
     videoUrl: Sequelize.TEXT,
+    department_id: Sequelize.INTEGER,
   },
   {
     timestamps: true,
@@ -37,7 +39,5 @@ Ticket.hasOne(Department, {
   foreignKey: "department_id",
   onDelete: "CASCADE",
 })
-
-Department.hasMany(Ticket)
 
 module.exports = Ticket

@@ -3,21 +3,20 @@ const router = express.Router()
 const auth = require("../middlewares/auth")
 const Performance = require("../models/performance.js")
 const User = require("../models/user.js")
-
-router.get("/:id", async (req, res) => {
-  const performance = await Performance.findByPk(req.params.id)
-  if (!performance) return res.status(400).send("not found..")
-  res.send(performance)
-})
+const Department = require("../models/department.js")
 
 router.get("/leaderboard", async (req, res) => {
   try {
-    const performances = await Performance.find({
+    const performances = await Performance.findAll({
       sort: [["points", "DESC"]],
       include: [
         {
           model: User,
           as: "User",
+          include: {
+            model: Department,
+            as: "Department",
+          },
         },
       ],
     })
@@ -27,6 +26,12 @@ router.get("/leaderboard", async (req, res) => {
     console.log("ERROR : ")
     console.log(ex)
   }
+})
+
+router.get("/:id", async (req, res) => {
+  const performance = await Performance.findByPk(req.params.id)
+  if (!performance) return res.status(400).send("not found..")
+  res.send(performance)
 })
 
 router.post("/", async (req, res) => {

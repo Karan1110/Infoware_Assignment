@@ -6,5 +6,6 @@ module.exports = async (req, res, next) => {
   })
 
   req.blockedUsers = user.dataValues.blockedUsers
+
   next()
 }
