@@ -145,16 +145,6 @@ router.get("/statistics", [auth, isadmin], async (req, res) => {
 })
 
 router.get("/:id", [auth], async (req, res) => {
-  const saved = await Saved.findByPk(1, {
-    include: [
-      {
-        as: "savedTicket",
-        model: Ticket,
-      },
-    ],
-  })
-  console.log(saved)
-
   const user = await User.findOne({
     where: {
       id: req.params.id,
@@ -195,9 +185,34 @@ router.get("/:id", [auth], async (req, res) => {
         model: Performance,
         as: "Performance",
       },
+      {},
     ],
   })
-  if (!user) return res.status(404).send("employyee not found")
+  if (!user) return res.status(404).send("user not found")
+
+  const following = await FollowUser.findAll({
+    where: {
+      followedBy_id: req.params.id,
+    },
+    include: {
+      model: User,
+      as: "following",
+      attributes: ["name", "email"],
+    },
+  })
+  user.dataValues.following = following
+
+  const followedBy = await FollowUser.findAll({
+    where: {
+      following_id: req.params.id,
+    },
+    include: {
+      model: User,
+      as: "followedBy",
+      attributes: ["name", "email"],
+    },
+  })
+  user.dataValues.followedBy = followedBy
 
   res.status(200).send(user)
 })

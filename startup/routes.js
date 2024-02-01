@@ -14,6 +14,7 @@ const messages = require("../routes/messages")
 const reviews = require("../routes/reviews")
 const chats = require("../routes/chats")
 const comments = require("../routes/comments")
+const follows = require("../routes/follows")
 
 module.exports = function (app) {
   app.use(express.urlencoded({ extended: true }))
@@ -33,5 +34,6 @@ module.exports = function (app) {
   app.use("/login", login)
   app.use("/chats", chats)
   app.use("/comments", comments)
+  app.use("/follow", follows)
   app.use(error)
 }

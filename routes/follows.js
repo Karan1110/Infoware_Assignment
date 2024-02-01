@@ -2,15 +2,20 @@ const express = require("express")
 const router = express.Router()
 const auth = require("../middlewares/auth.js")
 const User = require("../models/user.js")
+const FollowUser = require("../models/followUser")
 
-router.post("/follow/:id", [auth], async (req, res) => {
+router.post("/:id", [auth], async (req, res) => {
   try {
     const user = await User.findByPk(req.user.id)
     if (!user) return res.status(404).json({ message: "user not found..." })
 
     const followedUser = await User.findByPk(req.params.id)
-
     if (!followedUser) return res.status(404).send("user not found....")
+
+    await FollowUser.create({
+      followedBy_id: req.user.id,
+      following_id: followedUser.dataValues.id,
+    })
 
     await user.update({
       followedUsers: [
@@ -26,7 +31,7 @@ router.post("/follow/:id", [auth], async (req, res) => {
   }
 })
 
-router.post("/unfollow/:id", [auth], async (req, res) => {
+router.put("/:id", [auth], async (req, res) => {
   try {
     const user = await User.findByPk(req.user.id)
     if (!user) return res.status(404).json({ message: "user not found..." })
@@ -36,6 +41,12 @@ router.post("/unfollow/:id", [auth], async (req, res) => {
       return id !== req.params.id
     })
 
+    await FollowUser.destroy({
+      where: {
+        followed_id: req.params.id,
+        followedBy_id: req.user.id,
+      },
+    })
     if (!followedUser) return res.status(404).send("user not found....")
 
     await user.update({
