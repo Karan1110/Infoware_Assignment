@@ -1,7 +1,8 @@
 const Sequelize = require("sequelize")
 const db = require("../startup/db")
+const User = require("./user.js")
 
-const FollowUser = db.define({
+const FollowUser = db.define("FollowUser", {
   following_id: Sequelize.INTEGER,
   followedBy_id: Sequelize.INTEGER,
 })

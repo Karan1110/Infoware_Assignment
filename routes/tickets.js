@@ -367,22 +367,24 @@ router.post("/", [auth, upload.single("video")], async (req, res) => {
     user_id: req.body.user_id,
   })
 
-  const videoBuffer = req.file.buffer
-  const videoFileName = `trace/video_${ticket.id}.mp4`
+  if (req.file) {
+    const videoBuffer = req.file.buffer
+    const videoFileName = `trace/video_${ticket.id}.mp4`
 
-  // Save the video to a temporary file
-  const video = bucket.file(videoFileName)
-  await video.save(videoBuffer)
+    // Save the video to a temporary file
+    const video = bucket.file(videoFileName)
+    await video.save(videoBuffer)
 
-  // Update ticket with signed URL
-  const signedUrl = await video.getSignedUrl({
-    action: "read",
-    expires: "03-09-2491", // Replace with a far future date
-  })
+    // Update ticket with signed URL
+    const signedUrl = await video.getSignedUrl({
+      action: "read",
+      expires: "03-09-2491", // Replace with a far future date
+    })
 
-  await ticket.update({
-    videoUrl: signedUrl[0],
-  })
+    await ticket.update({
+      videoUrl: signedUrl[0],
+    })
+  }
 
   res.status(200).send(ticket)
 })
@@ -456,7 +458,8 @@ router.put("/assign/:id", [auth], async (req, res) => {
   if (!ticket) return res.status(404).json({ message: "ticket not found..." })
 
   const user = await User.findByPk(req.body.user_id)
-  if (!user) return res.status(404).json({ message: "user not found..." })
+  if (req.body.user_id !== null && !user)
+    return res.status(404).json({ message: "user not found..." })
 
   await Ticket.update(
     {

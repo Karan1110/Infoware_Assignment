@@ -34,24 +34,6 @@ router.get("/:id", async (req, res) => {
   res.send(performance)
 })
 
-router.post("/", async (req, res) => {
-  if (req.body.points > 5) {
-    return res.status(400).send("points cant be more than 5 when starting")
-  }
-  const user = await User.findByPk(req.body.user_id)
-  if (!user || user?.performance_id != null) {
-    return res.status(400).send("User's performance record already exists...")
-  }
-
-  const performance = await Performance.create({
-    status: req.body.status,
-    points: req.body.points,
-    user_id: req.body.user_id,
-  })
-
-  res.status(200).send(performance)
-})
-
 router.put("/:id", auth, async (req, res) => {
   const performance = await Performance.update(
     {

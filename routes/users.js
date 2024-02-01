@@ -12,6 +12,7 @@ const Department = require("../models/department.js")
 const { Sequelize, Op } = require("sequelize")
 const Review = require("../models/review.js")
 const Saved = require("../models/saved.js")
+const FollowUser = require("../models/followUser")
 
 router.get("/", auth, async (req, res) => {
   try {
@@ -185,7 +186,6 @@ router.get("/:id", [auth], async (req, res) => {
         model: Performance,
         as: "Performance",
       },
-      {},
     ],
   })
   if (!user) return res.status(404).send("user not found")
@@ -200,7 +200,7 @@ router.get("/:id", [auth], async (req, res) => {
       attributes: ["name", "email"],
     },
   })
-  user.dataValues.following = following
+  user.following = following
 
   const followedBy = await FollowUser.findAll({
     where: {
@@ -229,22 +229,19 @@ router.post("/", async (req, res) => {
       return res.status(400).send("User already exists...")
     }
 
-    const department = await Department.findByPk(req.body.department_id)
-
-    if (!department) return res.status(400).send("department not found...")
-
     const salt = await bcrypt.genSalt(10)
     const p = await bcrypt.hash(req.body.password, salt)
     const user = await User.create({
       name: req.body.name,
       email: req.body.email,
       password: p,
-      isAdmin: req.body.isadmin,
       department_id: req.body.department_id,
       performance_id: req.body.performance_id,
-      last_seen: req.body.last_seen,
-      attended_meetings: req.body.attended_meetings,
-      total_meetings: req.body.total_meetings,
+    })
+
+    const performance = await Performance.create({
+      points: 0,
+      user_id: user.dataValues.id,
     })
 
     const token = user.generateAuthToken()

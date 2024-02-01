@@ -14,7 +14,7 @@ db.authenticate()
         // winston.info("Tables created....")
       })
       .catch((ex) => {
-        winston.info("Tables NOT created...", ex)
+        winston.info("Tables NOT created...", ex.message, ex)
       })
   })
   .catch((ex) => {

@@ -59,6 +59,7 @@ const User = db.define(
   },
   {
     timestamps: true,
+    tablename: "FollowUser",
   }
 )
 
