@@ -212,9 +212,9 @@ router.get("/:id", [auth], async (req, res) => {
       attributes: ["name", "email"],
     },
   })
-  user.dataValues.followedBy = followedBy
+  user.followedBy = followedBy
 
-  res.status(200).send(user)
+  res.status(200).send({ user, followedBy, following })
 })
 
 router.post("/", async (req, res) => {

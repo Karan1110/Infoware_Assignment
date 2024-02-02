@@ -297,16 +297,18 @@ router.get("/departments", auth, async (req, res) => {
 router.get("/followingFeed", auth, async (req, res) => {
   const user = await User.findByPk(req.user.id)
   const followedUsers = user.dataValues.followedUsers
-
-  const tickets = await Ticket.findAll({
-    where: {
-      user_id: {
-        [Op.in]: followedUsers,
+  if (followedUsers) {
+    const tickets = await Ticket.findAll({
+      where: {
+        user_id: {
+          [Op.in]: followedUsers,
+        },
       },
-    },
-  })
-
-  res.json(tickets)
+    })
+    return res.json(tickets)
+  } else {
+    return res.status(400).send([])
+  }
 })
 
 router.get("/:id", async (req, res) => {

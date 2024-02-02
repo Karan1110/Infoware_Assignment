@@ -19,4 +19,10 @@ FollowUser.hasOne(User, {
   onDelete: "CASCADE",
 })
 
+User.hasMany(FollowUser, {
+  as: "followers",
+  foreignKey: "following_id",
+  onDelete: "CASCADE",
+})
+
 module.exports = FollowUser

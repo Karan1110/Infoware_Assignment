@@ -43,7 +43,7 @@ router.put("/:id", [auth], async (req, res) => {
 
     await FollowUser.destroy({
       where: {
-        followed_id: req.params.id,
+        following_id: req.params.id,
         followedBy_id: req.user.id,
       },
     })
