@@ -13,7 +13,7 @@ FollowUser.belongsTo(User, {
   onDelete: "CASCADE",
 })
 
-FollowUser.hasOne(User, {
+FollowUser.belongsTo(User, {
   as: "following",
   foreignKey: "following_id",
   onDelete: "CASCADE",

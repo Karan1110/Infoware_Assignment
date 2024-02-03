@@ -231,17 +231,17 @@ router.post("/", async (req, res) => {
 
     const salt = await bcrypt.genSalt(10)
     const p = await bcrypt.hash(req.body.password, salt)
+
+    const performance = await Performance.create({
+      points: 0,
+    })
+
     const user = await User.create({
       name: req.body.name,
       email: req.body.email,
       password: p,
       department_id: req.body.department_id,
-      performance_id: req.body.performance_id,
-    })
-
-    const performance = await Performance.create({
-      points: 0,
-      user_id: user.dataValues.id,
+      performance_id: performance.dataValues.id,
     })
 
     const token = user.generateAuthToken()
@@ -284,11 +284,6 @@ router.put("/:id", auth, async (req, res) => {
         name: req.body.name,
         email: req.body.email,
         isadmin: req.body.isadmin,
-        department_id: req.body.department_id,
-        performance_id: req.body.performance_id,
-        last_seen: req.body.last_seen,
-        attended_meetings: req.body.attended_meetings,
-        total_meetings: req.body.total_meetings,
       },
       {
         where: {
