@@ -99,10 +99,12 @@ router.get("/latest", [auth, blockedUsers], async (req, res) => {
           },
         },
         order: [["createdAt", "DESC"]],
+        limit: 5,
       })
     } else {
       tickets = await Ticket.findAll({
         order: [["createdAt", "DESC"]],
+        limit: 5,
       })
     }
 
