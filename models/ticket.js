@@ -16,6 +16,10 @@ const Ticket = db.define(
     user_id: Sequelize.INTEGER,
     videoUrl: Sequelize.TEXT,
     department_id: Sequelize.INTEGER,
+    closedOn: {
+      type: Sequelize.DATE,
+      defaultValue: new Date(),
+    },
   },
   {
     timestamps: true,

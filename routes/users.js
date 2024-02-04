@@ -60,13 +60,15 @@ router.get("/colleagues", auth, async (req, res) => {
   res.json(users)
 })
 
-router.get("/stats/averageTime", [auth], async (req, res) => {
+router.get("/stats", [auth], async (req, res) => {
   try {
-    //Average time taken to complete a ticket
-    average_time_taken_to_complete_a_ticket = await Ticket.findAll({
+    // Average time taken to complete a ticket
+    const average_time_taken_to_complete_a_ticket = await Ticket.findAll({
       attributes: [
-        [Sequelize.fn("AVG", Sequelize.literal("createdAt - updatedAt"))],
-        "value",
+        [
+          Sequelize.literal('("Ticket"."updatedAt" - "Ticket"."createdAt")'),
+          "average_time_taken",
+        ],
       ],
     })
 

@@ -457,6 +457,24 @@ router.post("/save/remove/:id", auth, async (req, res) => {
   }
 })
 
+router.put("/close/:id", [auth], async (req, res) => {
+  const ticket = await Ticket.findByPk(req.params.id)
+  if (!ticket) return res.status(404).json({ message: "ticket not found..." })
+
+  await Ticket.update(
+    {
+      closedOn: new Date(),
+    },
+    {
+      where: {
+        id: req.params.id,
+      },
+    }
+  )
+
+  res.status(200).json({ message: "done!" })
+})
+
 router.put("/assign/:id", [auth], async (req, res) => {
   const ticket = await Ticket.findByPk(req.params.id)
   if (!ticket) return res.status(404).json({ message: "ticket not found..." })
