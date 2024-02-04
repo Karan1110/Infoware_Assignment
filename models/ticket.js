@@ -18,7 +18,7 @@ const Ticket = db.define(
     department_id: Sequelize.INTEGER,
     closedOn: {
       type: Sequelize.DATE,
-      defaultValue: new Date(),
+      defaultValue: null,
     },
   },
   {

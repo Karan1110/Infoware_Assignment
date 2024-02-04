@@ -463,6 +463,7 @@ router.put("/close/:id", [auth], async (req, res) => {
 
   await Ticket.update(
     {
+      status: "closed",
       closedOn: new Date(),
     },
     {
