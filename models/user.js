@@ -39,23 +39,6 @@ const User = db.define(
     },
     last_seen: Sequelize.DATE,
     isOnline: Sequelize.BOOLEAN,
-    punctuality_score: {
-      type: Sequelize.VIRTUAL,
-      get() {
-        const temp =
-          (this.getDataValue("attended_meetings") /
-            this.getDataValue("total_meetings")) *
-          100
-
-        if (Math.round(temp) > 75) {
-          return `Probably will attend meetings - ${temp}%`
-        } else if (Math.round(temp) < 75) {
-          return `May or may not attend - ${temp}%`
-        } else if (Math.round(temp) < 25) {
-          return `Probably will not attend - ${temp}%`
-        }
-      },
-    },
   },
   {
     timestamps: true,

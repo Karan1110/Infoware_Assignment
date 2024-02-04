@@ -44,6 +44,7 @@ router.get("/search", auth, async (req, res) => {
   })
   res.json(users)
 })
+
 router.get("/colleagues", auth, async (req, res) => {
   const me = await User.findByPk(req.user.id)
 
@@ -59,86 +60,17 @@ router.get("/colleagues", auth, async (req, res) => {
   res.json(users)
 })
 
-router.get("/statistics", [auth, isadmin], async (req, res) => {
+router.get("/stats/averageTime", [auth], async (req, res) => {
   try {
-    const statistics = {}
-
-    // Performance statistics
-    statistics.below_average_performances = await User.findAll({
-      include: [
-        {
-          model: Performance,
-          as: "Performance",
-          where: {
-            points: {
-              [Op.lte]: 25,
-            },
-          },
-        },
-      ],
-    })
-
-    statistics.average_performances = await User.findAll({
-      include: [
-        {
-          model: Performance,
-          as: "Performance",
-          where: {
-            points: {
-              [Op.gt]: 25,
-              [Op.lte]: 75,
-            },
-          },
-        },
-      ],
-    })
-
-    statistics.above_average_performances = await User.findAll({
-      include: [
-        {
-          model: Performance,
-          as: "Performance",
-          where: {
-            points: {
-              [Op.gt]: 75,
-            },
-          },
-        },
-      ],
-    })
-
-    statistics.average_department_rating = await User.findAll({
-      attributes: [
-        "department_id",
-        [
-          Sequelize.fn("AVG", Sequelize.col("Reviews.rating")),
-          "average_rating",
-        ],
-      ],
-      include: [
-        {
-          model: Review,
-          as: "Reviews",
-          attributes: [], // Include only the necessary attributes from the Reviews table
-        },
-        {
-          model: Department,
-          as: "Department",
-          attributes: ["name"], // Include only the necessary attributes from the Department table
-        },
-      ],
-      group: ["department_id", "Department.id"], // Group by the department_id and Department.id
-    })
-
     //Average time taken to complete a ticket
-    statistics.average_time_taken_to_complete_a_ticket = await Ticket.findAll({
+    average_time_taken_to_complete_a_ticket = await Ticket.findAll({
       attributes: [
         [Sequelize.fn("AVG", Sequelize.literal("createdAt - updatedAt"))],
-        "avg_time_taken_to_complete",
+        "value",
       ],
     })
 
-    res.status(200).send(statistics)
+    res.status(200).send(average_time_taken_to_complete_a_ticket)
   } catch (error) {
     console.error("Error in statistics endpoint:", error.message, error)
     res.status(500).send("Internal Server Error")
@@ -254,48 +186,26 @@ router.post("/", async (req, res) => {
 
 router.put("/:id", auth, async (req, res) => {
   try {
-    const userExists = await User.findOne({
-      where: {
-        email: req.body.email,
-      },
-    })
-
     const authenticatedUser = await User.findByPk(req.user.id)
 
     if (!authenticatedUser) {
       return res.status(404).send("User Not Found.")
     }
 
-    if (userExists) {
-      return res.status(400).send("Email already in use.")
-    }
-    console.log("herererererer", authenticatedUser)
-    const isPasswordValid = await bcrypt.compare(
-      req.body.password,
-      authenticatedUser.password
-    )
+    // const isPasswordValid = await bcrypt.compare(
+    //   req.body.password,
+    //   authenticatedUser.password
+    // )
 
-    if (!isPasswordValid) {
-      return res.status(400).send("Invalid credentials.")
-    }
+    // if (!isPasswordValid) {
+    //   return res.status(400).send("Invalid credentials.")
+    // }
 
-    const updatedUser = await User.update(
-      {
-        name: req.body.name,
-        email: req.body.email,
-        isadmin: req.body.isadmin,
-      },
-      {
-        where: {
-          id: req.params.id,
-        },
-      }
-    )
+    await authenticatedUser.update({
+      name: req.body.name,
+    })
 
-    // Consider generating a new authentication token if needed
-    const token = authenticatedUser.generateAuthToken()
-    console.log(updatedUser, authenticatedUser)
-    res.status(200).send({ User: updatedUser, token: token })
+    res.status(200).send("updated!")
   } catch (ex) {
     console.log(ex)
     res.status(500).send("Internal Server Error")
