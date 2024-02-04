@@ -60,6 +60,27 @@ router.get("/colleagues", auth, async (req, res) => {
   res.json(users)
 })
 
+router.get("/stats/:id", [auth], async (req, res) => {
+  try {
+    // Average time taken to complete a ticket
+    const average_time_taken_to_complete_a_ticket = await Ticket.findAll({
+      attributes: [
+        [
+          Sequelize.literal('("Ticket"."updatedAt" - "Ticket"."createdAt")'),
+          "average_time_taken",
+        ],
+      ],
+      where: {
+        id: req.params.id,
+      },
+    })
+
+    res.status(200).send(average_time_taken_to_complete_a_ticket)
+  } catch (error) {
+    console.error("Error in statistics endpoint:", error.message, error)
+    res.status(500).send("Internal Server Error")
+  }
+})
 router.get("/stats", [auth], async (req, res) => {
   try {
     // Average time taken to complete a ticket
